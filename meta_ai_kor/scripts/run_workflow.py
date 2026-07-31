@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import sys
 from pathlib import Path
 
 from app.config import Settings
@@ -26,6 +27,17 @@ async def run(args) -> None:
         strict_llm=settings.strict_llm,
         max_segmentation_candidates=settings.max_segmentation_candidates,
     )
+    async def report_progress(event) -> None:
+        if not args.quiet:
+            print(
+                json.dumps(
+                    event.model_dump(mode="json"),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                ),
+                flush=True,
+            )
+
     sources, results = await workflow.run(
         args.input,
         args.output,
@@ -42,6 +54,7 @@ async def run(args) -> None:
             auto_confirm_threshold=settings.auto_confirm_threshold,
             use_llm=not args.no_llm,
         ),
+        progress_callback=report_progress,
     )
     if args.population:
         args.population.parent.mkdir(parents=True, exist_ok=True)
@@ -74,7 +87,10 @@ def main() -> None:
     parser.add_argument("--max-concurrency", type=int)
     parser.add_argument("--max-review-rounds", type=int)
     parser.add_argument("--no-llm", action="store_true")
+    parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     asyncio.run(run(args))
 
 

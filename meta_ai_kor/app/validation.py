@@ -312,10 +312,30 @@ def validate_output_workbook(
         )
     max_row = min(input_sheet.max_row, output_sheet.max_row)
     changed_cells = 0
-    for row in range(1, max_row + 1):
-        for column in range(1, 13):
-            before = _blank_normalized(input_sheet.cell(row, column).value)
-            after = _blank_normalized(output_sheet.cell(row, column).value)
+    input_rows = input_sheet.iter_rows(
+        min_row=1,
+        max_row=max_row,
+        max_col=12,
+        values_only=True,
+    )
+    output_rows = output_sheet.iter_rows(
+        min_row=1,
+        max_row=max_row,
+        max_col=12,
+        values_only=True,
+    )
+    for input_row, output_row in zip(
+        input_rows,
+        output_rows,
+        strict=True,
+    ):
+        for before_value, after_value in zip(
+            input_row,
+            output_row,
+            strict=True,
+        ):
+            before = _blank_normalized(before_value)
+            after = _blank_normalized(after_value)
             if before != after:
                 changed_cells += 1
     if changed_cells:
@@ -327,10 +347,16 @@ def validate_output_workbook(
                 details={"changed_cell_count": changed_cells},
             )
         )
-    actual_headers = [
-        normalize_header(output_sheet.cell(1, column).value)
-        for column in range(13, 18)
-    ]
+    result_header_row = next(
+        output_sheet.iter_rows(
+            min_row=1,
+            max_row=1,
+            min_col=13,
+            max_col=17,
+            values_only=True,
+        )
+    )
+    actual_headers = [normalize_header(value) for value in result_header_row]
     expected_headers = [normalize_header(value) for value in RESULT_HEADERS]
     if actual_headers != expected_headers:
         issues.append(
@@ -376,4 +402,3 @@ def _issue(
 
 def _blank_normalized(value):
     return None if value == "" else value
-

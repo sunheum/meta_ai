@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
 
 from app.config import Settings
 from app.glossary import MappingGlossary
@@ -40,5 +41,6 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     asyncio.run(main())
-

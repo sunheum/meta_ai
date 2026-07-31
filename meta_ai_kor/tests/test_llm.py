@@ -1,7 +1,7 @@
 import pytest
 
 from app.glossary import MappingGlossary
-from app.llm import _parse_json
+from app.llm import _parse_json, _resolution_request_payload
 from app.models import (
     LLMResolution,
     MappingEntry,
@@ -86,6 +86,20 @@ def test_parse_json_removes_reasoning_and_code_fence():
     )
 
     assert payload == {"resolutions": []}
+
+
+def test_llm_payload_excludes_original_workbook_values():
+    workflow = NamingWorkflow(
+        MappingGlossary.from_entries([]),
+        FakeNamingModel(),
+    )
+    payload = _resolution_request_payload(
+        workflow._resolution_request(_source())
+    )
+
+    assert "original_values" not in payload["source"]
+    assert "original_headers" not in payload["source"]
+    assert payload["source"]["column_name"] == "SCSSN"
 
 
 @pytest.mark.asyncio

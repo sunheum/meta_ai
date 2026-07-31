@@ -52,7 +52,7 @@ class LocalChatNamingModel:
     ) -> list[LLMResolution]:
         payload = {
             "requests": [
-                request.model_dump(exclude_none=True) for request in requests
+                _resolution_request_payload(request) for request in requests
             ]
         }
         text = await self._invoke(GENERATION_SYSTEM_PROMPT, payload)
@@ -69,7 +69,40 @@ class LocalChatNamingModel:
     ) -> list[LLMResolution]:
         payload = {
             "requests": [
-                request.model_dump(exclude_none=True) for request in requests
+                {
+                    **_resolution_request_payload(request.request),
+                    "current_result": {
+                        "components": [
+                            component.model_dump(
+                                include={
+                                    "source_fragment",
+                                    "full_name",
+                                    "korean_word",
+                                    "origin",
+                                }
+                            )
+                            for component in request.current_result.components
+                        ],
+                        "english_full_name": (
+                            request.current_result.english_full_name
+                        ),
+                        "korean_attribute_name": (
+                            request.current_result.korean_attribute_name
+                        ),
+                        "confidence": request.current_result.confidence,
+                    },
+                    "validation_issues": [
+                        {
+                            "code": issue.code,
+                            "severity": issue.severity,
+                            "message": issue.message,
+                            "details": issue.details,
+                        }
+                        for issue in request.validation_issues
+                    ],
+                    "review_round": request.review_round,
+                }
+                for request in requests
             ]
         }
         text = await self._invoke(REVIEW_SYSTEM_PROMPT, payload)
@@ -142,6 +175,55 @@ def _content_to_text(content: Any) -> str:
                 parts.append(block["text"])
         return "".join(parts)
     return str(content)
+
+
+def _resolution_request_payload(
+    request: ResolutionRequest,
+) -> dict[str, Any]:
+    source = request.source
+    return {
+        "source": {
+            "source_id": source.source_id,
+            "table_name": source.table_name,
+            "table_description": source.table_description,
+            "column_name": source.column_name,
+            "data_type": source.data_type,
+        },
+        "candidates": [
+            {
+                "components": [
+                    component.model_dump(
+                        include={
+                            "source_fragment",
+                            "full_name",
+                            "korean_word",
+                            "origin",
+                        }
+                    )
+                    for component in candidate.components
+                ],
+                "unresolved_fragments": candidate.unresolved_fragments,
+                "coverage": candidate.coverage,
+                "score": candidate.score,
+            }
+            for candidate in request.candidates
+        ],
+        "mapping_options": {
+            fragment: [
+                entry.model_dump(
+                    include={
+                        "abbreviation",
+                        "full_name",
+                        "korean_word",
+                        "occurrence_count",
+                    }
+                )
+                for entry in entries
+            ]
+            for fragment, entries in request.mapping_options.items()
+        },
+        "table_peer_columns": request.table_peer_columns,
+    }
 
 
 def _parse_json(text: str) -> Any:
