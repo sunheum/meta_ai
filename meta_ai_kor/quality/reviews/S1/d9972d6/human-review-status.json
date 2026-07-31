@@ -1,0 +1,10 @@
+{
+  "stage_id": "S1",
+  "commit_sha": "d9972d6",
+  "status": "sample_ready",
+  "sample_size": 60,
+  "reviewer": null,
+  "score": null,
+  "reason": "블라인드 표본은 생성했지만 실제 사람 평점은 입력되지 않았다."
+}
+
