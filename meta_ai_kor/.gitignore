@@ -4,3 +4,7 @@ __pycache__/
 .venv/
 .env
 results/
+outputs/
+*.stdout.log
+*.stderr.log
+pytest-cache-files-*/

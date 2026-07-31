@@ -11,8 +11,6 @@ requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115,<1.0",
   "httpx>=0.28,<1.0",
-  "langchain>=1.0,<2.0",
-  "langchain-openai>=1.0,<2.0",
   "langgraph>=1.0,<2.0",
   "openpyxl>=3.1,<4.0",
   "python-multipart>=0.0.20,<1.0",
@@ -30,4 +28,3 @@ packages = ["app"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
-

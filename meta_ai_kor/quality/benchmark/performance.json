@@ -1,0 +1,18 @@
+{
+  "elapsed_seconds": 3.563,
+  "peak_memory_mb": 7.958,
+  "row_count": 694,
+  "status": {
+    "검토필요": 632,
+    "자동확정": 62
+  },
+  "review_strata": {
+    "review_needed": 5,
+    "duplicate_context": 129,
+    "segmentation_ambiguity": 75,
+    "unmapped_inference": 205,
+    "mapping_ambiguity": 230,
+    "deterministic": 50
+  },
+  "unresolved_count": 225
+}

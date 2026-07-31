@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import re
 from collections import Counter, defaultdict
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Awaitable, Callable, Iterable
 
@@ -44,8 +45,22 @@ class NamingWorkflow:
         self._model = model
         self._strict_llm = strict_llm
         self._max_segmentation_candidates = max_segmentation_candidates
-        self.last_validation_report = None
-        self.last_review_rounds = 0
+        self._validation_report_context: ContextVar = ContextVar(
+            f"validation_report_{id(self)}",
+            default=None,
+        )
+        self._review_rounds_context: ContextVar[int] = ContextVar(
+            f"review_rounds_{id(self)}",
+            default=0,
+        )
+
+    @property
+    def last_validation_report(self):
+        return self._validation_report_context.get()
+
+    @property
+    def last_review_rounds(self) -> int:
+        return self._review_rounds_context.get()
 
     async def generate(
         self,
@@ -53,6 +68,7 @@ class NamingWorkflow:
         options: WorkflowOptions,
         progress_callback: ProgressCallback | None = None,
     ) -> list[ColumnResult]:
+        self._review_rounds_context.set(0)
         await _emit_progress(
             progress_callback,
             ProgressEvent(
@@ -449,7 +465,7 @@ class NamingWorkflow:
                 },
             }
         )
-        self.last_review_rounds = final_state.get("review_round", 0)
+        self._review_rounds_context.set(final_state.get("review_round", 0))
         return [
             ColumnResult.model_validate(value)
             for value in final_state["payload"]["results"]
@@ -467,7 +483,7 @@ class NamingWorkflow:
             self._glossary,
             auto_confirm_threshold=options.auto_confirm_threshold,
         )
-        self.last_validation_report = report
+        self._validation_report_context.set(report)
         return apply_validation_status(
             results,
             report,
