@@ -48,6 +48,7 @@ Copy-Item .env.example .env
 |---|---|---|
 | `LLM_BASE_URL` | `http://192.168.100.91:8000/v1` | OpenAI 호환 로컬 엔드포인트 |
 | `LLM_MODEL` | `Qwen3.6-27B-FP8` | 생성·리뷰 모델 |
+| `LLM_ENABLE_THINKING` | `false` | JSON 변환 요청의 내부 추론 출력 비활성화 |
 | `DEFAULT_BATCH_SIZE` | `25` | LLM 요청당 컬럼 수 |
 | `DEFAULT_MAX_CONCURRENCY` | `10` | 동시 LLM 요청 |
 | `DEFAULT_MAX_REVIEW_ROUNDS` | `2` | 오류행 리뷰 한도 |
@@ -195,4 +196,3 @@ python -m pytest
 
 테스트는 외부 LLM 없이 실행되며 입력·사전 계약, 분해, 정규화, 구조화 LLM 파싱,
 오류행 리뷰, 원본 보존 XLSX, API, 비동기 작업과 heartbeat를 검증한다.
-

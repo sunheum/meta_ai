@@ -134,6 +134,9 @@ class LocalChatNamingModel:
             "temperature": self._settings.llm_temperature,
             "top_p": self._settings.llm_top_p,
             "max_tokens": self._settings.llm_max_tokens,
+            "chat_template_kwargs": {
+                "enable_thinking": self._settings.llm_enable_thinking,
+            },
         }
         endpoint = (
             self._settings.llm_base_url.rstrip("/") + "/chat/completions"

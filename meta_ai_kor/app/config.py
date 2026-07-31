@@ -27,6 +27,7 @@ class Settings:
     llm_temperature: float = 0.0
     llm_top_p: float = 0.8
     llm_max_tokens: int = 8192
+    llm_enable_thinking: bool = False
     llm_connect_timeout_seconds: float = 15.0
     llm_read_timeout_seconds: float = 1800.0
     llm_write_timeout_seconds: float = 60.0
@@ -59,6 +60,10 @@ class Settings:
             ),
             llm_top_p=_env_float("LLM_TOP_P", defaults.llm_top_p),
             llm_max_tokens=_env_int("LLM_MAX_TOKENS", defaults.llm_max_tokens),
+            llm_enable_thinking=_env_bool(
+                "LLM_ENABLE_THINKING",
+                defaults.llm_enable_thinking,
+            ),
             llm_connect_timeout_seconds=_env_float(
                 "LLM_CONNECT_TIMEOUT_SECONDS",
                 defaults.llm_connect_timeout_seconds,
@@ -112,4 +117,3 @@ class Settings:
                 "SOURCE_WORKBOOK_PATH", defaults.source_workbook_path
             ),
         )
-

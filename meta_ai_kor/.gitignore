@@ -8,3 +8,5 @@ outputs/
 *.stdout.log
 *.stderr.log
 pytest-cache-files-*/
+.test-cache-*/
+.test-tmp-*/
