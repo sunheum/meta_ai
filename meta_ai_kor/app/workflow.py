@@ -44,6 +44,8 @@ class NamingWorkflow:
         self._model = model
         self._strict_llm = strict_llm
         self._max_segmentation_candidates = max_segmentation_candidates
+        self.last_validation_report = None
+        self.last_review_rounds = 0
 
     async def generate(
         self,
@@ -66,7 +68,7 @@ class NamingWorkflow:
             options,
         )
         if self._model is None or not options.use_llm:
-            return deterministic
+            return self._finalize(sources, deterministic, options)
         source_by_id = {source.source_id: source for source in sources}
         requests = [
             self._resolution_request(source_by_id[result.source_id])
@@ -74,7 +76,7 @@ class NamingWorkflow:
             if result.status != "자동확정"
         ]
         if not requests:
-            return deterministic
+            return self._finalize(sources, deterministic, options)
         await _emit_progress(
             progress_callback,
             ProgressEvent(
@@ -109,17 +111,7 @@ class NamingWorkflow:
                 options,
                 progress_callback,
             )
-        report = validate_results(
-            sources,
-            merged,
-            self._glossary,
-            auto_confirm_threshold=options.auto_confirm_threshold,
-        )
-        return apply_validation_status(
-            merged,
-            report,
-            auto_confirm_threshold=options.auto_confirm_threshold,
-        )
+        return self._finalize(sources, merged, options)
 
     async def run(
         self,
@@ -223,6 +215,35 @@ class NamingWorkflow:
 
         nested = await asyncio.gather(
             *(resolve_batch(batch) for batch in batches)
+        )
+        return [resolution for batch in nested for resolution in batch]
+
+    async def _review_batches(
+        self,
+        requests: list[ReviewRequest],
+        options: WorkflowOptions,
+    ) -> list[LLMResolution]:
+        assert self._model is not None
+        semaphore = asyncio.Semaphore(options.max_concurrency)
+        batch_size = min(25, options.batch_size)
+        batches = [
+            requests[index : index + batch_size]
+            for index in range(0, len(requests), batch_size)
+        ]
+
+        async def review_batch(
+            batch: list[ReviewRequest],
+        ) -> list[LLMResolution]:
+            try:
+                async with semaphore:
+                    return await self._model.review(batch)
+            except Exception:
+                if self._strict_llm:
+                    raise
+                return []
+
+        nested = await asyncio.gather(
+            *(review_batch(batch) for batch in batches)
         )
         return [resolution for batch in nested for resolution in batch]
 
@@ -353,12 +374,7 @@ class NamingWorkflow:
                     ),
                 ),
             )
-            try:
-                resolutions = await self._model.review(requests)
-            except Exception:
-                if self._strict_llm:
-                    raise
-                resolutions = []
+            resolutions = await self._review_batches(requests, options)
             current_by_id = {
                 result.source_id: result for result in current_results
             }
@@ -433,10 +449,30 @@ class NamingWorkflow:
                 },
             }
         )
+        self.last_review_rounds = final_state.get("review_round", 0)
         return [
             ColumnResult.model_validate(value)
             for value in final_state["payload"]["results"]
         ]
+
+    def _finalize(
+        self,
+        sources: list[SourceRow],
+        results: list[ColumnResult],
+        options: WorkflowOptions,
+    ) -> list[ColumnResult]:
+        report = validate_results(
+            sources,
+            results,
+            self._glossary,
+            auto_confirm_threshold=options.auto_confirm_threshold,
+        )
+        self.last_validation_report = report
+        return apply_validation_status(
+            results,
+            report,
+            auto_confirm_threshold=options.auto_confirm_threshold,
+        )
 
 
 def build_deterministic_results(

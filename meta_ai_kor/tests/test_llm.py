@@ -39,6 +39,34 @@ class FakeNamingModel:
         ]
 
 
+class ReviewFixingModel:
+    def __init__(self):
+        self.review_calls = 0
+
+    async def resolve(self, requests):
+        return []
+
+    async def review(self, requests):
+        self.review_calls += 1
+        return [
+            LLMResolution(
+                source_id=request.request.source.source_id,
+                components=[
+                    NameComponent(
+                        source_fragment="SCSSN",
+                        full_name="SOCIAL SECURITY NUMBER",
+                        korean_word="사회보장번호",
+                        origin="inference",
+                    )
+                ],
+                full_name="SOCIAL SECURITY NUMBER",
+                korean_attribute_name="사회보장번호",
+                reason="검증 오류 교정",
+            )
+            for request in requests
+        ]
+
+
 def _source() -> SourceRow:
     return SourceRow(
         source_id="row-2",
@@ -85,3 +113,22 @@ async def test_workflow_accepts_structured_inference():
     assert results[0].korean_attribute_name == "사회보장번호"
     assert results[0].components[0].origin == "inference"
 
+
+@pytest.mark.asyncio
+async def test_review_loop_sends_only_pending_row_and_stops_after_fix():
+    model = ReviewFixingModel()
+    workflow = NamingWorkflow(MappingGlossary.from_entries([]), model)
+
+    results = await workflow.generate(
+        [_source()],
+        WorkflowOptions(
+            batch_size=1,
+            max_concurrency=1,
+            max_review_rounds=2,
+        ),
+    )
+
+    assert model.review_calls == 1
+    assert results[0].korean_attribute_name == "사회보장번호"
+    assert results[0].status == "검토필요"
+    assert results[0].validation_codes == []

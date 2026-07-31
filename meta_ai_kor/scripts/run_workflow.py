@@ -34,7 +34,11 @@ async def run(args) -> None:
             max_concurrency=(
                 args.max_concurrency or settings.default_max_concurrency
             ),
-            max_review_rounds=settings.default_max_review_rounds,
+            max_review_rounds=(
+                settings.default_max_review_rounds
+                if args.max_review_rounds is None
+                else args.max_review_rounds
+            ),
             auto_confirm_threshold=settings.auto_confirm_threshold,
             use_llm=not args.no_llm,
         ),
@@ -68,6 +72,7 @@ def main() -> None:
     parser.add_argument("--metadata", type=Path)
     parser.add_argument("--batch-size", type=int)
     parser.add_argument("--max-concurrency", type=int)
+    parser.add_argument("--max-review-rounds", type=int)
     parser.add_argument("--no-llm", action="store_true")
     args = parser.parse_args()
     asyncio.run(run(args))
@@ -75,4 +80,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
