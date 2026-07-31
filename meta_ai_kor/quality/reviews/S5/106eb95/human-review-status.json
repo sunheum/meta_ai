@@ -1,0 +1,8 @@
+{
+  "stage_id": "S5",
+  "commit_sha": "106eb95",
+  "status": "blocked_by_missing_population",
+  "score": null,
+  "reason": "전체 결과 모집단이 없어 실제 사람 리뷰 점수를 산출하지 않았다."
+}
+

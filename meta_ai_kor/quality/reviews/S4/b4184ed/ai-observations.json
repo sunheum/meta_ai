@@ -1,0 +1,33 @@
+{
+  "stage_id": "S4",
+  "commit_sha": "b4184ed",
+  "reviewed_item_count": 1,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": false
+  },
+  "dimensions": {
+    "source_integrity": {"rating": 5, "evidence": ["원본 보존 검증 구현"]},
+    "segmentation_coverage": {"rating": 3.5, "evidence": ["S3 후보 분해 유지"]},
+    "full_name_accuracy": {"rating": 3.5, "evidence": ["오류행만 최대 2회 교정"]},
+    "korean_semantic_fidelity": {"rating": 3.5, "evidence": ["자리표시자·빈 의미를 오류로 검출"]},
+    "context_disambiguation": {"rating": 3.5, "evidence": ["검증 이슈와 문맥 후보를 리뷰 입력에 포함"]},
+    "korean_naturalness": {"rating": 4, "evidence": ["한글·숫자 형식과 정규화 검증"]},
+    "consistency_traceability": {"rating": 4.5, "evidence": ["동일 문맥 결과와 변환근거 일치 검증"]}
+  },
+  "issues": [
+    {
+      "source_id": null,
+      "severity": "major",
+      "expected": "검증·리뷰 루프를 거친 694행 결과",
+      "actual": "가짜 LLM 통합 테스트만 완료",
+      "evidence": "S4 테스트 기록",
+      "suggestion": "최종 전체 benchmark에서 리뷰 루프를 검증한다."
+    }
+  ]
+}
+

@@ -1,0 +1,8 @@
+{
+  "stage_id": "S4",
+  "commit_sha": "b4184ed",
+  "status": "blocked_by_missing_population",
+  "score": null,
+  "reason": "전수 결과 모집단이 없어 실제 사람 평점을 산출하지 않았다."
+}
+
