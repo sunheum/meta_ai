@@ -1,0 +1,56 @@
+{
+  "stage_id": "S0",
+  "commit_sha": "85557f8",
+  "reviewed_item_count": 1,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": false,
+    "required_columns_complete": false,
+    "korean_name_format": false,
+    "evidence_traceable": false,
+    "score_scope_complete": false
+  },
+  "dimensions": {
+    "source_integrity": {
+      "rating": 1,
+      "evidence": [
+        "입력·출력 계약과 694행 benchmark manifest만 고정되었고 결과는 아직 생성되지 않음"
+      ]
+    },
+    "segmentation_coverage": {
+      "rating": 0,
+      "evidence": ["분해 엔진 구현 전"]
+    },
+    "full_name_accuracy": {
+      "rating": 0,
+      "evidence": ["영문 Full Name 생성 구현 전"]
+    },
+    "korean_semantic_fidelity": {
+      "rating": 0,
+      "evidence": ["한글속성명 생성 구현 전"]
+    },
+    "context_disambiguation": {
+      "rating": 0,
+      "evidence": ["문맥 다의성 해소 구현 전"]
+    },
+    "korean_naturalness": {
+      "rating": 0,
+      "evidence": ["한글 정규화 구현 전"]
+    },
+    "consistency_traceability": {
+      "rating": 1,
+      "evidence": ["context_key와 추적 필드 계약만 정의됨"]
+    }
+  },
+  "issues": [
+    {
+      "source_id": null,
+      "severity": "critical",
+      "expected": "694행 결과 XLSX",
+      "actual": "구현 전",
+      "evidence": "S0 계약 단계",
+      "suggestion": "S1에서 XLSX 입출력과 사전 인덱스를 구현한다."
+    }
+  ]
+}
+

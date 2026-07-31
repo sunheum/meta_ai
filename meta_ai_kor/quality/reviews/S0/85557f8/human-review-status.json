@@ -1,0 +1,8 @@
+{
+  "stage_id": "S0",
+  "commit_sha": "85557f8",
+  "status": "not_applicable",
+  "reason": "S0에는 사람이 검토할 한글속성명 결과가 아직 없다.",
+  "next_action": "S1 baseline 결과부터 블라인드 표본을 생성한다."
+}
+
