@@ -1,0 +1,10 @@
+{
+  "stage_id": "S2",
+  "commit_sha": "fe9920c",
+  "status": "sample_ready",
+  "sample_size": 60,
+  "reviewer": null,
+  "score": null,
+  "reason": "실제 사람 평점 입력 전이며 AI 점수와 이슈는 표본에서 숨겼다."
+}
+

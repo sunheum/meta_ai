@@ -31,7 +31,7 @@ def normalize_korean_name(components: Iterable[NameComponent]) -> str:
         word = re.sub(r"[^가-힣0-9]", "", word)
         if not word:
             continue
-        if words and (words[-1] == word or words[-1].endswith(word)):
+        if words and words[-1] == word:
             continue
         words.append(word)
     value = "".join(words)
@@ -45,4 +45,3 @@ def normalize_korean_name(components: Iterable[NameComponent]) -> str:
 
 def is_valid_korean_name(value: str) -> bool:
     return bool(value) and ALLOWED_KOREAN_NAME.fullmatch(value) is not None
-

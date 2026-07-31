@@ -129,6 +129,8 @@ def _segment_token(
                 )
         for end in range(len(token), position, -1):
             fragment = token[position:end]
+            if len(fragment) == 1 and len(token) > 1:
+                continue
             entry, ambiguous = glossary.resolve(fragment, source)
             if entry is None:
                 continue

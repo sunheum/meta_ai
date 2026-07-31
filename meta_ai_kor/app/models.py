@@ -106,6 +106,20 @@ class LLMResolution(BaseModel):
     reason: str
 
 
+class ResolutionRequest(BaseModel):
+    source: SourceRow
+    candidates: list[SegmentationCandidate]
+    mapping_options: dict[str, list[MappingEntry]]
+    table_peer_columns: list[str] = Field(default_factory=list)
+
+
+class ReviewRequest(BaseModel):
+    request: ResolutionRequest
+    current_result: ColumnResult
+    validation_issues: list["ValidationIssue"]
+    review_round: int = Field(ge=1)
+
+
 class ValidationIssue(BaseModel):
     code: str
     severity: Literal["error", "warning"]
@@ -163,4 +177,3 @@ class ProgressEvent(BaseModel):
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-

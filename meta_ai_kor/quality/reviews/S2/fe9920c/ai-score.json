@@ -1,0 +1,99 @@
+{
+  "rubric": {
+    "name": "AI 한글속성명 리뷰 루브릭",
+    "version": "1.0.0"
+  },
+  "stage_id": "S2",
+  "commit_sha": "fe9920c",
+  "reviewed_item_count": 694,
+  "expected_item_count": 694,
+  "raw_score": 59.0,
+  "score_cap": 100.0,
+  "score": 59.0,
+  "passed": false,
+  "dimensions": {
+    "source_integrity": {
+      "label": "원본·출력 구조 무결성",
+      "weight": 10.0,
+      "rating": 5.0,
+      "points": 10.0,
+      "evidence": [
+        "694행, 원본 12개 컬럼, 결과 5개 컬럼 전수 보존"
+      ]
+    },
+    "segmentation_coverage": {
+      "label": "약어 분해와 원문 커버리지",
+      "weight": 15.0,
+      "rating": 3.0,
+      "points": 9.0,
+      "evidence": [
+        "미해석 행이 S1 373행에서 219행으로 감소",
+        "DTHMS·ORGCD 붙은 약어 분해 테스트 통과",
+        "SCSSN을 S+CS+SN으로 과분해하는 사례 발견"
+      ]
+    },
+    "full_name_accuracy": {
+      "label": "영문 Full Name 정확성",
+      "weight": 15.0,
+      "rating": 2.5,
+      "points": 7.5,
+      "evidence": [
+        "사전 컴포넌트 Full Name은 추적 가능",
+        "CRDIS를 CARD+INSURED 등으로 해석하는 잘못된 완전 분해가 존재"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "label": "한글 의미 충실도",
+      "weight": 25.0,
+      "rating": 2.5,
+      "points": 12.5,
+      "evidence": [
+        "219행에 미정이 남음",
+        "과분해 때문에 미정비용순번여부 같은 잘못된 결합이 발생"
+      ]
+    },
+    "context_disambiguation": {
+      "label": "문맥·다의성 해소",
+      "weight": 15.0,
+      "rating": 2.0,
+      "points": 6.0,
+      "evidence": [
+        "TLM_OPNDT의 DT를 DETAIL/상세로 선택했으나 데이터타입·인접 HMS 문맥상 일자 가능성이 큼",
+        "233행이 매핑 다의성 층으로 분류됨"
+      ]
+    },
+    "korean_naturalness": {
+      "label": "한글속성명 자연스러움",
+      "weight": 10.0,
+      "rating": 3.0,
+      "points": 6.0,
+      "evidence": [
+        "공백 제거·중복 접미어 제거·일자+시각→일시 규칙 구현",
+        "잘못된 분해에서 부자연스러운 결합이 남음"
+      ]
+    },
+    "consistency_traceability": {
+      "label": "행 간 용어 일관성·추적성",
+      "weight": 10.0,
+      "rating": 4.0,
+      "points": 8.0,
+      "evidence": [
+        "모든 결과에 mapping/inference 출처와 컴포넌트 근거가 있음",
+        "동일 문맥 키 결과를 재사용"
+      ]
+    }
+  },
+  "issue_counts": {
+    "critical": 0,
+    "major": 3,
+    "minor": 0
+  },
+  "failed_required_checks": [],
+  "dimensions_below_minimum": [
+    "segmentation_coverage",
+    "full_name_accuracy",
+    "korean_semantic_fidelity",
+    "context_disambiguation",
+    "korean_naturalness"
+  ]
+}
