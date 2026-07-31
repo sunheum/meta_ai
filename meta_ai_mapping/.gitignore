@@ -1,0 +1,10 @@
+.env
+.venv/
+.test-deps/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+outputs/
+.codex-spreadsheet/
+results/
+~$*.xlsx

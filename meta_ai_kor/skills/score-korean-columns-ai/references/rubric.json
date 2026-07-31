@@ -1,0 +1,107 @@
+{
+  "name": "AI 한글속성명 리뷰 루브릭",
+  "version": "1.0.0",
+  "rating_scale": {
+    "0": "검토 불가 또는 전면 실패",
+    "1": "대부분 잘못되어 재설계가 필요함",
+    "2": "중대한 오류가 반복됨",
+    "3": "기본 동작은 하지만 뚜렷한 개선이 필요함",
+    "4": "대체로 정확하며 국소 오류만 있음",
+    "5": "전수 근거에서 오류를 찾지 못함"
+  },
+  "dimensions": [
+    {
+      "id": "source_integrity",
+      "label": "원본·출력 구조 무결성",
+      "weight": 10,
+      "evidence": "행 수·순서·원본 12개 컬럼·필수 결과 컬럼의 전수 비교",
+      "anchors": {
+        "0": "비교할 수 없거나 원본·결과 연결이 무너짐",
+        "3": "행은 대부분 보존되지만 국소 누락·형식 문제가 있음",
+        "5": "전수 비교에서 누락·변조·순서 변경이 없음"
+      }
+    },
+    {
+      "id": "segmentation_coverage",
+      "label": "약어 분해와 원문 커버리지",
+      "weight": 15,
+      "evidence": "컴포넌트 연결로 원본 토큰이 복원되고 미해석 구간이 명시되는지",
+      "anchors": {
+        "0": "분해 근거가 없거나 원본과 무관함",
+        "3": "주요 토큰은 설명되지만 반복적인 미해석·과분해가 있음",
+        "5": "모든 행이 원본 순서대로 복원되고 미해석 구간이 정확히 표시됨"
+      }
+    },
+    {
+      "id": "full_name_accuracy",
+      "label": "영문 Full Name 정확성",
+      "weight": 15,
+      "evidence": "매핑 사전·문맥과 Full Name의 일치 여부",
+      "anchors": {
+        "0": "Full Name이 광범위하게 틀리거나 비어 있음",
+        "3": "일반 약어는 맞지만 다의어·추론 약어에 오류가 있음",
+        "5": "사전과 문맥 기준으로 모든 Full Name이 정확함"
+      }
+    },
+    {
+      "id": "korean_semantic_fidelity",
+      "label": "한글 의미 충실도",
+      "weight": 25,
+      "evidence": "핵심 의미의 오역·누락·근거 없는 추가가 없는지",
+      "anchors": {
+        "0": "핵심 의미 반전·환각이 광범위함",
+        "3": "대체로 의미는 전달되지만 중요한 누락·오역이 반복됨",
+        "5": "오역·핵심 누락·근거 없는 의미 추가가 없음"
+      }
+    },
+    {
+      "id": "context_disambiguation",
+      "label": "문맥·다의성 해소",
+      "weight": 15,
+      "evidence": "다의 약어와 서로 다른 테이블 문맥을 올바르게 구분하는지",
+      "anchors": {
+        "0": "다의 약어를 문맥 없이 한 의미로 고정함",
+        "3": "대부분 구분하지만 고위험 다의어에 오류가 남음",
+        "5": "다의 약어와 중복 컬럼의 문맥 차이를 모두 올바르게 처리함"
+      }
+    },
+    {
+      "id": "korean_naturalness",
+      "label": "한글속성명 자연스러움",
+      "weight": 10,
+      "evidence": "공백 없는 결합, 표준 접미어, 중복 의미 제거, 읽기 자연스러움",
+      "anchors": {
+        "0": "한글속성명 형식이 지켜지지 않거나 읽을 수 없음",
+        "3": "형식은 맞지만 어순·중복·접미어 문제가 반복됨",
+        "5": "공백 없는 표준 속성명으로 자연스럽고 간결함"
+      }
+    },
+    {
+      "id": "consistency_traceability",
+      "label": "행 간 용어 일관성·추적성",
+      "weight": 10,
+      "evidence": "동일 문맥 결과의 일관성과 변환근거의 재현 가능성",
+      "anchors": {
+        "0": "동일 문맥 결과가 불일치하고 근거를 재현할 수 없음",
+        "3": "대부분 일관되지만 일부 동의어·근거 불일치가 있음",
+        "5": "동일 문맥 결과가 일관되고 모든 결과를 근거로 재현할 수 있음"
+      }
+    }
+  ],
+  "required_checks": [
+    "row_preservation",
+    "required_columns_complete",
+    "korean_name_format",
+    "evidence_traceable",
+    "score_scope_complete"
+  ],
+  "pass": {
+    "minimum_score": 90,
+    "minimum_dimension_rating": 3.5,
+    "maximum_critical_issues": 0
+  },
+  "score_caps": {
+    "when_critical_issue_exists": 69,
+    "when_required_check_fails": 59
+  }
+}

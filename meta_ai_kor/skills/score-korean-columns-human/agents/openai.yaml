@@ -1,0 +1,5 @@
+interface:
+  display_name: "사람 한글속성명 리뷰"
+  short_description: "층화 표본과 독립 평가표로 사람 리뷰 점수를 산정합니다"
+  default_prompt: "Use $score-korean-columns-human to prepare and score a blinded human review for this stage."
+

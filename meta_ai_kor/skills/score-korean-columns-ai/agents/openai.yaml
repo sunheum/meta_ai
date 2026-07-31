@@ -1,0 +1,5 @@
+interface:
+  display_name: "AI 한글속성명 리뷰"
+  short_description: "한글속성명 전체 결과를 자동 채점하고 개선점을 찾습니다"
+  default_prompt: "Use $score-korean-columns-ai to score this stage output and identify the highest-impact fixes."
+

@@ -1,0 +1,92 @@
+{
+  "name": "사람 한글속성명 리뷰 루브릭",
+  "version": "1.0.0",
+  "rating_scale": {
+    "1": "사용할 수 없음",
+    "2": "중대한 수정 필요",
+    "3": "의미는 전달되나 개선 필요",
+    "4": "대체로 적절함",
+    "5": "그대로 표준명으로 사용 가능"
+  },
+  "dimensions": [
+    {
+      "id": "business_semantic_accuracy",
+      "label": "업무 의미 정확성",
+      "weight": 35,
+      "anchors": {
+        "1": "다른 업무 개념이거나 핵심 의미가 반대임",
+        "3": "대략적인 의미는 맞지만 문맥상 중요한 차이가 불명확함",
+        "5": "원본과 테이블 문맥의 업무 의미를 정확히 표현함"
+      }
+    },
+    {
+      "id": "meaning_completeness",
+      "label": "원문 의미 완전성",
+      "weight": 20,
+      "anchors": {
+        "1": "핵심 의미 단위가 하나 이상 빠짐",
+        "3": "핵심은 있으나 수식어·범위·시점 일부가 빠짐",
+        "5": "원본의 모든 의미 단위를 과잉 없이 포함함"
+      }
+    },
+    {
+      "id": "korean_naturalness",
+      "label": "한글속성명 자연스러움",
+      "weight": 20,
+      "anchors": {
+        "1": "어순이 부자연스럽거나 표준 속성명으로 사용하기 어려움",
+        "3": "이해는 되지만 중복·어색한 결합·불필요한 표현이 있음",
+        "5": "공백 없이 자연스럽고 간결한 한글 속성명임"
+      }
+    },
+    {
+      "id": "terminology_consistency",
+      "label": "용어·형식 일관성",
+      "weight": 15,
+      "anchors": {
+        "1": "동일 의미에 서로 다른 용어·접미어를 임의로 사용함",
+        "3": "대부분 일관되지만 일부 동의어와 접미어가 흔들림",
+        "5": "동일 의미와 형식에 동일한 표준 용어를 사용함"
+      }
+    },
+    {
+      "id": "business_ambiguity_safety",
+      "label": "업무상 오해 가능성",
+      "weight": 10,
+      "anchors": {
+        "1": "이 이름을 사용하면 다른 데이터로 오해할 가능성이 큼",
+        "3": "문맥 없이는 두 가지 이상으로 해석될 여지가 있음",
+        "5": "업무 사용자가 다른 의미로 오해할 가능성이 거의 없음"
+      }
+    }
+  ],
+  "sample": {
+    "minimum_size": 60,
+    "quotas": {
+      "deterministic": 10,
+      "segmentation_ambiguity": 10,
+      "mapping_ambiguity": 15,
+      "unmapped_inference": 15,
+      "duplicate_context": 5,
+      "review_needed": 5
+    },
+    "required_strata": [
+      "deterministic",
+      "segmentation_ambiguity",
+      "mapping_ambiguity",
+      "unmapped_inference",
+      "duplicate_context",
+      "review_needed"
+    ]
+  },
+  "pass": {
+    "minimum_score": 85,
+    "minimum_dimension_mean": 3.5,
+    "maximum_critical_issues": 0,
+    "maximum_major_error_rate": 0.02
+  },
+  "score_caps": {
+    "when_critical_issue_exists": 69,
+    "when_major_error_rate_exceeded": 84
+  }
+}

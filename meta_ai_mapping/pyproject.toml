@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "column-abbreviation-mapper"
+version = "0.1.0"
+description = "컬럼명과 컬럼설명으로 영문약어-한글단어 매핑을 생성·검증·수정하는 FastAPI 서비스"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115,<1.0",
+  "httpx>=0.28,<1.0",
+  "langchain>=1.0,<2.0",
+  "langchain-openai>=1.0,<2.0",
+  "langgraph>=1.0,<2.0",
+  "openpyxl>=3.1,<4.0",
+  "python-multipart>=0.0.20,<1.0",
+  "uvicorn[standard]>=0.34,<1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3,<10.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
