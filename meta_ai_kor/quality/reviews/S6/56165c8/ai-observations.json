@@ -1,0 +1,75 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "56165c8",
+  "reviewed_item_count": 694,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": true
+  },
+  "dimensions": {
+    "source_integrity": {
+      "rating": 5,
+      "evidence": [
+        "deterministic-audit.json: 원본 694행 일치, 원본 셀 변경 0건, 필수 헤더 일치"
+      ]
+    },
+    "segmentation_coverage": {
+      "rating": 3,
+      "evidence": [
+        "전수 감사에서 미정 자리표시자 225건으로 원문 의미 분해가 완료되지 않음"
+      ]
+    },
+    "full_name_accuracy": {
+      "rating": 3,
+      "evidence": [
+        "결정적 대체 결과에 SCSSN의 S COST SERIAL NUMBER 등 과분해가 남음"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "rating": 3,
+      "evidence": [
+        "위험층화 표본에서 CV_YN이 자기여부, MDF_CV_PRM이 수정자기보험료로 생성되는 문맥 오류 확인"
+      ]
+    },
+    "context_disambiguation": {
+      "rating": 3,
+      "evidence": [
+        "동일 컬럼명 참조 가능 217건 중 정확 문자열 일치 158건(72.8%); DATE/DETAIL, COVERAGE/SELF 등 다의 오류 확인"
+      ]
+    },
+    "korean_naturalness": {
+      "rating": 3.5,
+      "evidence": [
+        "한글·숫자 및 무공백 형식은 전수 통과했으나 미정 결합과 짧은 조각의 어색한 결합이 남음"
+      ]
+    },
+    "consistency_traceability": {
+      "rating": 4,
+      "evidence": [
+        "근거 공란 0건, 동일 문맥 불일치 0건, 모든 결과에 약어→Full Name→한글단어 추적 근거 존재"
+      ]
+    }
+  },
+  "issues": [
+    {
+      "source_id": "row-2",
+      "severity": "major",
+      "expected": "SCSSN을 고객 문맥에서 사회보장번호 등 하나의 업무 약어로 추론",
+      "actual": "S COST SERIAL NUMBER / 미정비용순번",
+      "evidence": "deterministic-human-sample.csv 및 deterministic-result.xlsx",
+      "suggestion": "LLM 응답을 압축해 전체 문맥 추론이 제한 시간 안에 완료되도록 한다."
+    },
+    {
+      "source_id": "row-393",
+      "severity": "major",
+      "expected": "CV_YN을 보험계약 문맥에서 담보여부로 해석",
+      "actual": "COVERAGE YES OR NO / 자기여부",
+      "evidence": "deterministic-human-sample.csv",
+      "suggestion": "Full Name과 한글단어 후보를 문맥으로 함께 선택하도록 LLM 결과를 적용한다."
+    }
+  ]
+}

@@ -57,9 +57,7 @@ class LocalChatNamingModel:
         }
         text = await self._invoke(GENERATION_SYSTEM_PROMPT, payload)
         try:
-            return _ResolutionPayload.model_validate(
-                _parse_json(text)
-            ).resolutions
+            return _decode_resolution_payload(_parse_json(text))
         except ValidationError as exc:
             raise LLMResponseError(f"생성 응답 스키마 오류: {exc}") from exc
 
@@ -107,9 +105,7 @@ class LocalChatNamingModel:
         }
         text = await self._invoke(REVIEW_SYSTEM_PROMPT, payload)
         try:
-            return _ResolutionPayload.model_validate(
-                _parse_json(text)
-            ).resolutions
+            return _decode_resolution_payload(_parse_json(text))
         except ValidationError as exc:
             raise LLMResponseError(f"리뷰 응답 스키마 오류: {exc}") from exc
 
@@ -178,6 +174,52 @@ def _content_to_text(content: Any) -> str:
                 parts.append(block["text"])
         return "".join(parts)
     return str(content)
+
+
+def _decode_resolution_payload(value: Any) -> list[LLMResolution]:
+    if not isinstance(value, dict):
+        raise LLMResponseError("LLM 응답 최상위 값은 JSON 객체여야 합니다.")
+    raw_resolutions = value.get("resolutions")
+    if not isinstance(raw_resolutions, list):
+        raise LLMResponseError("LLM 응답에 resolutions 배열이 없습니다.")
+    normalized: list[dict[str, Any]] = []
+    for raw in raw_resolutions:
+        if not isinstance(raw, dict):
+            raise LLMResponseError("resolution 항목은 JSON 객체여야 합니다.")
+        raw_components = raw.get("c", raw.get("components"))
+        if not isinstance(raw_components, list):
+            raise LLMResponseError("resolution에 components 배열이 없습니다.")
+        components: list[dict[str, Any]] = []
+        for component in raw_components:
+            if isinstance(component, list) and len(component) == 4:
+                components.append(
+                    {
+                        "source_fragment": component[0],
+                        "full_name": component[1],
+                        "korean_word": component[2],
+                        "origin": component[3],
+                    }
+                )
+            elif isinstance(component, dict):
+                components.append(component)
+            else:
+                raise LLMResponseError(
+                    "component는 4개 값의 배열 또는 JSON 객체여야 합니다."
+                )
+        normalized.append(
+            {
+                "source_id": raw.get("id", raw.get("source_id")),
+                "components": components,
+                "full_name": raw.get("full_name")
+                or " ".join(str(item.get("full_name", "")) for item in components),
+                "korean_attribute_name": raw.get("korean_attribute_name")
+                or "".join(str(item.get("korean_word", "")) for item in components),
+                "reason": raw.get("r", raw.get("reason", "")),
+            }
+        )
+    return _ResolutionPayload.model_validate(
+        {"resolutions": normalized}
+    ).resolutions
 
 
 def _resolution_request_payload(

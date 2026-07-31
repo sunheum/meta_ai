@@ -1,7 +1,11 @@
 import pytest
 
 from app.glossary import MappingGlossary
-from app.llm import _parse_json, _resolution_request_payload
+from app.llm import (
+    _decode_resolution_payload,
+    _parse_json,
+    _resolution_request_payload,
+)
 from app.models import (
     LLMResolution,
     MappingEntry,
@@ -86,6 +90,27 @@ def test_parse_json_removes_reasoning_and_code_fence():
     )
 
     assert payload == {"resolutions": []}
+
+
+def test_decode_compact_resolution_payload():
+    values = _decode_resolution_payload(
+        {
+            "resolutions": [
+                {
+                    "id": "row-2",
+                    "c": [
+                        ["SCSSN", "SOCIAL SECURITY NUMBER", "사회보장번호", "inference"]
+                    ],
+                    "r": "문맥 추론",
+                }
+            ]
+        }
+    )
+
+    assert values[0].source_id == "row-2"
+    assert values[0].full_name == "SOCIAL SECURITY NUMBER"
+    assert values[0].korean_attribute_name == "사회보장번호"
+    assert values[0].components[0].origin == "inference"
 
 
 def test_llm_payload_excludes_original_workbook_values():

@@ -23,24 +23,19 @@ fragment별 mapping_options, 같은 테이블의 peer column을 제공한다.
 8. korean_attribute_name은 components의 korean_word를 원문 순서로 공백 없이
    결합한다. 일자+시각은 일시로 정규화할 수 있다.
 9. 같은 테이블·같은 의미의 약어에는 같은 용어를 사용한다.
-10. reason은 후보를 선택하거나 전체 약어로 추론한 근거를 한 문장으로 쓴다.
+10. r은 후보를 선택하거나 전체 약어로 추론한 근거를 12단어 이내로 쓴다.
 
-다음 JSON 객체만 출력한다. 마크다운 코드블록과 추가 설명은 금지한다.
+출력 토큰을 줄이기 위해 반드시 다음의 짧은 JSON 형식만 출력한다. 각 c 항목은
+[source_fragment, full_name, korean_word, origin] 순서의 4개 값 배열이다.
+마크다운 코드블록, 추가 설명, components/full_name/korean_attribute_name 키는 금지한다.
 {
   "resolutions": [
     {
-      "source_id": "row-2",
-      "components": [
-        {
-          "source_fragment": "FNL",
-          "full_name": "FINAL",
-          "korean_word": "최종",
-          "origin": "mapping"
-        }
+      "id": "row-2",
+      "c": [
+        ["FNL", "FINAL", "최종", "mapping"]
       ],
-      "full_name": "FINAL LOAD DATE TIME",
-      "korean_attribute_name": "최종적재일시",
-      "reason": "테이블 문맥과 매핑 후보에 따른 선택"
+      "r": "테이블 문맥과 매핑 후보에 따른 선택"
     }
   ]
 }
@@ -56,24 +51,17 @@ deterministic validation issues, mapping options가 있다.
 한글속성명은 한글·숫자만 사용하고 공백 없이 작성한다. 미정·UNKNOWN을 남기지
 않는다. 근거 없는 의미를 추가하지 않는다.
 
-다음 JSON 객체만 출력한다.
+다음의 짧은 JSON 객체만 출력한다. 각 c 항목은
+[source_fragment, full_name, korean_word, origin] 순서다.
 {
   "resolutions": [
     {
-      "source_id": "row-2",
-      "components": [
-        {
-          "source_fragment": "DT",
-          "full_name": "DATE",
-          "korean_word": "일자",
-          "origin": "mapping"
-        }
+      "id": "row-2",
+      "c": [
+        ["DT", "DATE", "일자", "mapping"]
       ],
-      "full_name": "DATE",
-      "korean_attribute_name": "일자",
-      "reason": "검증 오류를 반영한 교정"
+      "r": "검증 오류를 반영한 교정"
     }
   ]
 }
 """.strip()
-

@@ -1,0 +1,93 @@
+{
+  "rubric": {
+    "name": "AI 한글속성명 리뷰 루브릭",
+    "version": "1.0.0"
+  },
+  "stage_id": "S6",
+  "commit_sha": "eba8469",
+  "reviewed_item_count": 0,
+  "expected_item_count": 694,
+  "raw_score": 67.0,
+  "score_cap": 59.0,
+  "score": 59.0,
+  "passed": false,
+  "dimensions": {
+    "source_integrity": {
+      "label": "원본·출력 구조 무결성",
+      "weight": 10.0,
+      "rating": 5.0,
+      "points": 10.0,
+      "evidence": [
+        "33개 회귀 테스트와 결정적 694행 출력 감사에서 원본 12개 셀 변경 0건"
+      ]
+    },
+    "segmentation_coverage": {
+      "label": "약어 분해와 원문 커버리지",
+      "weight": 15.0,
+      "rating": 3.0,
+      "points": 9.0,
+      "evidence": [
+        "결정적 대체 실행에서 자리표시자 225건이 남아 전체 의미 분해를 확인하지 못함"
+      ]
+    },
+    "full_name_accuracy": {
+      "label": "영문 Full Name 정확성",
+      "weight": 15.0,
+      "rating": 3.0,
+      "points": 9.0,
+      "evidence": [
+        "전체 LLM 실행이 첫 배치 응답 전에 중단되어 Full Name 의미 리뷰 범위가 없음"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "label": "한글 의미 충실도",
+      "weight": 25.0,
+      "rating": 3.0,
+      "points": 15.0,
+      "evidence": [
+        "결정적 대체 결과의 미정 포함 225건 때문에 업무 의미 충실도를 보증할 수 없음"
+      ]
+    },
+    "context_disambiguation": {
+      "label": "문맥·다의성 해소",
+      "weight": 15.0,
+      "rating": 3.0,
+      "points": 9.0,
+      "evidence": [
+        "LLM 문맥 해소 결과가 생성되지 않아 다의 약어 전수 검토가 불가능함"
+      ]
+    },
+    "korean_naturalness": {
+      "label": "한글속성명 자연스러움",
+      "weight": 10.0,
+      "rating": 3.5,
+      "points": 7.0,
+      "evidence": [
+        "형식 검사는 통과하지만 결정적 결과에 미정 결합과 어색한 과분해가 남음"
+      ]
+    },
+    "consistency_traceability": {
+      "label": "행 간 용어 일관성·추적성",
+      "weight": 10.0,
+      "rating": 4.0,
+      "points": 8.0,
+      "evidence": [
+        "결정적 결과 전수에 변환근거가 있으며 동일 문맥 불일치 0건"
+      ]
+    }
+  },
+  "issue_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "failed_required_checks": [
+    "score_scope_complete"
+  ],
+  "dimensions_below_minimum": [
+    "segmentation_coverage",
+    "full_name_accuracy",
+    "korean_semantic_fidelity",
+    "context_disambiguation"
+  ]
+}
