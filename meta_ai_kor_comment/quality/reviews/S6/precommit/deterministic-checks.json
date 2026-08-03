@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "original_row_count": 1195,
+  "result_row_count": 1195,
+  "checks": {
+    "row_preservation": {
+      "passed": true,
+      "failure_count": 0
+    },
+    "required_columns_complete": {
+      "passed": true,
+      "failure_count": 0
+    },
+    "character_policy_complete": {
+      "passed": true,
+      "failure_count": 0
+    },
+    "numeric_preservation_complete": {
+      "passed": true,
+      "failure_count": 0
+    },
+    "evidence_traceable": {
+      "passed": true,
+      "failure_count": 0
+    },
+    "duplicate_consistency": {
+      "passed": true,
+      "failure_count": 0
+    },
+    "terminology_frequency_verified": {
+      "passed": true,
+      "failure_count": 0
+    }
+  },
+  "deterministic_failure_count": 0,
+  "passed": true,
+  "issues": []
+}

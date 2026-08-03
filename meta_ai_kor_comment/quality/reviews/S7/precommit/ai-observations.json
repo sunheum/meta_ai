@@ -1,0 +1,101 @@
+{
+  "stage_id": "S7",
+  "commit_sha": "precommit",
+  "reviewed_item_count": 921,
+  "expected_item_count": 921,
+  "deterministic_failure_count": 0,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "character_policy_complete": true,
+    "numeric_preservation_complete": true,
+    "semantic_scope_complete": true,
+    "terminology_frequency_verified": true,
+    "evidence_traceable": true,
+    "score_scope_complete": true
+  },
+  "dimensions": {
+    "source_output_integrity": {
+      "rating": 5.0,
+      "evidence": "원본·결과 SHA-256이 실행 메타데이터와 각각 일치했다. 결정적 검사에서 원본/결과 1,195행의 행 수·순서·원본 12개 컬럼·필수 결과 컬럼 비교 실패가 0건이었고, 921개 고유 리뷰 항목의 occurrence_count 및 source_ids 합계도 각각 1,195였다."
+    },
+    "character_format_policy": {
+      "rating": 5.0,
+      "evidence": "결정적 문자·형식 및 숫자 보존 검사 실패가 모두 0건이었다. 영문 포함 원문 30개를 전수 확인했으며 결과에 남은 영문은 3개 고유 항목의 허용 토큰 ID뿐이었다. 숫자 위험 계층 44개도 전수 확인했다."
+    },
+    "description_semantic_fidelity": {
+      "rating": 4.5,
+      "evidence": "921개 고유 (컬럼명, 컬럼설명) 전체를 원문 설명, 컬럼명, 테이블 문맥과 대조했다. 대부분 의미의 누락·추가·반전이 없었으나 row-107은 의미가 확인되지 않은 RH를 단순 음역한 알에이치형태코드로 자동확정하여 업무 의미를 해소하지 못했다."
+    },
+    "context_ambiguity_resolution": {
+      "rating": 4.0,
+      "evidence": "영문 포함 30개, 슬래시 4개, 용어 결정 포함 24개 고유 항목을 별도 전수 확인했다. FY, SMS, DM, SOFA, TMR, OLD, PREMIUM, NEW, ABS, SP 변환과 4개 슬래시 단일 선택은 보조 문맥 및 검토필요 상태와 대체로 정합했으나, row-107의 RH는 문맥상 뜻을 확정하지 못한 상태에서 음역·자동확정되었다."
+    },
+    "frequency_terminology_consistency": {
+      "rating": 4.0,
+      "evidence": "메타데이터의 31개 원본행 결정이 매핑된 24개 고유 항목을 전수 대조했다. 납입/납부 27개 원본행, 중고차율/중고차요율 2개, 차형태/차량형태 2개의 기록된 선택과 출력은 일치했다. 다만 같은 특약 요율 개념에서 row-838·row-984는 특약율, row-985는 특약요율을 사용하며 고위험 율/요율 일관성 결정이 누락되어 있다."
+    },
+    "korean_name_naturalness": {
+      "rating": 4.0,
+      "evidence": "대부분의 결과는 공백·기호 없이 간결한 속성명이지만 row-107의 알에이치형태코드는 의미를 전달하지 못하는 음역이고, row-623의 한가족우대등급등급코드는 등급이 중복되어 부자연스럽다. 또한 row-838·row-984의 특약율은 인접한 특약요율 표면형과 불일치한다."
+    },
+    "status_evidence_confidence": {
+      "rating": 3.5,
+      "evidence": "결정적 근거 추적 검사 실패는 0건이고 8개 검토필요 항목에는 모두 검토사유가 있었다. 그러나 검토필요 8개 전부가 자동확정 임계치 90 이상(슬래시 4개 92, 동률 용어 4개 100)으로 표기되어 미해결 위험 대비 과신되어 있으며, row-178·row-414·row-743·row-869는 실제 정규화 변경에도 변환근거가 원문 그대로 유지했다고 먼저 서술한다."
+    }
+  },
+  "issues": [
+      {
+        "source_id": "row-107",
+        "severity": "major",
+        "description": "의미가 확인되지 않은 영문 약어 RH를 업무 의미로 번역하지 않고 알에이치로 음역한 뒤 자동확정했다.",
+        "evidence": "CUS_CTM.RH_TYCD의 원문은 RH형태코드이고 결과는 알에이치형태코드, 처리상태 자동확정, 신뢰도 96이다. 변환근거도 RH를 알에이치로 한글화했다는 사실만 제시해 RH의 실제 의미나 고객 문맥 근거를 설명하지 않는다.",
+        "recommendation": "RH의 업무 정의를 데이터 사전이나 담당자 문맥으로 확인해 의미어로 변환하고, 확인 전에는 검토필요로 두며 신뢰도를 낮춘다."
+      },
+      {
+        "source_ids": [
+          "row-838",
+          "row-984"
+        ],
+        "severity": "major",
+        "description": "동일한 특약 요율 개념에서 특약율과 특약요율이 혼재해 고위험 율/요율 용어 정책이 일관되게 적용되지 않았다.",
+        "evidence": "row-838은 유상운송특약율, row-984는 한정특약율을 유지하지만 같은 계약 담보 문맥의 row-985는 연령특약요율을 사용한다. 실행 메타데이터에는 이 특약율/특약요율 집합에 대한 빈도 결정이 없다.",
+        "recommendation": "특약율/특약요율을 별도 동의어 그룹으로 재계산하고 최빈 표면형을 적용한다. 현재 모집단에서는 요율 표면형이 더 널리 쓰이므로 문맥 반증이 없으면 유상운송특약요율과 한정특약요율로 통일한다."
+      },
+      {
+        "source_ids": [
+          "row-169",
+          "row-174",
+          "row-178",
+          "row-332",
+          "row-591",
+          "row-592",
+          "row-869",
+          "row-875"
+        ],
+        "severity": "minor",
+        "description": "검토필요 항목의 신뢰도가 모두 자동확정 임계치 이상이라 상태와 수치가 미해결 위험을 일관되게 표현하지 못한다.",
+        "evidence": "슬래시 선택 4개는 신뢰도 92이면서 업무 문맥 확인 필요를 명시하고, 빈도 동률 용어 4개는 검토필요이면서 신뢰도 100이다. 실행 메타데이터의 자동확정 임계치는 90이다.",
+        "recommendation": "검토필요를 유발한 미확정 요소가 있는 경우 신뢰도를 임계치 미만으로 보정하거나, 신뢰도와 처리상태가 서로 다른 위험 축을 뜻한다면 그 정의를 근거에 명시한다."
+      },
+      {
+        "source_ids": [
+          "row-178",
+          "row-414",
+          "row-743",
+          "row-869"
+        ],
+        "severity": "minor",
+        "description": "용어 정규화로 실제 값이 바뀐 항목의 변환근거가 원문을 그대로 유지했다고 모순되게 서술한다.",
+        "evidence": "차형태코드→차량형태코드, 보험료납부비율→보험료납입비율, 납부횟수→납입횟수, 중고차율→중고차요율 변경에 모두 '정책을 충족하는 컬럼설명을 원문 그대로 유지' 문구가 포함된다.",
+        "recommendation": "정규화 행에서는 유지 문구를 제거하고 후보 빈도, 선택 표면형, 동률 문맥 판단만 기록한다."
+      },
+      {
+        "source_id": "row-623",
+        "severity": "minor",
+        "description": "한글속성명에 동일 접미어가 중복되어 자연스럽지 않다.",
+        "evidence": "ONFML_PF_GRD_GRDCD의 원문과 결과가 모두 한가족우대등급등급코드이며 자동확정 100으로 유지되었다.",
+        "recommendation": "중복된 등급을 하나 제거해 한가족우대등급코드로 정규화하고 변경 근거를 남긴다."
+      }
+  ]
+}

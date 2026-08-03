@@ -1,0 +1,48 @@
+{
+  "stage_id": "S7",
+  "commit_sha": "d00caab",
+  "reviewed_item_count": 921,
+  "expected_item_count": 921,
+  "deterministic_failure_count": 0,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "character_policy_complete": true,
+    "numeric_preservation_complete": true,
+    "semantic_scope_complete": true,
+    "terminology_frequency_verified": true,
+    "evidence_traceable": true,
+    "score_scope_complete": true
+  },
+  "dimensions": {
+    "source_output_integrity": {
+      "rating": 5.0,
+      "evidence": "최신 S7/final의 921개 고유 항목과 1,195개 원본 행 연결을 전수 대조했다. occurrence_count 합계와 source_ids 합계가 모두 1,195이며, 결정 검사에서 행 보존·필수 열·원본 불변성 검사가 모두 통과했다. 입력·출력 파일의 현재 SHA-256도 run-metadata 기록과 각각 일치한다."
+    },
+    "character_format_policy": {
+      "rating": 5.0,
+      "evidence": "영문 설명 30건을 전수 확인해 27건은 의미에 맞는 한글명으로 변환되고 3건은 정책상 허용되는 ID 결합어(사용자ID·입력사용자ID·수정사용자ID)로만 남았음을 확인했다. 슬래시 4건은 단일 의미로 정리됐고, 숫자 보존 표본을 포함한 결정 검사에도 위반이 없다."
+    },
+    "description_semantic_fidelity": {
+      "rating": 5.0,
+      "evidence": "921개 전체를 원문 컬럼설명·테이블명·컬럼명과 독립 대조했으며 의미 누락, 의미 추가, 반전, 다른 업무 개념으로의 치환을 발견하지 못했다. 특히 SP여부는 설계사여부, SOFA차량여부는 주한미군지위협정적용차량여부로 최신 결과에 반영됐고, RH형태코드는 인접 혈액형 문맥을 근거로 리서스인자형태코드로 처리되어 각각 원문의 핵심 의미를 보존한다."
+    },
+    "context_ambiguity_resolution": {
+      "rating": 5.0,
+      "evidence": "영문 복원 항목, 슬래시 4건, WKDY 계열 2건, RH·SP·SOFA 약어, 빈도 동률 용어를 모두 테이블·컬럼·인접 업무 문맥까지 확인했다. 결정 가능한 항목은 문맥상 타당한 단일 한글명으로 정리됐고, 외부 업무 확인이 필요한 항목은 자동 확정하지 않고 검토필요로 보수적으로 분류되어 있다."
+    },
+    "frequency_terminology_consistency": {
+      "rating": 5.0,
+      "evidence": "run-metadata의 4개 용어군과 34개 원본 행 결정을 전수 재검증했다. 납입 24 대 납부 3은 납입, 특약율 2 대 특약요율 1은 특약율로 빈도 우선 적용됐고, 중고차요율/중고차율 및 차량형태/차형태의 1 대 1 동률은 문맥 선택과 검토필요 상태로 처리되어 정책과 일치한다."
+    },
+    "korean_name_naturalness": {
+      "rating": 5.0,
+      "evidence": "921개 한글속성명의 조사·어순·중복 접미어·불필요한 영문 잔존을 전수 점검했다. 한가족우대등급코드처럼 중복 접미어가 제거됐고, 설계사여부 및 주한미군지위협정적용차량여부도 의미가 분명한 자연스러운 속성명이다. 식별자 ID 외 어색한 혼용 또는 실무 사용을 방해할 표현을 발견하지 못했다."
+    },
+    "status_evidence_confidence": {
+      "rating": 5.0,
+      "evidence": "변경된 고유 항목 37건 모두 변환근거가 있으며, 검토필요 37건(원본 행 기준 38건) 모두 구체적인 검토사유를 가진다. 검토필요 신뢰도는 85 또는 89로 임계값 90 미만이고 자동확정 884건은 모두 90 이상이다. 상태·근거·신뢰도 간 모순이나 과도한 확신을 발견하지 못했다."
+    }
+  },
+  "issues": []
+}
