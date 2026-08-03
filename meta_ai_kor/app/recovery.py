@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Any
 
 from openpyxl import load_workbook
 
@@ -153,3 +154,74 @@ def _parse_evidence(evidence: str) -> list[NameComponent]:
         )
         cursor += len(fragment)
     return components
+
+
+def apply_review_corrections(
+    *,
+    source_path: str | Path,
+    result_path: str | Path,
+    mapping_path: str | Path,
+    output_path: str | Path,
+    corrections: list[dict[str, Any]],
+) -> tuple[list, list[ColumnResult]]:
+    sources = read_source_workbook(source_path)
+    existing = read_existing_results(result_path)
+    source_by_id = {source.source_id: source for source in sources}
+    result_by_id = {result.source_id: result for result in existing}
+    seen: set[str] = set()
+    for correction in corrections:
+        source_id = str(correction["source_id"])
+        if source_id in seen:
+            raise ValueError(f"중복 리뷰 보정 source_id: {source_id}")
+        seen.add(source_id)
+        source = source_by_id.get(source_id)
+        if source is None:
+            raise ValueError(f"원본에 없는 리뷰 보정 source_id: {source_id}")
+        result_by_id[source_id] = _build_corrected_result(
+            source.column_name,
+            source_id,
+            correction,
+        )
+    merged = [result_by_id[source.source_id] for source in sources]
+    merged = assign_review_strata(sources, merged)
+    glossary = MappingGlossary.from_xlsx(mapping_path)
+    workflow = NamingWorkflow(glossary)
+    options = WorkflowOptions(use_llm=False)
+    merged = workflow._finalize(sources, merged, options)
+    write_result_workbook(source_path, output_path, sources, merged)
+    return sources, merged
+
+
+def _build_corrected_result(
+    column_name: str,
+    source_id: str,
+    correction: dict[str, Any],
+) -> ColumnResult:
+    full_name = str(correction["english_full_name"]).strip().upper()
+    korean_name = re.sub(
+        r"\s+",
+        "",
+        str(correction["korean_attribute_name"]).strip(),
+    )
+    if not full_name or not re.fullmatch(r"[가-힣0-9]+", korean_name):
+        raise ValueError(f"잘못된 리뷰 보정 값: {source_id}")
+    fragment = re.sub(r"[^A-Z0-9]", "", column_name.upper())
+    component = NameComponent(
+        source_fragment=fragment,
+        full_name=full_name,
+        korean_word=korean_name,
+        origin="inference",
+        start=0,
+        end=len(fragment),
+    )
+    return ColumnResult(
+        source_id=source_id,
+        components=[component],
+        english_full_name=full_name,
+        korean_attribute_name=korean_name,
+        status="검토필요",
+        confidence=int(correction.get("confidence", 88)),
+        evidence=f"{fragment}→{full_name}→{korean_name}[inference]",
+        reason=str(correction.get("reason", "독립 리뷰 보정")),
+        review_stratum="unmapped_inference",
+    )

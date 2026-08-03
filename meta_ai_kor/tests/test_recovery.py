@@ -4,7 +4,7 @@ from app.exceptions import LLMResponseError
 from app.glossary import MappingGlossary
 from app.llm import _parse_json
 from app.models import SourceRow, WorkflowOptions
-from app.recovery import _parse_evidence
+from app.recovery import _build_corrected_result, _parse_evidence
 from app.workflow import NamingWorkflow
 
 
@@ -69,3 +69,19 @@ def test_parse_evidence_restores_components():
     assert components[1].korean_word == "타임스탬프"
     assert components[1].origin == "inference"
     assert components[1].start == 3
+
+
+def test_build_corrected_result_normalizes_review_values():
+    result = _build_corrected_result(
+        "TLM_OPNDT",
+        "row-3",
+        {
+            "english_full_name": "Telegram Message Open Date",
+            "korean_attribute_name": "전문 개시 일자",
+        },
+    )
+
+    assert result.english_full_name == "TELEGRAM MESSAGE OPEN DATE"
+    assert result.korean_attribute_name == "전문개시일자"
+    assert result.components[0].source_fragment == "TLMOPNDT"
+    assert result.status == "검토필요"

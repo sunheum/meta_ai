@@ -97,6 +97,19 @@ python -m scripts.repair_failed `
   --metadata results\metadata-repaired.json
 ```
 
+독립 리뷰의 명시적 보정 JSON을 결과에 적용:
+
+```powershell
+python -m scripts.apply_review_corrections `
+  --source ..\data\table_column_template_컬럼코멘트N.xlsx `
+  --result results\korean_column_names_repaired.xlsx `
+  --mapping result.xlsx `
+  --corrections results\review-corrections.json `
+  --output results\korean_column_names_reviewed.xlsx `
+  --population results\review-population-reviewed.jsonl `
+  --metadata results\metadata-reviewed.json
+```
+
 성능·메모리 기준선:
 
 ```powershell
