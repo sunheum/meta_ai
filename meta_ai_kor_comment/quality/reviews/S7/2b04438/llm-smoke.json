@@ -1,0 +1,29 @@
+{
+  "checked_at": "2026-08-03T14:36:20.5837490+09:00",
+  "commit_sha": "2b04438",
+  "endpoint": "http://192.168.100.91:8000/v1",
+  "model": "Qwen3.6-27B-FP8",
+  "command": "python -m scripts.smoke_llm",
+  "passed": true,
+  "result": {
+    "source_id": "row-190",
+    "original_description": "SOFA차량여부",
+    "korean_attribute_name": "주한미군지위협정적용차량여부",
+    "validation_issue_count": 0
+  },
+  "full_actual_workbook_run": {
+    "passed": true,
+    "elapsed_seconds": 985.1,
+    "input_sha256": "b310bce405229224e3da614b645ccfdaa1a72116fe22f37b4152504827e608b8",
+    "output_sha256": "0bef50d57783a012d087c478a4f49656958d4f7dfbdca36ddd62ab73eba35161",
+    "source_count": 1195,
+    "auto_confirmed_count": 1179,
+    "review_required_count": 16,
+    "validation_failed_count": 0,
+    "review_rounds": 2,
+    "generation_rejected_result_count": 7,
+    "review_failure_count": 0,
+    "run_metadata": "run-metadata.json"
+  },
+  "gate_status": "passed"
+}

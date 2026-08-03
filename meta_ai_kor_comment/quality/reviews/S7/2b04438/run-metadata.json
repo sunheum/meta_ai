@@ -1,0 +1,743 @@
+{
+  "created_at": "2026-08-03T05:33:19.976020+00:00",
+  "input_path": "C:\\Users\\2518048\\Desktop\\workspace\\01. 업무\\meta_ai\\data\\table_column_template_컬럼코멘트Y.xlsx",
+  "input_sha256": "b310bce405229224e3da614b645ccfdaa1a72116fe22f37b4152504827e608b8",
+  "output_path": "C:\\Users\\2518048\\Desktop\\workspace\\01. 업무\\meta_ai\\meta_ai_kor_comment\\outputs\\019fc539-f493-7222-8e22-392303dbe039\\meta_ai_kor_comment_result.xlsx",
+  "output_sha256": "0bef50d57783a012d087c478a4f49656958d4f7dfbdca36ddd62ab73eba35161",
+  "model": "Qwen3.6-27B-FP8",
+  "base_url": "http://192.168.100.91:8000/v1",
+  "llm_settings": {
+    "trust_env": false,
+    "temperature": 0.2,
+    "top_p": 0.8,
+    "max_tokens": 8192,
+    "connect_timeout_seconds": 15.0,
+    "read_timeout_seconds": 1800.0,
+    "write_timeout_seconds": 60.0,
+    "pool_timeout_seconds": 60.0,
+    "max_retries": 2
+  },
+  "execution_mode": "local-llm",
+  "options": {
+    "batch_size": 5,
+    "max_concurrency": 5,
+    "max_review_rounds": 2,
+    "auto_confirm_threshold": 90
+  },
+  "result": {
+    "output_path": "C:\\Users\\2518048\\Desktop\\workspace\\01. 업무\\meta_ai\\meta_ai_kor_comment\\outputs\\019fc539-f493-7222-8e22-392303dbe039\\meta_ai_kor_comment_result.xlsx",
+    "source_count": 1195,
+    "auto_confirmed_count": 1179,
+    "review_required_count": 16,
+    "validation_failed_count": 0,
+    "review_rounds": 2,
+    "validation_report": {
+      "is_valid": true,
+      "issues": [],
+      "stats": {
+        "source_count": 1195,
+        "result_count": 1195,
+        "covered_source_count": 1195,
+        "error_count": 0,
+        "warning_count": 0,
+        "terminology_decision_count": 34
+      }
+    },
+    "terminology_stats": {
+      "group_count": 4,
+      "decision_count": 34
+    },
+    "terminology_decisions": [
+      {
+        "source_id": "row-174",
+        "group_id": "used-car-rate",
+        "candidates": [
+          "중고차요율",
+          "중고차율"
+        ],
+        "frequencies": {
+          "중고차요율": 1,
+          "중고차율": 1
+        },
+        "selected_term": "중고차요율",
+        "tied": true,
+        "selection_source": "context_resolver",
+        "rationale": "빈도 동률에서 문맥 판정기가 자연스러운 용어를 선택"
+      },
+      {
+        "source_id": "row-178",
+        "group_id": "vehicle-form",
+        "candidates": [
+          "차량형태",
+          "차형태"
+        ],
+        "frequencies": {
+          "차량형태": 1,
+          "차형태": 1
+        },
+        "selected_term": "차량형태",
+        "tied": true,
+        "selection_source": "context_resolver",
+        "rationale": "빈도 동률에서 문맥 판정기가 자연스러운 용어를 선택"
+      },
+      {
+        "source_id": "row-267",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-575",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-268",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-270",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-271",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-276",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-277",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-282",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-283",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-284",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-359",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-539",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-414",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-566",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-568",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-574",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-742",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-926",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-969",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-1002",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-743",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-927",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-744",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-928",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-838",
+        "group_id": "special-contract-rate",
+        "candidates": [
+          "특약율",
+          "특약요율"
+        ],
+        "frequencies": {
+          "특약율": 2,
+          "특약요율": 1
+        },
+        "selected_term": "특약율",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 2건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-869",
+        "group_id": "used-car-rate",
+        "candidates": [
+          "중고차요율",
+          "중고차율"
+        ],
+        "frequencies": {
+          "중고차요율": 1,
+          "중고차율": 1
+        },
+        "selected_term": "중고차요율",
+        "tied": true,
+        "selection_source": "context_resolver",
+        "rationale": "빈도 동률에서 문맥 판정기가 자연스러운 용어를 선택"
+      },
+      {
+        "source_id": "row-875",
+        "group_id": "vehicle-form",
+        "candidates": [
+          "차량형태",
+          "차형태"
+        ],
+        "frequencies": {
+          "차량형태": 1,
+          "차형태": 1
+        },
+        "selected_term": "차량형태",
+        "tied": true,
+        "selection_source": "context_resolver",
+        "rationale": "빈도 동률에서 문맥 판정기가 자연스러운 용어를 선택"
+      },
+      {
+        "source_id": "row-979",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-984",
+        "group_id": "special-contract-rate",
+        "candidates": [
+          "특약율",
+          "특약요율"
+        ],
+        "frequencies": {
+          "특약율": 2,
+          "특약요율": 1
+        },
+        "selected_term": "특약율",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 2건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-985",
+        "group_id": "special-contract-rate",
+        "candidates": [
+          "특약율",
+          "특약요율"
+        ],
+        "frequencies": {
+          "특약율": 2,
+          "특약요율": 1
+        },
+        "selected_term": "특약율",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 2건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-1004",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      },
+      {
+        "source_id": "row-1005",
+        "group_id": "payment-action",
+        "candidates": [
+          "납입",
+          "납부"
+        ],
+        "frequencies": {
+          "납입": 24,
+          "납부": 3
+        },
+        "selected_term": "납입",
+        "tied": false,
+        "selection_source": "frequency",
+        "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택"
+      }
+    ],
+    "recovery_stats": {
+      "generation_fallback_count": 7,
+      "review_failure_count": 0,
+      "generation_rejected_result_count": 7
+    },
+    "recovery_events": [
+      {
+        "source_id": "row-169",
+        "stage": "generate",
+        "code": "rejected_result"
+      },
+      {
+        "source_id": "row-332",
+        "stage": "generate",
+        "code": "rejected_result"
+      },
+      {
+        "source_id": "row-591",
+        "stage": "generate",
+        "code": "rejected_result"
+      },
+      {
+        "source_id": "row-592",
+        "stage": "generate",
+        "code": "rejected_result"
+      },
+      {
+        "source_id": "row-624",
+        "stage": "generate",
+        "code": "rejected_result"
+      },
+      {
+        "source_id": "row-697",
+        "stage": "generate",
+        "code": "rejected_result"
+      },
+      {
+        "source_id": "row-797",
+        "stage": "generate",
+        "code": "rejected_result"
+      }
+    ]
+  },
+  "terminology_decisions": [
+    {
+      "group_id": "payment-action",
+      "candidates": [
+        "납입",
+        "납부"
+      ],
+      "candidate_frequencies": {
+        "납부": 3,
+        "납입": 24
+      },
+      "selected_term": "납입",
+      "tied": false,
+      "selection_source": "frequency",
+      "rationale": "전체 입력 빈도 24건으로 단독 최다 용어를 선택",
+      "affected_source_ids": [
+        "row-267",
+        "row-268",
+        "row-270",
+        "row-271",
+        "row-276",
+        "row-277",
+        "row-282",
+        "row-283",
+        "row-284",
+        "row-359",
+        "row-414",
+        "row-539",
+        "row-566",
+        "row-568",
+        "row-574",
+        "row-575",
+        "row-742",
+        "row-743",
+        "row-744",
+        "row-926",
+        "row-927",
+        "row-928",
+        "row-969",
+        "row-979",
+        "row-1002",
+        "row-1004",
+        "row-1005"
+      ]
+    },
+    {
+      "group_id": "special-contract-rate",
+      "candidates": [
+        "특약율",
+        "특약요율"
+      ],
+      "candidate_frequencies": {
+        "특약요율": 1,
+        "특약율": 2
+      },
+      "selected_term": "특약율",
+      "tied": false,
+      "selection_source": "frequency",
+      "rationale": "전체 입력 빈도 2건으로 단독 최다 용어를 선택",
+      "affected_source_ids": [
+        "row-838",
+        "row-984",
+        "row-985"
+      ]
+    },
+    {
+      "group_id": "used-car-rate",
+      "candidates": [
+        "중고차요율",
+        "중고차율"
+      ],
+      "candidate_frequencies": {
+        "중고차요율": 1,
+        "중고차율": 1
+      },
+      "selected_term": "중고차요율",
+      "tied": true,
+      "selection_source": "context_resolver",
+      "rationale": "빈도 동률에서 문맥 판정기가 자연스러운 용어를 선택",
+      "affected_source_ids": [
+        "row-174",
+        "row-869"
+      ]
+    },
+    {
+      "group_id": "vehicle-form",
+      "candidates": [
+        "차량형태",
+        "차형태"
+      ],
+      "candidate_frequencies": {
+        "차량형태": 1,
+        "차형태": 1
+      },
+      "selected_term": "차량형태",
+      "tied": true,
+      "selection_source": "context_resolver",
+      "rationale": "빈도 동률에서 문맥 판정기가 자연스러운 용어를 선택",
+      "affected_source_ids": [
+        "row-178",
+        "row-875"
+      ]
+    }
+  ]
+}
