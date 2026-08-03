@@ -1,0 +1,24 @@
+{
+  "checked_at": "2026-08-03T13:33:11.9736080+09:00",
+  "commit_sha": "10ea37c",
+  "endpoint": "http://192.168.100.91:8000/v1",
+  "model": "Qwen3.6-27B-FP8",
+  "command": "python -m scripts.smoke_llm",
+  "settings": {
+    "connect_timeout_seconds": 5.0,
+    "read_timeout_seconds": 60.0,
+    "max_retries": 0
+  },
+  "passed": false,
+  "failure_code": "connection_error",
+  "message": "All connection attempts failed",
+  "fallback_verification": {
+    "actual_workbook_run_completed": true,
+    "source_count": 1195,
+    "validation_error_count": 0,
+    "generation_connection_error_count": 32,
+    "review_connection_error_count": 38,
+    "run_metadata": "run-metadata.json"
+  },
+  "gate_status": "external_endpoint_unavailable"
+}
