@@ -4,6 +4,7 @@ from app.exceptions import LLMResponseError
 from app.glossary import MappingGlossary
 from app.llm import _parse_json
 from app.models import SourceRow, WorkflowOptions
+from app.recovery import _parse_evidence
 from app.workflow import NamingWorkflow
 
 
@@ -53,3 +54,18 @@ def test_malformed_llm_response_has_clear_error():
     with pytest.raises(LLMResponseError, match="JSON"):
         _parse_json("not-json")
 
+
+def test_parse_evidence_restores_components():
+    components = _parse_evidence(
+        "TLM→TELEGRAM MESSAGE→전문[mapping] | "
+        "TS→TIME STAMP→타임스탬프[inference]"
+    )
+
+    assert [component.source_fragment for component in components] == [
+        "TLM",
+        "TS",
+    ]
+    assert components[1].full_name == "TIME STAMP"
+    assert components[1].korean_word == "타임스탬프"
+    assert components[1].origin == "inference"
+    assert components[1].start == 3

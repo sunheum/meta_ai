@@ -85,6 +85,18 @@ python -m scripts.run_workflow `
 python -m scripts.smoke_llm
 ```
 
+기존 결과의 `검증실패` 행만 재처리:
+
+```powershell
+python -m scripts.repair_failed `
+  --source ..\data\table_column_template_컬럼코멘트N.xlsx `
+  --result results\korean_column_names.xlsx `
+  --mapping result.xlsx `
+  --output results\korean_column_names_repaired.xlsx `
+  --population results\review-population-repaired.jsonl `
+  --metadata results\metadata-repaired.json
+```
+
 성능·메모리 기준선:
 
 ```powershell
