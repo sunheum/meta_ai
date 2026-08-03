@@ -1,0 +1,88 @@
+{
+  "rubric": {
+    "name": "AI 한글속성명 리뷰 루브릭",
+    "version": "1.0.0"
+  },
+  "stage_id": "S4",
+  "commit_sha": "b4184ed",
+  "reviewed_item_count": 1,
+  "expected_item_count": 694,
+  "raw_score": 76.0,
+  "score_cap": 59.0,
+  "score": 59.0,
+  "passed": false,
+  "dimensions": {
+    "source_integrity": {
+      "label": "원본·출력 구조 무결성",
+      "weight": 10.0,
+      "rating": 5.0,
+      "points": 10.0,
+      "evidence": [
+        "원본 보존 검증 구현"
+      ]
+    },
+    "segmentation_coverage": {
+      "label": "약어 분해와 원문 커버리지",
+      "weight": 15.0,
+      "rating": 3.5,
+      "points": 10.5,
+      "evidence": [
+        "S3 후보 분해 유지"
+      ]
+    },
+    "full_name_accuracy": {
+      "label": "영문 Full Name 정확성",
+      "weight": 15.0,
+      "rating": 3.5,
+      "points": 10.5,
+      "evidence": [
+        "오류행만 최대 2회 교정"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "label": "한글 의미 충실도",
+      "weight": 25.0,
+      "rating": 3.5,
+      "points": 17.5,
+      "evidence": [
+        "자리표시자·빈 의미를 오류로 검출"
+      ]
+    },
+    "context_disambiguation": {
+      "label": "문맥·다의성 해소",
+      "weight": 15.0,
+      "rating": 3.5,
+      "points": 10.5,
+      "evidence": [
+        "검증 이슈와 문맥 후보를 리뷰 입력에 포함"
+      ]
+    },
+    "korean_naturalness": {
+      "label": "한글속성명 자연스러움",
+      "weight": 10.0,
+      "rating": 4.0,
+      "points": 8.0,
+      "evidence": [
+        "한글·숫자 형식과 정규화 검증"
+      ]
+    },
+    "consistency_traceability": {
+      "label": "행 간 용어 일관성·추적성",
+      "weight": 10.0,
+      "rating": 4.5,
+      "points": 9.0,
+      "evidence": [
+        "동일 문맥 결과와 변환근거 일치 검증"
+      ]
+    }
+  },
+  "issue_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "failed_required_checks": [
+    "score_scope_complete"
+  ],
+  "dimensions_below_minimum": []
+}

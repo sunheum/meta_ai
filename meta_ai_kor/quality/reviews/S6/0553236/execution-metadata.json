@@ -1,0 +1,11 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "0553236",
+  "initial_generation_commit": "fea544a",
+  "failed_row_repair_commit": "b1e3132",
+  "initial_validation_failure_count": 17,
+  "final_validation_failure_count": 0,
+  "review_correction_count": 29,
+  "reference_exact_rate_before_correction": 0.7788,
+  "reference_exact_rate_after_correction": 0.9124
+}

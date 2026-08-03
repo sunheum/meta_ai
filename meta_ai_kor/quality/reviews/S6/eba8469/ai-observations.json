@@ -1,0 +1,67 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "eba8469",
+  "reviewed_item_count": 0,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": false
+  },
+  "dimensions": {
+    "source_integrity": {
+      "rating": 5,
+      "evidence": [
+        "33개 회귀 테스트와 결정적 694행 출력 감사에서 원본 12개 셀 변경 0건"
+      ]
+    },
+    "segmentation_coverage": {
+      "rating": 3,
+      "evidence": [
+        "결정적 대체 실행에서 자리표시자 225건이 남아 전체 의미 분해를 확인하지 못함"
+      ]
+    },
+    "full_name_accuracy": {
+      "rating": 3,
+      "evidence": [
+        "전체 LLM 실행이 첫 배치 응답 전에 중단되어 Full Name 의미 리뷰 범위가 없음"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "rating": 3,
+      "evidence": [
+        "결정적 대체 결과의 미정 포함 225건 때문에 업무 의미 충실도를 보증할 수 없음"
+      ]
+    },
+    "context_disambiguation": {
+      "rating": 3,
+      "evidence": [
+        "LLM 문맥 해소 결과가 생성되지 않아 다의 약어 전수 검토가 불가능함"
+      ]
+    },
+    "korean_naturalness": {
+      "rating": 3.5,
+      "evidence": [
+        "형식 검사는 통과하지만 결정적 결과에 미정 결합과 어색한 과분해가 남음"
+      ]
+    },
+    "consistency_traceability": {
+      "rating": 4,
+      "evidence": [
+        "결정적 결과 전수에 변환근거가 있으며 동일 문맥 불일치 0건"
+      ]
+    }
+  },
+  "issues": [
+    {
+      "source_id": null,
+      "severity": "major",
+      "expected": "694행 전체 생성 결과와 의미 리뷰 증거",
+      "actual": "로컬 LLM 서버가 10분 이상 첫 배치에 응답하지 않아 실행을 종료함",
+      "evidence": "s6_small.stdout.log의 generate 0/632 마지막 이벤트와 운영 기록",
+      "suggestion": "구조화 요청에서 Qwen 내부 추론을 비활성화한 뒤 동일 서버·모델로 재실행한다."
+    }
+  ]
+}

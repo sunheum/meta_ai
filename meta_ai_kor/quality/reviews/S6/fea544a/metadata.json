@@ -1,0 +1,17 @@
+{
+  "row_count": 694,
+  "status": {
+    "검증실패": 17,
+    "검토필요": 627,
+    "자동확정": 50
+  },
+  "review_strata": {
+    "review_needed": 5,
+    "duplicate_context": 129,
+    "mapping_ambiguity": 290,
+    "unmapped_inference": 215,
+    "deterministic": 50,
+    "segmentation_ambiguity": 5
+  },
+  "unresolved_count": 238
+}

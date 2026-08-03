@@ -1,0 +1,82 @@
+{
+  "stage_id": "S1",
+  "commit_sha": "d9972d6",
+  "reviewed_item_count": 694,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": true
+  },
+  "dimensions": {
+    "source_integrity": {
+      "rating": 5,
+      "evidence": [
+        "694행과 원본 12개 컬럼을 전수 보존",
+        "결과 5개 컬럼과 검토필요 시트 생성"
+      ]
+    },
+    "segmentation_coverage": {
+      "rating": 2,
+      "evidence": [
+        "밑줄 경계의 직접 매핑만 지원",
+        "373행에 미해석 조각이 남음"
+      ]
+    },
+    "full_name_accuracy": {
+      "rating": 2,
+      "evidence": [
+        "직접 매핑 Full Name은 사전 근거가 있음",
+        "미해석 조각은 약어 원문으로 남음"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "rating": 2,
+      "evidence": [
+        "373행 한글속성명에 '미정'이 포함됨",
+        "직접 매핑 행은 한글단어 순서를 보존"
+      ]
+    },
+    "context_disambiguation": {
+      "rating": 2,
+      "evidence": [
+        "테이블설명에 한글단어가 포함되면 우선하는 1차 문맥 점수 구현",
+        "187행이 매핑 다의성으로 분류됨"
+      ]
+    },
+    "korean_naturalness": {
+      "rating": 2,
+      "evidence": [
+        "공백 없는 형식은 지키지만 '미정' 결합이 반복됨"
+      ]
+    },
+    "consistency_traceability": {
+      "rating": 4,
+      "evidence": [
+        "모든 행에 약어→Full Name→한글단어 근거가 있음",
+        "문맥 키 기반 결과 재사용 계약이 정의됨"
+      ]
+    }
+  },
+  "issues": [
+    {
+      "source_id": "row-2 외 372행",
+      "severity": "major",
+      "expected": "모든 원문 조각의 의미 있는 Full Name과 한글단어",
+      "actual": "373행에 미정 포함",
+      "evidence": "review-population.jsonl 전수 집계",
+      "suggestion": "S2 동적 분해로 붙은 약어의 사전 커버리지를 높인다."
+    },
+    {
+      "source_id": "row-4 외 186행",
+      "severity": "major",
+      "expected": "문맥상 단일 의미 선택",
+      "actual": "187행 매핑 다의성",
+      "evidence": "review_stratum=mapping_ambiguity",
+      "suggestion": "S3에서 LLM 문맥 선택을 적용한다."
+    }
+  ]
+}
+

@@ -1,0 +1,7 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "eba8469",
+  "status": "blocked_by_missing_population",
+  "score": null,
+  "reason": "전체 LLM 결과 모집단이 생성되지 않아 실제 사람 리뷰 점수를 산출하지 않았다."
+}

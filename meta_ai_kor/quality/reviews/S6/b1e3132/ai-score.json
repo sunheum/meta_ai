@@ -1,0 +1,91 @@
+{
+  "rubric": {
+    "name": "AI 한글속성명 리뷰 루브릭",
+    "version": "1.0.0"
+  },
+  "stage_id": "S6",
+  "commit_sha": "b1e3132",
+  "reviewed_item_count": 694,
+  "expected_item_count": 694,
+  "raw_score": 83.2,
+  "score_cap": 100.0,
+  "score": 83.2,
+  "passed": false,
+  "dimensions": {
+    "source_integrity": {
+      "label": "원본·출력 구조 무결성",
+      "weight": 10.0,
+      "rating": 5.0,
+      "points": 10.0,
+      "evidence": [
+        "audit.json: 원본·결과 694행 일치, 원본 셀 변경 0건, 결과 헤더 일치"
+      ]
+    },
+    "segmentation_coverage": {
+      "label": "약어 분해와 원문 커버리지",
+      "weight": 15.0,
+      "rating": 4.8,
+      "points": 14.4,
+      "evidence": [
+        "694행 전수에서 빈 결과·미정 자리표시자 0건이며 모든 행에 컴포넌트 변환근거 존재",
+        "검증실패 17건을 실패행 전용 LLM 복구로 0건까지 감소"
+      ]
+    },
+    "full_name_accuracy": {
+      "label": "영문 Full Name 정확성",
+      "weight": 15.0,
+      "rating": 3.8,
+      "points": 11.4,
+      "evidence": [
+        "217개 단일 참조 가능 컬럼 중 한글명 정확 문자열 일치 169건(77.88%)",
+        "TLM_OPNDT의 DT=DETAIL, NDS_AP의 AP=APPLICATION 등 문맥 다의어 오류가 남음"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "label": "한글 의미 충실도",
+      "weight": 25.0,
+      "rating": 3.8,
+      "points": 19.0,
+      "evidence": [
+        "빈 값·자리표시자·형식 오류는 0건이나 만기/종료, 차량/계약 등 업무 의미 차이가 일부 남음",
+        "불일치 48건에는 일/일자와 ID 표기 같은 표준어 변형도 포함됨"
+      ]
+    },
+    "context_disambiguation": {
+      "label": "문맥·다의성 해소",
+      "weight": 15.0,
+      "rating": 3.6,
+      "points": 10.8,
+      "evidence": [
+        "대부분의 미매핑 약어를 문맥으로 복구했으나 보험계약 문맥의 ND, CR, AP, DT 선택 오류가 반복됨"
+      ]
+    },
+    "korean_naturalness": {
+      "label": "한글속성명 자연스러움",
+      "weight": 10.0,
+      "rating": 4.2,
+      "points": 8.4,
+      "evidence": [
+        "694행 모두 한글·숫자 무공백 형식을 통과하고 중복 문맥 결과 불일치 0건",
+        "전문개시시, 신주소, 사회가입경력코드 등 국소 어색한 결합이 남음"
+      ]
+    },
+    "consistency_traceability": {
+      "label": "행 간 용어 일관성·추적성",
+      "weight": 10.0,
+      "rating": 4.6,
+      "points": 9.2,
+      "evidence": [
+        "변환근거 공란 0건, 동일 문맥 불일치 0건, 신뢰도 범위 오류 0건",
+        "모든 결과가 약어→Full Name→한글단어와 mapping/inference 출처를 보존"
+      ]
+    }
+  },
+  "issue_counts": {
+    "critical": 0,
+    "major": 5,
+    "minor": 1
+  },
+  "failed_required_checks": [],
+  "dimensions_below_minimum": []
+}

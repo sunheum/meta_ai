@@ -1,0 +1,33 @@
+{
+  "stage_id": "S5",
+  "commit_sha": "106eb95",
+  "reviewed_item_count": 1,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": false
+  },
+  "dimensions": {
+    "source_integrity": {"rating": 5, "evidence": ["동기·비동기 API가 XLSX bytes를 보존"]},
+    "segmentation_coverage": {"rating": 3.5, "evidence": ["S4 엔진 회귀 없음"]},
+    "full_name_accuracy": {"rating": 3.5, "evidence": ["S4 엔진 회귀 없음"]},
+    "korean_semantic_fidelity": {"rating": 3.5, "evidence": ["S4 엔진 회귀 없음"]},
+    "context_disambiguation": {"rating": 3.5, "evidence": ["S4 엔진 회귀 없음"]},
+    "korean_naturalness": {"rating": 4, "evidence": ["S4 형식 검증 회귀 없음"]},
+    "consistency_traceability": {"rating": 4.5, "evidence": ["API 메타데이터·진행률·결과 다운로드 추적"]}
+  },
+  "issues": [
+    {
+      "source_id": null,
+      "severity": "major",
+      "expected": "API를 통한 694행 전체 결과 리뷰",
+      "actual": "가짜 워크플로 API 테스트만 완료",
+      "evidence": "S5 테스트 기록",
+      "suggestion": "S6 전체 benchmark를 전수 감사한다."
+    }
+  ]
+}
+

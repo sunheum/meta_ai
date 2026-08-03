@@ -1,0 +1,33 @@
+{
+  "stage_id": "S3",
+  "commit_sha": "cc586fc",
+  "reviewed_item_count": 1,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": false
+  },
+  "dimensions": {
+    "source_integrity": {"rating": 5, "evidence": ["S2 전수 보존 회귀 통과"]},
+    "segmentation_coverage": {"rating": 3.5, "evidence": ["구조화 LLM이 분해 후보와 전체 약어 추론을 선택"]},
+    "full_name_accuracy": {"rating": 3, "evidence": ["TLM_OPNDT smoke에서 DATE를 올바르게 선택"]},
+    "korean_semantic_fidelity": {"rating": 3, "evidence": ["smoke 결과 전문개시일자 확인, 전수 미실행"]},
+    "context_disambiguation": {"rating": 3.5, "evidence": ["DT/CR/AP 문맥 선택 프롬프트와 후보 근거 구현"]},
+    "korean_naturalness": {"rating": 3.5, "evidence": ["공백 제거·일시·접미어 정규화 구현"]},
+    "consistency_traceability": {"rating": 4, "evidence": ["구조화 컴포넌트와 mapping/inference 출처 보존"]}
+  },
+  "issues": [
+    {
+      "source_id": null,
+      "severity": "major",
+      "expected": "694행 전체 LLM 결과",
+      "actual": "실제 LLM smoke 1행만 완료",
+      "evidence": "S3 실행 기록",
+      "suggestion": "payload를 압축해 전체 benchmark를 실행한다."
+    }
+  ]
+}
+

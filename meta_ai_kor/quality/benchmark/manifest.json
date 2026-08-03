@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "captured_at": "2026-07-31",
+  "source_workbook": "../data/table_column_template_컬럼코멘트N.xlsx",
+  "source_sheet": "테이블_컬럼_정보",
+  "mapping_workbook": "../../meta_ai_kor/result.xlsx",
+  "mapping_sheet": "약어_매핑",
+  "source": {
+    "headers": [
+      "스키마 (*)",
+      "테이블명 (*)",
+      "테이블설명",
+      "컬럼순번 (*)",
+      "컬럼명 (*)",
+      "데이터타입 (*)",
+      "데이터길이",
+      "소수점",
+      "PK여부 (*)",
+      "NULL여부 (*)",
+      "기본값",
+      "컬럼설명"
+    ],
+    "row_count": 694,
+    "column_count": 12,
+    "unique_column_names": 608,
+    "duplicate_column_name_kinds": 43,
+    "blank_column_descriptions": 692,
+    "unique_table_names": 11,
+    "blank_table_descriptions": 248
+  },
+  "mapping": {
+    "headers": [
+      "영문약어",
+      "영문 Full Name",
+      "한글단어",
+      "출현건수"
+    ],
+    "row_count": 838,
+    "unique_abbreviations": 746,
+    "korean_ambiguous_abbreviations": 75,
+    "full_name_ambiguous_abbreviations": 46
+  },
+  "risk": {
+    "direct_underscore_mapping_rows": 321,
+    "fully_segmentable_rows": 475,
+    "segmentation_ambiguous_rows": 378,
+    "meaning_ambiguous_rows": 396,
+    "unresolved_unique_tokens": 178
+  }
+}
+

@@ -1,0 +1,9 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "56165c8",
+  "status": "sample_ready",
+  "score": null,
+  "sample_file": "deterministic-human-sample.csv",
+  "sample_size": 60,
+  "reason": "블라인드 위험층화 표본은 생성했으며 실제 사람의 독립 평점 입력을 기다린다."
+}

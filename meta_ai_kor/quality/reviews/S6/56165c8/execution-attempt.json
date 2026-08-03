@@ -1,0 +1,13 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "56165c8",
+  "target_rows": 694,
+  "llm_review_target_rows": 632,
+  "batch_size": 25,
+  "max_concurrency": 10,
+  "read_timeout_seconds": 600,
+  "completed_before_stop": 250,
+  "accepted_llm_batches": 0,
+  "result": "stopped",
+  "reason": "첫 10개 배치가 모두 600초 시점에 시간 초과되어 결정적 대체 결과만 반환함"
+}

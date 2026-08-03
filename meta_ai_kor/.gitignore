@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.env
+results/
+outputs/
+*.stdout.log
+*.stderr.log
+pytest-cache-files-*/
+.test-cache-*/
+.test-tmp-*/

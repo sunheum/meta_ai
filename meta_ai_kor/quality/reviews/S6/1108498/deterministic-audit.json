@@ -1,0 +1,19 @@
+{
+  "source_row_count": 694,
+  "result_row_count": 694,
+  "row_count_matches": true,
+  "changed_original_cell_count": 0,
+  "result_headers_match": true,
+  "blank_full_name_count": 0,
+  "blank_korean_name_count": 0,
+  "invalid_korean_name_count": 0,
+  "placeholder_name_count": 225,
+  "blank_evidence_count": 0,
+  "confidence_out_of_range_count": 0,
+  "inconsistent_context_count": 0,
+  "status_counts": {
+    "검증실패": 225,
+    "검토필요": 419,
+    "자동확정": 50
+  }
+}

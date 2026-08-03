@@ -1,0 +1,81 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "0553236",
+  "reviewed_item_count": 694,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": true
+  },
+  "dimensions": {
+    "source_integrity": {
+      "rating": 5,
+      "evidence": [
+        "audit.json: 원본·결과 694행 일치, 원본 셀 변경 0건, 필수 결과 헤더 일치"
+      ]
+    },
+    "segmentation_coverage": {
+      "rating": 4.9,
+      "evidence": [
+        "빈 Full Name·한글속성명·변환근거 0건, 미정 자리표시자 0건, 한글 형식 오류 0건",
+        "실패행 전용 복구로 검증실패 17건을 0건으로 감소"
+      ]
+    },
+    "full_name_accuracy": {
+      "rating": 4.5,
+      "evidence": [
+        "독립 리뷰에서 확인된 DT/AP/ND/CR/DTCL 다의어 Full Name 오류를 명시적 보정으로 수정",
+        "217개 단일 참조 가능 컬럼의 한글명 정확 일치가 91.24%이며 남은 불일치는 의미 반전이 아님"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "rating": 4.5,
+      "evidence": [
+        "만기/종료, 차량/계약, 승인/적용 등 확인된 주요 업무 의미 오류 계열 29건을 교정",
+        "남은 참조 불일치 19건은 ID 접미어 정책 18건과 사용자/사용인 용어 변형 1건"
+      ]
+    },
+    "context_disambiguation": {
+      "rating": 4.4,
+      "evidence": [
+        "보험계약·수입보험료·직원 테이블 문맥의 반복 다의어를 같은 원칙으로 보정",
+        "중복 문맥 결과 불일치 0건"
+      ]
+    },
+    "korean_naturalness": {
+      "rating": 4.6,
+      "evidence": [
+        "694행 모두 공백 없는 한글·숫자 형식이며 일자·상세·신규 등 표준 접미어를 교정",
+        "ID 영문 접미어는 현 한글·숫자 전용 규칙에 따라 의도적으로 제외"
+      ]
+    },
+    "consistency_traceability": {
+      "rating": 4.8,
+      "evidence": [
+        "근거 공란·신뢰도 범위 오류·동일 문맥 불일치 모두 0건",
+        "29개 보정은 ai-corrections.json에 원본 SHA와 사유를 보존하고 각 행 근거에 inference를 명시"
+      ]
+    }
+  },
+  "issues": [
+    {
+      "source_id": "row-58",
+      "severity": "minor",
+      "expected": "데이터 표준 정책에 따라 ID 영문 접미어 허용 여부를 명시",
+      "actual": "한글·숫자 전용 규칙으로 입력사용자이며 기존 코멘트는 입력사용자ID; 같은 계열 18건",
+      "evidence": "known-comment-comparison.json의 id_suffix_policy=18",
+      "suggestion": "ID를 허용할 경우 한글속성명 정규식과 18개 계열을 함께 변경한다."
+    },
+    {
+      "source_id": "row-132",
+      "severity": "minor",
+      "expected": "사용자번호 또는 사용인번호 중 조직 표준어 확정",
+      "actual": "사용자번호이며 단일 참조 코멘트는 사용인번호",
+      "evidence": "USRNO의 Full Name USER NUMBER와 참조 코멘트 비교",
+      "suggestion": "용어사전 소유자가 사용자/사용인 표준어를 선택한다."
+    }
+  ]
+}
