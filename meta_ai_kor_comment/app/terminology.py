@@ -183,6 +183,7 @@ def reconcile_results(
     results: Sequence[GenerationResult],
     groups: Iterable[SynonymGroup],
     *,
+    frequency_results: Sequence[GenerationResult] | None = None,
     contexts: Mapping[str, TerminologyContext] | None = None,
     occurrence_weights: Mapping[str, int] | None = None,
     tie_resolver: TieResolver | None = None,
@@ -194,8 +195,17 @@ def reconcile_results(
     """
 
     group_list = validate_synonym_groups(groups)
+    frequency_population = frequency_results or results
+    if {result.source_id for result in frequency_population} != {
+        result.source_id for result in results
+    }:
+        raise TerminologyError(
+            "용어 빈도 모집단과 적용 결과의 source_id가 일치하지 않습니다."
+        )
     tables = build_frequency_tables(
-        results, group_list, occurrence_weights=occurrence_weights
+        frequency_population,
+        group_list,
+        occurrence_weights=occurrence_weights,
     )
     context_map = contexts or {}
     reconciled: list[GenerationResult] = []

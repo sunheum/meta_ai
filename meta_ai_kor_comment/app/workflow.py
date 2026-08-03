@@ -360,7 +360,7 @@ class KoreanCommentWorkflow:
             if risks[source.source_id].requires_generation
         ]
         if not risky:
-            return [base[source.source_id] for source in representatives], set()
+            return [base[source.source_id] for source in representatives], {}
 
         batches = list(_batched(risky, options.batch_size))
         semaphore = asyncio.Semaphore(options.max_concurrency)
@@ -381,6 +381,11 @@ class KoreanCommentWorkflow:
                 proposed = []
                 failure_code = _llm_failure_code(exc)
             source_by_id = {source.source_id: source for source in batch}
+            returned_ids = {
+                candidate.source_id
+                for candidate in proposed
+                if candidate.source_id in source_by_id
+            }
             accepted_ids: set[str] = set()
             for candidate in proposed:
                 source = source_by_id.get(candidate.source_id)
@@ -422,7 +427,14 @@ class KoreanCommentWorkflow:
             for source in batch:
                 if source.source_id in accepted_ids:
                     continue
-                source_failure_code = failure_code or "missing_result"
+                source_failure_code = (
+                    failure_code
+                    or (
+                        "rejected_result"
+                        if source.source_id in returned_ids
+                        else "missing_result"
+                    )
+                )
                 fallback_codes[source.source_id] = source_failure_code
                 fallback = base[source.source_id]
                 reason = (
@@ -481,6 +493,9 @@ class KoreanCommentWorkflow:
         return reconcile_results(
             results,
             self._synonym_groups,
+            frequency_results=[
+                _deterministic_candidate(source) for source in sources
+            ],
             contexts=context_by_id,
             occurrence_weights=occurrence_weights,
             tie_resolver=_terminology_tie_resolver,
@@ -845,6 +860,7 @@ def _failure_reason(code: str) -> str:
         "response_error": "응답 형식 오류",
         "model_error": "호출 실패",
         "missing_result": "결과 누락",
+        "rejected_result": "정책 검증 거부",
         "unexpected_error": "예상하지 못한 오류",
     }.get(code, "실패")
 

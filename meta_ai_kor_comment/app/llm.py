@@ -54,6 +54,10 @@ class LocalChatKoreanNamingModel:
         self._client = httpx.AsyncClient(
             base_url=settings.llm_base_url.rstrip("/") + "/",
             timeout=timeout,
+            # The default endpoint is an RFC1918 address.  In managed desktop
+            # environments HTTP_PROXY can otherwise route it through an
+            # unreachable corporate proxy even though direct TCP is healthy.
+            trust_env=settings.llm_trust_env,
             headers={
                 "Authorization": f"Bearer {settings.llm_api_key}",
                 "Content-Type": "application/json",

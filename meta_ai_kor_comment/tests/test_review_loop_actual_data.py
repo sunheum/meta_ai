@@ -75,6 +75,7 @@ async def test_actual_low_confidence_row_is_reviewed_without_regressing_others()
         assert result.validation_report.is_valid
         assert result.validation_failed_count == 0
         assert result.recovery_stats["generation_fallback_count"] > 0
+        assert result.recovery_stats["generation_rejected_result_count"] > 0
         assert result.recovery_stats["review_failure_count"] == 0
         assert all(
             [source.source_id for source in sources]

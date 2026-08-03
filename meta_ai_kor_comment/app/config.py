@@ -12,6 +12,18 @@ def _env_float(name: str, default: float) -> float:
     return float(os.getenv(name, str(default)))
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    normalized = value.strip().casefold()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name}은 true/false 값이어야 합니다.")
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     """Runtime settings shared with the existing mapping service."""
@@ -19,6 +31,7 @@ class Settings:
     llm_base_url: str = "http://192.168.100.91:8000/v1"
     llm_model: str = "Qwen3.6-27B-FP8"
     llm_api_key: str = "not-needed"
+    llm_trust_env: bool = False
     llm_temperature: float = 0.2
     llm_top_p: float = 0.8
     llm_max_tokens: int = 8192
@@ -45,6 +58,9 @@ class Settings:
             llm_base_url=os.getenv("LLM_BASE_URL", defaults.llm_base_url),
             llm_model=os.getenv("LLM_MODEL", defaults.llm_model),
             llm_api_key=os.getenv("LLM_API_KEY", defaults.llm_api_key),
+            llm_trust_env=_env_bool(
+                "LLM_TRUST_ENV", defaults.llm_trust_env
+            ),
             llm_temperature=_env_float(
                 "LLM_TEMPERATURE", defaults.llm_temperature
             ),

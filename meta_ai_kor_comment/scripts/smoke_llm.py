@@ -6,6 +6,7 @@ import json
 from app.config import Settings
 from app.llm import LocalChatKoreanNamingModel
 from app.models import SourceColumn
+from app.normalization import classify_description
 from app.validation import validate_result
 
 
@@ -21,7 +22,11 @@ async def main() -> int:
     )
     model = LocalChatKoreanNamingModel(Settings.from_env())
     try:
-        results = await model.generate([source])
+        risk = classify_description(
+            source.column_description,
+            source_id=source.source_id,
+        )
+        results = await model.generate([source], [risk])
         issues = validate_result(source, results[0])
         print(
             json.dumps(

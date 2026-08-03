@@ -4,6 +4,7 @@ import json
 import pytest
 
 from app.exceptions import LLMResponseError
+from app.config import Settings
 from app.llm import LocalChatKoreanNamingModel, _parse_json
 from app.models import SourceColumn
 
@@ -31,6 +32,26 @@ class FakeClient:
     async def post(self, url, json):
         self.request = {"url": url, "json": json}
         return FakeResponse(self.payload)
+
+
+def test_local_client_bypasses_environment_proxy_by_default(monkeypatch) -> None:
+    captured = {}
+
+    class CapturingClient:
+        def __init__(self, **kwargs) -> None:
+            captured.update(kwargs)
+
+    monkeypatch.setattr("app.llm.httpx.AsyncClient", CapturingClient)
+
+    LocalChatKoreanNamingModel(Settings())
+
+    assert captured["trust_env"] is False
+
+
+def test_trust_env_can_be_enabled_explicitly(monkeypatch) -> None:
+    monkeypatch.setenv("LLM_TRUST_ENV", "true")
+
+    assert Settings.from_env().llm_trust_env is True
 
 
 def test_generate_parses_structured_result_and_sends_context() -> None:

@@ -94,6 +94,34 @@ def test_reconciliation_replaces_exact_units_only_and_records_reason() -> None:
     assert len(decisions) == 2
 
 
+def test_frequency_population_is_independent_from_model_rewrites() -> None:
+    group = SynonymGroup("payment", ("납입", "납부"))
+    generated = [
+        _result("row-2", "납입횟수", ["납입", "횟수"]),
+        _result("row-3", "납부횟수", ["납입", "횟수"]),
+    ]
+    source_frequency = [
+        _result("row-2", "납입횟수", ["납입", "횟수"]),
+        _result("row-3", "납부횟수", ["납부", "횟수"]),
+    ]
+
+    reconciled, decisions = reconcile_results(
+        generated,
+        [group],
+        frequency_results=source_frequency,
+        occurrence_weights={"row-2": 1, "row-3": 2},
+    )
+
+    assert [result.korean_attribute_name for result in reconciled] == [
+        "납부횟수",
+        "납부횟수",
+    ]
+    assert all(
+        decision.frequencies == {"납입": 1, "납부": 2}
+        for decision in decisions
+    )
+
+
 def test_synonym_surface_cannot_belong_to_two_groups() -> None:
     with pytest.raises(TerminologyError):
         validate_synonym_groups(
@@ -102,4 +130,3 @@ def test_synonym_surface_cannot_belong_to_two_groups() -> None:
                 SynonymGroup("two", ("비율", "율")),
             ]
         )
-

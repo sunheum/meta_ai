@@ -88,6 +88,7 @@ def _llm_settings_metadata(settings: Settings) -> dict[str, object]:
     """Return reproducible, non-secret LLM execution settings."""
 
     return {
+        "trust_env": settings.llm_trust_env,
         "temperature": settings.llm_temperature,
         "top_p": settings.llm_top_p,
         "max_tokens": settings.llm_max_tokens,

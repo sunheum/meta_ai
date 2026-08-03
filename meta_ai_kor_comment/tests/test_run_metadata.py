@@ -55,6 +55,7 @@ def test_llm_metadata_records_reproducible_settings_without_secret() -> None:
     metadata = _llm_settings_metadata(settings)
 
     assert metadata == {
+        "trust_env": False,
         "temperature": 0.15,
         "top_p": 0.75,
         "max_tokens": 4096,
