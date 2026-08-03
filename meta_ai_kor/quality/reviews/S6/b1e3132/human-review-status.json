@@ -1,0 +1,9 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "b1e3132",
+  "status": "sample_ready",
+  "score": null,
+  "sample_file": "human-sample.csv",
+  "sample_size": 60,
+  "reason": "위험층화 블라인드 표본을 생성했으며 실제 사람 리뷰어의 독립 평점 입력을 기다린다."
+}

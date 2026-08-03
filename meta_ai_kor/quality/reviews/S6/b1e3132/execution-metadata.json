@@ -1,0 +1,11 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "b1e3132",
+  "initial_result_commit": "fea544a",
+  "initial_llm_target_count": 632,
+  "initial_validation_failure_count": 17,
+  "targeted_repair_count": 17,
+  "targeted_repair_elapsed_seconds": 87.4,
+  "final_validation_failure_count": 0,
+  "final_row_count": 694
+}

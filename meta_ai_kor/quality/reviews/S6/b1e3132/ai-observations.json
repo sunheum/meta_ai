@@ -1,0 +1,112 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "b1e3132",
+  "reviewed_item_count": 694,
+  "expected_item_count": 694,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "korean_name_format": true,
+    "evidence_traceable": true,
+    "score_scope_complete": true
+  },
+  "dimensions": {
+    "source_integrity": {
+      "rating": 5,
+      "evidence": [
+        "audit.json: 원본·결과 694행 일치, 원본 셀 변경 0건, 결과 헤더 일치"
+      ]
+    },
+    "segmentation_coverage": {
+      "rating": 4.8,
+      "evidence": [
+        "694행 전수에서 빈 결과·미정 자리표시자 0건이며 모든 행에 컴포넌트 변환근거 존재",
+        "검증실패 17건을 실패행 전용 LLM 복구로 0건까지 감소"
+      ]
+    },
+    "full_name_accuracy": {
+      "rating": 3.8,
+      "evidence": [
+        "217개 단일 참조 가능 컬럼 중 한글명 정확 문자열 일치 169건(77.88%)",
+        "TLM_OPNDT의 DT=DETAIL, NDS_AP의 AP=APPLICATION 등 문맥 다의어 오류가 남음"
+      ]
+    },
+    "korean_semantic_fidelity": {
+      "rating": 3.8,
+      "evidence": [
+        "빈 값·자리표시자·형식 오류는 0건이나 만기/종료, 차량/계약 등 업무 의미 차이가 일부 남음",
+        "불일치 48건에는 일/일자와 ID 표기 같은 표준어 변형도 포함됨"
+      ]
+    },
+    "context_disambiguation": {
+      "rating": 3.6,
+      "evidence": [
+        "대부분의 미매핑 약어를 문맥으로 복구했으나 보험계약 문맥의 ND, CR, AP, DT 선택 오류가 반복됨"
+      ]
+    },
+    "korean_naturalness": {
+      "rating": 4.2,
+      "evidence": [
+        "694행 모두 한글·숫자 무공백 형식을 통과하고 중복 문맥 결과 불일치 0건",
+        "전문개시시, 신주소, 사회가입경력코드 등 국소 어색한 결합이 남음"
+      ]
+    },
+    "consistency_traceability": {
+      "rating": 4.6,
+      "evidence": [
+        "변환근거 공란 0건, 동일 문맥 불일치 0건, 신뢰도 범위 오류 0건",
+        "모든 결과가 약어→Full Name→한글단어와 mapping/inference 출처를 보존"
+      ]
+    }
+  },
+  "issues": [
+    {
+      "source_id": "row-3",
+      "severity": "major",
+      "expected": "TELEGRAM MESSAGE OPEN DATE / 전문개시일자",
+      "actual": "TELEGRAM MESSAGE OPEN DETAIL / 전문개시상세",
+      "evidence": "동일 컬럼 TLM_OPNDT의 단일 참조 코멘트가 전문개시일자",
+      "suggestion": "OPN과 결합된 DT를 DATE로 우선하는 문맥 규칙을 추가한다."
+    },
+    {
+      "source_id": "row-68",
+      "severity": "major",
+      "expected": "배서승인시작일시; row-69와 row-200~201도 동일 계열",
+      "actual": "배서적용시작일시",
+      "evidence": "NDS_AP_STR_DTHMS의 단일 참조 코멘트와 AP 다의 후보 비교",
+      "suggestion": "배서 문맥의 AP는 APPROVAL/승인을 우선한다."
+    },
+    {
+      "source_id": "row-366",
+      "severity": "major",
+      "expected": "보험계약 문맥의 ND를 만기로 해석; row-367~369 동일 계열",
+      "actual": "종료구분코드/종료/종료코드/실종료기간",
+      "evidence": "동일 컬럼의 단일 참조 코멘트가 만기 계열",
+      "suggestion": "보험계약 기간 문맥에서 ND=MATURITY/만기 후보를 추가한다."
+    },
+    {
+      "source_id": "row-392",
+      "severity": "major",
+      "expected": "차량담보가입여부",
+      "actual": "계약담보가입여부",
+      "evidence": "INS_INS_CR 테이블의 CR_CVR_IS_YN 단일 참조 코멘트",
+      "suggestion": "CVR 인접 CR은 CAR/차량 후보를 우선 검토한다."
+    },
+    {
+      "source_id": "row-450",
+      "severity": "major",
+      "expected": "채널세분류코드",
+      "actual": "채널일자별코드",
+      "evidence": "CHN_DTCL_CD 단일 참조 코멘트와 DTCL 복합 약어 비교",
+      "suggestion": "DTCL을 DETAIL CLASSIFICATION 복합 약어로 후보화한다."
+    },
+    {
+      "source_id": "row-58",
+      "severity": "minor",
+      "expected": "입력사용자ID 계열 표준 표기",
+      "actual": "입력사용자",
+      "evidence": "INP_USR_ID 등 14개 반복 계열; 현재 한글·숫자 전용 형식 규칙과 참조 표기가 충돌",
+      "suggestion": "ID 영문 접미어 허용 여부를 데이터 표준 정책으로 확정한다."
+    }
+  ]
+}

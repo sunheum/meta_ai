@@ -1,0 +1,8 @@
+{
+  "target_row_count": 694,
+  "unique_reference_match_count": 217,
+  "exact_match_count": 169,
+  "exact_match_rate": 0.7788,
+  "nonmatch_count": 48,
+  "note": "컬럼코멘트Y의 동일 컬럼명에 단일 코멘트만 존재하는 경우를 보조 참조로 비교했으며, 표준어 변형도 불일치에 포함된다."
+}

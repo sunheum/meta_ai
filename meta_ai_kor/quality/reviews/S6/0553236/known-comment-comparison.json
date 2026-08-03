@@ -1,0 +1,12 @@
+{
+  "target_row_count": 694,
+  "unique_reference_match_count": 217,
+  "exact_match_count": 198,
+  "exact_match_rate": 0.9124,
+  "nonmatch_count": 19,
+  "nonmatch_breakdown": {
+    "id_suffix_policy": 18,
+    "user_term_variant": 1
+  },
+  "note": "리뷰 전 169/217(77.88%)에서 리뷰 보정 후 198/217(91.24%)로 개선됐다."
+}
