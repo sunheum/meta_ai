@@ -1,0 +1,25 @@
+{
+  "validated_at": "2026-08-03T13:23:17.9158935+09:00",
+  "validator": {
+    "path": "C:/Users/2518048/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+    "sha256": "5347a0a09cfb546bba1c0d1a30dae0a233d9a05f57bd4e7877155c588bcdabf7",
+    "environment": {
+      "PYTHONUTF8": "1",
+      "yaml_compatibility": "temporary validator-only safe_load shim; not shipped with the project"
+    }
+  },
+  "skills": [
+    {
+      "path": "skills/score-comment-korean-columns-ai",
+      "skill_md_sha256": "74a83147a5e9fcf7e59a8e355386a37607a6f943588e7aeb9a9c12b842ae8e6c",
+      "exit_code": 0,
+      "message": "Skill is valid!"
+    },
+    {
+      "path": "skills/score-comment-korean-columns-human",
+      "skill_md_sha256": "4c00656a39f8fba1c03e74d7da81cf90eba652ff4e9111386d9b156f4488f4cc",
+      "exit_code": 0,
+      "message": "Skill is valid!"
+    }
+  ]
+}

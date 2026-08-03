@@ -9,7 +9,12 @@ from openpyxl import load_workbook
 
 from app.models import WorkflowOptions
 from app.models import SourceColumn
-from app.workflow import KoreanCommentWorkflow, _deterministic_candidate
+from app.excel import read_source_columns
+from app.workflow import (
+    KoreanCommentWorkflow,
+    _deduplicate_sources,
+    _deterministic_candidate,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -56,6 +61,28 @@ def test_required_tpms_translation_and_unknown_token_evidence() -> None:
     assert unknown.confidence == 55
     assert "확정하지 못한 영문" in unknown.review_reasons[0]
 
+
+def test_actual_risky_duplicate_is_partitioned_by_table_context() -> None:
+    sources = read_source_columns(ACTUAL_INPUT)
+
+    representatives, aliases = _deduplicate_sources(sources)
+
+    # The source has 921 basic column-name/description pairs.  Only the real
+    # OLD_CATCD pair occurs in two distinct table contexts and therefore needs
+    # two independently reviewable representatives.
+    assert len(representatives) == 922
+    old_representatives = [
+        source
+        for source in representatives
+        if source.column_name == "OLD_CATCD"
+        and source.column_description == "OLD차종코드"
+    ]
+    assert [source.source_id for source in old_representatives] == [
+        "row-865",
+        "row-923",
+    ]
+    assert all(len(aliases[source.source_id]) == 1 for source in old_representatives)
+
 @pytest.mark.asyncio
 async def test_actual_1195_row_workbook_end_to_end() -> None:
     output_dir = Path(__file__).resolve().parents[1] / "results"
@@ -74,6 +101,20 @@ async def test_actual_1195_row_workbook_end_to_end() -> None:
         assert summary.validation_report.is_valid
         assert summary.validation_report.stats["error_count"] == 0
         assert summary.validation_failed_count == 0
+        assert summary.recovery_stats["generation_fallback_count"] > 0
+        assert summary.recovery_stats["generation_unexpected_error_count"] > 0
+        assert summary.recovery_stats["review_failure_count"] == 0
+        assert len(summary.recovery_events) == summary.recovery_stats[
+            "generation_fallback_count"
+        ]
+        assert summary.recovery_events == sorted(
+            summary.recovery_events,
+            key=lambda event: (
+                int(event["source_id"].rsplit("-", 1)[-1]),
+                {"generate": 0, "review": 1}[event["stage"]],
+                event["code"],
+            ),
+        )
         assert output.exists()
 
         workbook = load_workbook(output, read_only=True, data_only=True)

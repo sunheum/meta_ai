@@ -218,6 +218,33 @@ def classify_description(
     )
 
 
+def source_processing_key(source: SourceColumn) -> tuple[str, ...]:
+    """Return the runtime deduplication key for one source row.
+
+    The basic workbook population is defined by ``source_dedup_key``.  Rows
+    that need generation, however, can depend on table context.  Keeping the
+    context in that case prevents a representative generated for one table
+    from being copied silently to a different table.  Clean deterministic
+    descriptions retain the compact two-field key and therefore keep the
+    original frequency weighting behaviour.
+    """
+
+    base = source_dedup_key(source)
+    risk = classify_description(
+        source.column_description,
+        source_id=source.source_id,
+    )
+    if not risk.requires_generation:
+        return base
+    context = (
+        normalize_description_key(source.schema_name or "").casefold(),
+        normalize_description_key(source.table_name or "").casefold(),
+        normalize_description_key(source.table_description or "").casefold(),
+        normalize_description_key(source.data_type or "").casefold(),
+    )
+    return (*base, *context)
+
+
 def stable_unique(values: Iterable[str]) -> list[str]:
     """Deduplicate while preserving first occurrence; useful for audit metadata."""
 

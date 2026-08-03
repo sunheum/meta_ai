@@ -227,6 +227,8 @@ class WorkflowResult(BaseModel):
     validation_report: ValidationReport
     terminology_stats: dict[str, int] = Field(default_factory=dict)
     terminology_decisions: list[TerminologyDecision] = Field(default_factory=list)
+    recovery_stats: dict[str, int] = Field(default_factory=dict)
+    recovery_events: list[dict[str, str]] = Field(default_factory=list)
 
     @property
     def result_count(self) -> int:

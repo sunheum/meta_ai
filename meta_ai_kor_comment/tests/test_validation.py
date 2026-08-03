@@ -105,6 +105,39 @@ def test_duplicate_inputs_must_have_identical_results() -> None:
     assert issue.source_ids == ["row-2", "row-3"]
 
 
+def test_risky_duplicate_in_distinct_table_contexts_may_differ() -> None:
+    sources = [
+        _source("row-2", "OLD차종코드", "OLD_CATCD").model_copy(
+            update={"table_name": "INS_CR_CR_DT"}
+        ),
+        _source("row-3", "OLD차종코드", "OLD_CATCD").model_copy(
+            update={"table_name": "INS_CR_CR_FNL"}
+        ),
+    ]
+    results = [
+        _result(
+            "row-2",
+            "OLD차종코드",
+            "구차종코드",
+            action=ProcessingAction.REWRITE,
+            reason="테이블 문맥에서 OLD를 구로 해석",
+        ),
+        _result(
+            "row-3",
+            "OLD차종코드",
+            "과거차종코드",
+            action=ProcessingAction.REWRITE,
+            reason="테이블 문맥에서 OLD를 과거로 해석",
+        ),
+    ]
+
+    report = validate_results(sources, results)
+
+    assert "duplicate_input_inconsistent" not in {
+        issue.code for issue in report.errors
+    }
+
+
 def test_keep_action_cannot_hide_a_changed_name() -> None:
     source = _source(description="납입횟수", column_name="PYM_CT")
     result = _result(description="납입횟수", name="납부횟수")
@@ -167,4 +200,3 @@ def test_low_confidence_valid_result_is_review_required() -> None:
     result = _result(confidence=89)
 
     assert derive_processing_status(result, []) is ProcessingStatus.REVIEW_REQUIRED
-

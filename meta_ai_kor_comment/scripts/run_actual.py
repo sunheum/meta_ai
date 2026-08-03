@@ -84,6 +84,21 @@ def _aggregate_terminology_decisions(decisions) -> list[dict[str, object]]:
     ]
 
 
+def _llm_settings_metadata(settings: Settings) -> dict[str, object]:
+    """Return reproducible, non-secret LLM execution settings."""
+
+    return {
+        "temperature": settings.llm_temperature,
+        "top_p": settings.llm_top_p,
+        "max_tokens": settings.llm_max_tokens,
+        "connect_timeout_seconds": settings.llm_connect_timeout_seconds,
+        "read_timeout_seconds": settings.llm_read_timeout_seconds,
+        "write_timeout_seconds": settings.llm_write_timeout_seconds,
+        "pool_timeout_seconds": settings.llm_pool_timeout_seconds,
+        "max_retries": settings.llm_max_retries,
+    }
+
+
 async def _run(args: argparse.Namespace) -> int:
     settings = Settings.from_env()
     options = WorkflowOptions(
@@ -107,12 +122,15 @@ async def _run(args: argparse.Namespace) -> int:
         else LocalChatKoreanNamingModel(settings)
     )
     workflow = KoreanCommentWorkflow(model)
-    result = await workflow.run(
-        input_path,
-        output_path,
-        options,
-        progress_callback=_print_progress,
-    )
+    try:
+        result = await workflow.run(
+            input_path,
+            output_path,
+            options,
+            progress_callback=_print_progress,
+        )
+    finally:
+        await workflow.aclose()
     metadata = {
         "created_at": datetime.now(timezone.utc).isoformat(),
         "input_path": str(input_path),
@@ -121,6 +139,7 @@ async def _run(args: argparse.Namespace) -> int:
         "output_sha256": _sha256(output_path),
         "model": settings.llm_model,
         "base_url": settings.llm_base_url,
+        "llm_settings": _llm_settings_metadata(settings),
         "execution_mode": "deterministic-recovery" if args.offline else "local-llm",
         "options": options.model_dump(),
         "result": result.model_dump(mode="json"),

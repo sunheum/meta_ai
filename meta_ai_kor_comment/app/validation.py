@@ -20,7 +20,7 @@ from app.normalization import (
     digit_sequences,
     forbidden_characters,
     invalid_english_tokens,
-    source_dedup_key,
+    source_processing_key,
     symbols_in,
 )
 
@@ -492,13 +492,15 @@ def _validate_duplicate_input_consistency(
     sources: Sequence[SourceColumn],
     results_by_id: dict[str, list[GenerationResult]],
 ) -> list[ValidationIssue]:
-    grouped: dict[tuple[str, str], list[tuple[SourceColumn, GenerationResult]]] = (
+    grouped: dict[tuple[str, ...], list[tuple[SourceColumn, GenerationResult]]] = (
         defaultdict(list)
     )
     for source in sources:
         source_results = results_by_id.get(source.source_id, [])
         if len(source_results) == 1:
-            grouped[source_dedup_key(source)].append((source, source_results[0]))
+            grouped[source_processing_key(source)].append(
+                (source, source_results[0])
+            )
 
     issues: list[ValidationIssue] = []
     for key, pairs in grouped.items():

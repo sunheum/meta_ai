@@ -127,6 +127,12 @@ def create_app(
             "X-Partial-Result": str(result.is_partial).lower(),
             "X-Validation-Errors": str(report.stats.get("error_count", 0)),
             "X-Validation-Warnings": str(report.stats.get("warning_count", 0)),
+            "X-Generation-Fallback-Count": str(
+                result.recovery_stats.get("generation_fallback_count", 0)
+            ),
+            "X-Review-Failure-Count": str(
+                result.recovery_stats.get("review_failure_count", 0)
+            ),
             "X-Validation-Summary": json.dumps(
                 report.stats, ensure_ascii=True, separators=(",", ":")
             ),
@@ -321,6 +327,8 @@ async def _run_generation_job(
                 "review_rounds": result.review_rounds,
                 "validation_stats": result.validation_report.stats,
                 "terminology_stats": result.terminology_stats,
+                "recovery_stats": result.recovery_stats,
+                "recovery_events": result.recovery_events,
                 "terminology_decisions": [
                     decision.model_dump(mode="json")
                     for decision in result.terminology_decisions

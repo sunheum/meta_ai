@@ -133,6 +133,8 @@ def test_single_request_uses_actual_workbook_and_returns_preserved_xlsx() -> Non
     assert response.headers["x-source-count"] == "1195"
     assert response.headers["x-result-count"] == "1195"
     assert response.headers["x-partial-result"] == "false"
+    assert response.headers["x-generation-fallback-count"] == "0"
+    assert response.headers["x-review-failure-count"] == "0"
     assert workflow.options.auto_confirm_threshold == 95
     workbook = load_workbook(BytesIO(response.content), read_only=True)
     try:
@@ -194,6 +196,8 @@ def test_job_api_streams_heartbeat_and_saves_actual_result() -> None:
         metadata = status.json()["result_metadata"]
         assert metadata["source_count"] == 1195
         assert metadata["result_count"] == 1195
+        assert metadata["recovery_stats"] == {}
+        assert metadata["recovery_events"] == []
         saved_path = Path(metadata["result_path"])
         assert saved_path == results_dir / f"{created.json()['job_id']}.xlsx"
         assert saved_path.is_file()

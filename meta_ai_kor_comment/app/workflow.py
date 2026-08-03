@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from app.excel import read_source_columns, write_result_workbook
+from app.exceptions import LLMResponseError
 from app.llm import KoreanNamingModel
 from app.models import (
     GenerationResult,
@@ -25,7 +26,7 @@ from app.models import (
 from app.normalization import (
     classify_description,
     invalid_english_tokens,
-    source_dedup_key,
+    source_processing_key,
 )
 from app.terminology import (
     SynonymGroup,
@@ -181,7 +182,7 @@ class KoreanCommentWorkflow:
             },
         )
 
-        generated = await self._generate(
+        generated, generation_fallback_codes = await self._generate(
             representatives,
             options,
             progress_callback,
@@ -203,6 +204,7 @@ class KoreanCommentWorkflow:
         )
 
         review_rounds = 0
+        review_failure_codes: dict[str, str] = {}
         for review_round in range(1, options.max_review_rounds + 1):
             report = validate_results(
                 representatives,
@@ -213,6 +215,7 @@ class KoreanCommentWorkflow:
             review_ids = _review_source_ids(
                 reconciled,
                 report.issues,
+                decisions,
                 options.auto_confirm_threshold,
             )
             if not review_ids:
@@ -228,14 +231,24 @@ class KoreanCommentWorkflow:
                 started,
                 {"review_round": review_round, "source_count": len(review_ids)},
             )
-            reviewed = await self._review(
+            reviewed, review_failure_code = await self._review(
                 representatives,
                 reconciled,
                 report.issues,
+                decisions,
                 review_ids,
                 review_round,
             )
             if reviewed is None:
+                failure_code = review_failure_code or "unexpected_error"
+                review_failure_codes.update(
+                    {source_id: failure_code for source_id in review_ids}
+                )
+                reconciled = _mark_review_failure(
+                    reconciled,
+                    review_ids,
+                    failure_code,
+                )
                 break
             reconciled, decisions = self._reconcile(
                 representatives,
@@ -312,6 +325,16 @@ class KoreanCommentWorkflow:
                 "decision_count": len(expanded_decisions),
             },
             terminology_decisions=expanded_decisions,
+            recovery_stats=_recovery_stats(
+                weights,
+                generation_fallback_codes,
+                review_failure_codes,
+            ),
+            recovery_events=_recovery_events(
+                aliases,
+                generation_fallback_codes,
+                review_failure_codes,
+            ),
         )
 
     async def _generate(
@@ -320,33 +343,43 @@ class KoreanCommentWorkflow:
         options: WorkflowOptions,
         callback: ProgressCallback | None,
         started: float,
-    ) -> list[GenerationResult]:
+    ) -> tuple[list[GenerationResult], dict[str, str]]:
         base = {
             source.source_id: _deterministic_candidate(source)
+            for source in representatives
+        }
+        risks = {
+            source.source_id: classify_description(
+                source.column_description, source_id=source.source_id
+            )
             for source in representatives
         }
         risky = [
             source
             for source in representatives
-            if classify_description(
-                source.column_description, source_id=source.source_id
-            ).requires_generation
+            if risks[source.source_id].requires_generation
         ]
         if not risky:
-            return [base[source.source_id] for source in representatives]
+            return [base[source.source_id] for source in representatives], set()
 
         batches = list(_batched(risky, options.batch_size))
         semaphore = asyncio.Semaphore(options.max_concurrency)
         completed = 0
         progress_lock = asyncio.Lock()
+        fallback_codes: dict[str, str] = {}
 
         async def generate_batch(batch: Sequence[SourceColumn]) -> None:
             nonlocal completed
+            failure_code: str | None = None
             try:
                 async with semaphore:
-                    proposed = await self._model.generate(batch)
-            except Exception:
+                    proposed = await self._model.generate(
+                        batch,
+                        [risks[source.source_id] for source in batch],
+                    )
+            except Exception as exc:
                 proposed = []
+                failure_code = _llm_failure_code(exc)
             source_by_id = {source.source_id: source for source in batch}
             accepted_ids: set[str] = set()
             for candidate in proposed:
@@ -389,8 +422,13 @@ class KoreanCommentWorkflow:
             for source in batch:
                 if source.source_id in accepted_ids:
                     continue
+                source_failure_code = failure_code or "missing_result"
+                fallback_codes[source.source_id] = source_failure_code
                 fallback = base[source.source_id]
-                reason = "로컬 LLM 결과가 없어 결정적 복구 규칙을 사용"
+                reason = (
+                    f"로컬 LLM 생성 {_failure_reason(source_failure_code)}로 "
+                    "결정적 복구 규칙을 사용"
+                )
                 base[source.source_id] = fallback.model_copy(
                     update={
                         "confidence": min(fallback.confidence, 85),
@@ -408,11 +446,14 @@ class KoreanCommentWorkflow:
                     round(12 + 52 * completed / len(batches)),
                     f"위험 배치 {completed:,}/{len(batches):,} 처리 완료",
                     started,
-                    {"risky_source_count": len(risky)},
+                    {
+                        "risky_source_count": len(risky),
+                        "generation_fallback_count": len(fallback_codes),
+                    },
                 )
 
         await asyncio.gather(*(generate_batch(batch) for batch in batches))
-        return [base[source.source_id] for source in representatives]
+        return [base[source.source_id] for source in representatives], fallback_codes
 
     def _reconcile(
         self,
@@ -450,17 +491,27 @@ class KoreanCommentWorkflow:
         sources: Sequence[SourceColumn],
         results: Sequence[GenerationResult],
         issues: Sequence[ValidationIssue],
+        terminology_decisions: Sequence[TerminologyDecision],
         review_ids: set[str],
         review_round: int,
-    ) -> list[GenerationResult] | None:
+    ) -> tuple[list[GenerationResult] | None, str | None]:
         source_by_id = {source.source_id: source for source in sources}
         current_by_id = {result.source_id: result for result in results}
-        selected_sources = [source_by_id[source_id] for source_id in review_ids]
-        selected_results = [current_by_id[source_id] for source_id in review_ids]
+        selected_sources = [
+            source for source in sources if source.source_id in review_ids
+        ]
+        selected_results = [
+            current_by_id[source.source_id] for source in selected_sources
+        ]
         selected_issues = [
             issue
             for issue in issues
             if review_ids.intersection(issue.source_ids)
+        ]
+        selected_decisions = [
+            decision
+            for decision in terminology_decisions
+            if decision.source_id in review_ids
         ]
         for result in selected_results:
             if result.confidence >= 90:
@@ -481,9 +532,10 @@ class KoreanCommentWorkflow:
                 selected_results,
                 selected_issues,
                 review_round,
+                terminology_context=selected_decisions,
             )
-        except Exception:
-            return None
+        except Exception as exc:
+            return None, _llm_failure_code(exc)
 
         accepted = dict(current_by_id)
         for candidate in reviewed:
@@ -501,14 +553,23 @@ class KoreanCommentWorkflow:
                 != current.korean_attribute_name
             ):
                 continue
+            review_reasons = _persistent_review_reasons(
+                current.review_reasons + candidate.review_reasons
+            )
             accepted[candidate.source_id] = candidate.model_copy(
                 update={
                     "semantic_units": _semantic_units(
                         candidate.korean_attribute_name
-                    )
+                    ),
+                    "review_reasons": review_reasons,
+                    "confidence": (
+                        min(candidate.confidence, 85)
+                        if review_reasons
+                        else candidate.confidence
+                    ),
                 }
             )
-        return [accepted[source.source_id] for source in sources]
+        return [accepted[source.source_id] for source in sources], None
 
     @staticmethod
     async def _emit(
@@ -680,10 +741,10 @@ def _terminology_tie_resolver(
 def _deduplicate_sources(
     sources: Sequence[SourceColumn],
 ) -> tuple[list[SourceColumn], dict[str, list[SourceColumn]]]:
-    representative_by_key: dict[tuple[str, str], SourceColumn] = {}
+    representative_by_key: dict[tuple[str, ...], SourceColumn] = {}
     aliases: dict[str, list[SourceColumn]] = defaultdict(list)
     for source in sources:
-        key = source_dedup_key(source)
+        key = source_processing_key(source)
         representative = representative_by_key.setdefault(key, source)
         aliases[representative.source_id].append(source)
     return list(representative_by_key.values()), dict(aliases)
@@ -692,6 +753,7 @@ def _deduplicate_sources(
 def _review_source_ids(
     results: Sequence[GenerationResult],
     issues: Sequence[ValidationIssue],
+    terminology_decisions: Sequence[TerminologyDecision],
     threshold: int,
 ) -> set[str]:
     ids = {
@@ -704,9 +766,140 @@ def _review_source_ids(
         result.source_id
         for result in results
         if result.confidence < threshold
+        or result.review_reasons
+        or result.reports_semantic_change
         or invalid_english_tokens(result.korean_attribute_name)
     )
+    ids.update(
+        decision.source_id
+        for decision in terminology_decisions
+        if decision.tied and decision.source_id is not None
+    )
     return ids
+
+
+def _persistent_review_reasons(reasons: Sequence[str]) -> list[str]:
+    """Keep unresolved business risks but drop transient model outage notes."""
+
+    return list(
+        dict.fromkeys(
+            reason
+            for reason in reasons
+            if not reason.startswith("로컬 LLM 생성 ")
+            and not reason.startswith("로컬 LLM 리뷰 ")
+        )
+    )
+
+
+def _mark_review_failure(
+    results: Sequence[GenerationResult],
+    review_ids: set[str],
+    failure_code: str,
+) -> list[GenerationResult]:
+    reason = (
+        f"로컬 LLM 리뷰 {_failure_reason(failure_code)}로 현재 검증 결과를 유지"
+    )
+    return [
+        result.model_copy(
+            update={
+                "confidence": min(result.confidence, 85),
+                "review_reasons": list(
+                    dict.fromkeys(result.review_reasons + [reason])
+                ),
+            }
+        )
+        if result.source_id in review_ids
+        else result
+        for result in results
+    ]
+
+
+def _llm_failure_code(error: Exception) -> str:
+    """Classify an LLM failure without persisting sensitive exception text."""
+
+    current: BaseException | None = error
+    visited: set[int] = set()
+    while current is not None and id(current) not in visited:
+        visited.add(id(current))
+        class_name = type(current).__name__.casefold()
+        if isinstance(current, TimeoutError) or "timeout" in class_name:
+            return "timeout"
+        if "connect" in class_name:
+            return "connection_error"
+        current = current.__cause__ or current.__context__
+
+    message = str(error)
+    if isinstance(error, LLMResponseError) and any(
+        marker in message for marker in ("JSON", "스키마", "대응 오류")
+    ):
+        return "response_error"
+    if isinstance(error, LLMResponseError):
+        return "model_error"
+    return "unexpected_error"
+
+
+def _failure_reason(code: str) -> str:
+    return {
+        "timeout": "시간 초과",
+        "connection_error": "연결 실패",
+        "response_error": "응답 형식 오류",
+        "model_error": "호출 실패",
+        "missing_result": "결과 누락",
+        "unexpected_error": "예상하지 못한 오류",
+    }.get(code, "실패")
+
+
+def _recovery_stats(
+    weights: Mapping[str, int],
+    generation_codes: Mapping[str, str],
+    review_codes: Mapping[str, str],
+) -> dict[str, int]:
+    stats = {
+        "generation_fallback_count": sum(
+            weights[source_id] for source_id in generation_codes
+        ),
+        "review_failure_count": sum(
+            weights[source_id] for source_id in review_codes
+        ),
+    }
+    for stage, codes in (
+        ("generation", generation_codes),
+        ("review", review_codes),
+    ):
+        for source_id, code in codes.items():
+            key = f"{stage}_{code}_count"
+            stats[key] = stats.get(key, 0) + weights[source_id]
+    return stats
+
+
+def _recovery_events(
+    aliases: Mapping[str, Sequence[SourceColumn]],
+    generation_codes: Mapping[str, str],
+    review_codes: Mapping[str, str],
+) -> list[dict[str, str]]:
+    events: list[dict[str, str]] = []
+    for stage, codes in (
+        ("generate", generation_codes),
+        ("review", review_codes),
+    ):
+        for representative_id, code in codes.items():
+            events.extend(
+                {
+                    "source_id": source.source_id,
+                    "stage": stage,
+                    "code": code,
+                }
+                for source in aliases[representative_id]
+            )
+    stage_order = {"generate": 0, "review": 1}
+    return sorted(
+        events,
+        key=lambda event: (
+            int(event["source_id"].rsplit("-", 1)[-1]),
+            stage_order[event["stage"]],
+            event["code"],
+        ),
+    )
 
 
 def _finalize(
