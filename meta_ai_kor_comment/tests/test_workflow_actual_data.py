@@ -8,7 +8,8 @@ import pytest
 from openpyxl import load_workbook
 
 from app.models import WorkflowOptions
-from app.workflow import KoreanCommentWorkflow
+from app.models import SourceColumn
+from app.workflow import KoreanCommentWorkflow, _deterministic_candidate
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -31,6 +32,29 @@ class UnavailableModel:
     ):
         return []
 
+
+def test_required_tpms_translation_and_unknown_token_evidence() -> None:
+    tpms = _deterministic_candidate(
+        SourceColumn(
+            source_id="tpms",
+            column_name="TPMS_YN",
+            column_description="TPMS여부",
+        )
+    )
+    assert tpms.korean_attribute_name == "타이어공기압감지장치여부"
+    assert tpms.action.value == "rewrite"
+
+    unknown = _deterministic_candidate(
+        SourceColumn(
+            source_id="unknown",
+            column_name="XYZ_YN",
+            column_description="XYZ여부",
+        )
+    )
+    assert unknown.korean_attribute_name == "XYZ여부"
+    assert unknown.action.value == "rewrite"
+    assert unknown.confidence == 55
+    assert "확정하지 못한 영문" in unknown.review_reasons[0]
 
 @pytest.mark.asyncio
 async def test_actual_1195_row_workbook_end_to_end() -> None:
@@ -58,13 +82,13 @@ async def test_actual_1195_row_workbook_end_to_end() -> None:
             sheet = workbook["한글속성명_결과"]
             headers = [cell.value for cell in next(sheet.iter_rows(min_row=1, max_row=1))]
             assert headers[-6:] == [
-            "한글속성명",
-            "처리상태",
-            "신뢰도",
-            "처리방식",
-            "변환근거",
-            "검토사유",
-        ]
+                "한글속성명",
+                "처리상태",
+                "신뢰도",
+                "처리방식",
+                "변환근거",
+                "검토사유",
+            ]
             assert sheet.max_row == 1196
             assert sheet.max_column == 18
 
@@ -78,20 +102,23 @@ async def test_actual_1195_row_workbook_end_to_end() -> None:
             }
 
             expected = {
-            ("FY_YR", "FY년도"): "회계년도",
-            ("SMS_RCV_YN", "SMS수신여부"): "문자메시지수신여부",
-            ("RH_TYCD", "RH형태코드"): "알에이치형태코드",
-            ("SOFA_CR_YN", "SOFA차량여부"): "주한미군차량여부",
-            ("TMR_MNTH_CNV_HMS", "TMR월통화시간"): "텔레마케터월통화시간",
-            ("SP_YN", "SP여부"): "설계사여부",
-            ("CHSNO_OR_TMPNO", "차대번호/임시번호"): "차대번호",
-            ("ACT_OR_ACTCT", "구좌/계좌수"): "계좌수",
-            ("APO_OR_STBDT", "위촉/개설일자"): "위촉일자",
-            ("APO_OR_STB_MMTHR", "위촉/개설차월"): "위촉차월",
-            ("PYM_CT", "납부횟수"): "납입횟수",
-            ("USDCR_RT", "중고차율"): "중고차요율",
-            ("CR_TYCD", "차형태코드"): "차량형태코드",
-        }
+                ("FY_YR", "FY년도"): "회계년도",
+                ("SMS_RCV_YN", "SMS수신여부"): "문자메시지수신여부",
+                ("RH_TYCD", "RH형태코드"): "리서스인자형태코드",
+                ("SOFA_CR_YN", "SOFA차량여부"): "주한미군지위협정차량여부",
+                ("TMR_MNTH_CNV_HMS", "TMR월통화시간"): "텔레마케터월통화시간",
+                ("SP_YN", "SP여부"): "영업설계사여부",
+                ("CHSNO_OR_TMPNO", "차대번호/임시번호"): "차대번호",
+                ("ACT_OR_ACTCT", "구좌/계좌수"): "계좌수",
+                ("APO_OR_STBDT", "위촉/개설일자"): "위촉일자",
+                ("APO_OR_STB_MMTHR", "위촉/개설차월"): "위촉차월",
+                ("PYM_CT", "납부횟수"): "납입횟수",
+                ("USDCR_RT", "중고차율"): "중고차요율",
+                ("CR_TYCD", "차형태코드"): "차량형태코드",
+                ("LMIT_TRT_RT", "한정특약율"): "한정특약율",
+                ("AGE_TRT_RT", "연령특약요율"): "연령특약율",
+                ("ONFML_PF_GRD_GRDCD", "한가족우대등급등급코드"): "한가족우대등급코드",
+            }
             for pair, target in expected.items():
                 assert by_pair[pair] == target
 

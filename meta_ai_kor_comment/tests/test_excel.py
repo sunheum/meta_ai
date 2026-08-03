@@ -1,5 +1,7 @@
 from pathlib import Path
 from uuid import uuid4
+from xml.etree import ElementTree as ET
+from zipfile import ZipFile
 
 from openpyxl import load_workbook
 
@@ -72,6 +74,14 @@ def test_actual_workbook_round_trip_preserves_all_source_rows_and_columns(
             assert review_sheet.max_row == 2
             assert review_sheet["B2"].value == "row-2"
             assert review_sheet["I2"].value == "검토필요"
+
+            with ZipFile(output) as archive:
+                content_types = archive.read("[Content_Types].xml")
+                relationships = archive.read("xl/_rels/workbook.xml.rels")
+            assert b"ns0:" not in content_types
+            assert b"ns0:" not in relationships
+            assert ET.fromstring(content_types).tag.endswith("Types")
+            assert ET.fromstring(relationships).tag.endswith("Relationships")
         finally:
             source_book.close()
             result_book.close()

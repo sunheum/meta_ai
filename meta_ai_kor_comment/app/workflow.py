@@ -42,6 +42,7 @@ DEFAULT_SYNONYM_GROUPS: tuple[SynonymGroup, ...] = (
     SynonymGroup("payment-action", ("납입", "납부")),
     SynonymGroup("used-car-rate", ("중고차요율", "중고차율")),
     SynonymGroup("vehicle-form", ("차량형태", "차형태")),
+    SynonymGroup("special-contract-rate", ("특약율", "특약요율")),
 )
 
 # These are deterministic translations for the tokens that occur in the real
@@ -54,11 +55,23 @@ ENGLISH_TRANSLATIONS: Mapping[str, str] = {
     "NEW": "신규",
     "OLD": "구",
     "PREMIUM": "프리미엄",
-    "RH": "알에이치",
+    "RH": "리서스인자",
     "SMS": "문자메시지",
-    "SOFA": "주한미군",
-    "SP": "설계사",
+    "SOFA": "주한미군지위협정",
+    "SP": "영업설계사",
     "TMR": "텔레마케터",
+    "TPMS": "타이어공기압감지장치",
+}
+
+AMBIGUOUS_ENGLISH_REVIEW: Mapping[str, str] = {
+    "RH": "인접 혈액형코드 문맥으로 리서스인자로 해석했으며 업무 용어 확인 필요",
+    "SOFA": "자동차정보 문맥에서 주한미군지위협정 적용 차량으로 해석했으며 범위 확인 필요",
+    "SP": "인접 설계사타입 컬럼 문맥으로 영업설계사로 해석했으며 약어 사전 확인 필요",
+}
+
+CONTEXT_CONFLICT_REVIEW: Mapping[str, str] = {
+    "WKDY_FMLLV_T1S": "컬럼명 WKDY와 컬럼설명 '주일'의 의미 일치 여부 확인 필요",
+    "WKDY_FMLLV_T2S": "컬럼명 WKDY와 컬럼설명 '주일'의 의미 일치 여부 확인 필요",
 }
 
 SLASH_SELECTIONS: Mapping[str, tuple[str, str, str]] = {
@@ -335,6 +348,7 @@ class KoreanCommentWorkflow:
             except Exception:
                 proposed = []
             source_by_id = {source.source_id: source for source in batch}
+            accepted_ids: set[str] = set()
             for candidate in proposed:
                 source = source_by_id.get(candidate.source_id)
                 if source is None:
@@ -343,11 +357,46 @@ class KoreanCommentWorkflow:
                     continue
                 if validate_result(source, candidate):
                     continue
+                deterministic = base[candidate.source_id]
+                # When the deterministic policy already yields a valid answer,
+                # the model may enrich evidence but may not silently replace the
+                # audited translation or slash choice with a different meaning.
+                if (
+                    not validate_result(source, deterministic)
+                    and candidate.korean_attribute_name
+                    != deterministic.korean_attribute_name
+                ):
+                    continue
+                merged_review_reasons = list(
+                    dict.fromkeys(
+                        deterministic.review_reasons + candidate.review_reasons
+                    )
+                )
                 base[candidate.source_id] = candidate.model_copy(
                     update={
                         "semantic_units": _semantic_units(
                             candidate.korean_attribute_name
-                        )
+                        ),
+                        "review_reasons": merged_review_reasons,
+                        "confidence": (
+                            min(candidate.confidence, 85)
+                            if merged_review_reasons
+                            else candidate.confidence
+                        ),
+                    }
+                )
+                accepted_ids.add(candidate.source_id)
+            for source in batch:
+                if source.source_id in accepted_ids:
+                    continue
+                fallback = base[source.source_id]
+                reason = "로컬 LLM 결과가 없어 결정적 복구 규칙을 사용"
+                base[source.source_id] = fallback.model_copy(
+                    update={
+                        "confidence": min(fallback.confidence, 85),
+                        "review_reasons": list(
+                            dict.fromkeys(fallback.review_reasons + [reason])
+                        ),
                     }
                 )
             async with progress_lock:
@@ -445,6 +494,13 @@ class KoreanCommentWorkflow:
                 continue
             if validate_result(source, candidate):
                 continue
+            current = current_by_id[candidate.source_id]
+            if (
+                not validate_result(source, current)
+                and candidate.korean_attribute_name
+                != current.korean_attribute_name
+            ):
+                continue
             accepted[candidate.source_id] = candidate.model_copy(
                 update={
                     "semantic_units": _semantic_units(
@@ -515,6 +571,9 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
             unknown_tokens.append(token)
             return token
         reasons.append(f"영문 {token}을 '{translated}'로 한글화")
+        ambiguity = AMBIGUOUS_ENGLISH_REVIEW.get(token.upper())
+        if ambiguity and ambiguity not in review_reasons:
+            review_reasons.append(ambiguity)
         return translated
 
     result = _ENGLISH_TOKEN_RE.sub(replace_english, result)
@@ -522,6 +581,14 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
         review_reasons.append(
             "한글 의미를 확정하지 못한 영문: " + ", ".join(unknown_tokens)
         )
+
+    conflict = CONTEXT_CONFLICT_REVIEW.get(source.column_name.upper())
+    if conflict and conflict not in review_reasons:
+        review_reasons.append(conflict)
+
+    if "등급등급" in result:
+        result = result.replace("등급등급", "등급")
+        reasons.append("중복 접미사 '등급등급'을 '등급'으로 정규화")
 
     compacted = re.sub(r"\s+", "", result)
     if compacted != result:
@@ -532,7 +599,10 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
         reasons.append("허용되지 않은 기호 제거")
         result = cleaned
 
-    changed = result != original
+    # An unresolved English token is still a rewrite attempt even when its
+    # literal surface remains. This keeps status/evidence honest and lets the
+    # deterministic validator expose the row as a failed, reviewable result.
+    changed = result != original or bool(unknown_tokens)
     if not changed:
         action = ProcessingAction.KEEP
         confidence = 100
@@ -545,9 +615,12 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
             else ProcessingAction.NORMALIZE
         )
         confidence = 96 if not unknown_tokens else 55
-        if "/" in original:
-            confidence = min(confidence, 92)
+        if review_reasons:
+            confidence = min(confidence, 85)
         reason = "; ".join(reasons) or "문자 정책에 맞게 정규화"
+
+    if review_reasons:
+        confidence = min(confidence, 85)
 
     return GenerationResult(
         source_id=source.source_id,
@@ -598,7 +671,7 @@ def _terminology_tie_resolver(
     count overrides, and are therefore reproducible and reviewable.
     """
 
-    for preferred in ("납입", "중고차요율", "차량형태"):
+    for preferred in ("납입", "중고차요율", "차량형태", "특약요율"):
         if preferred in candidates:
             return preferred
     return None
@@ -678,7 +751,9 @@ def _with_terminology_review_reason(
         )
         if message not in reasons:
             reasons.append(message)
-    return result.model_copy(update={"review_reasons": reasons})
+    return result.model_copy(
+        update={"review_reasons": reasons, "confidence": min(result.confidence, 89)}
+    )
 
 
 def _expand_results(

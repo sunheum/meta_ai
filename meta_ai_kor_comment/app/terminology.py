@@ -236,8 +236,14 @@ def reconcile_results(
             reconciled.append(result)
             continue
 
-        reason_suffix = "용어 통일 " + ", ".join(applied_reasons)
-        reason = f"{result.reason}; {reason_suffix}" if result.reason else reason_suffix
+        reason_suffix = "용어 통일 빈도 기준 " + ", ".join(applied_reasons)
+        reason = (
+            reason_suffix
+            if result.action is ProcessingAction.KEEP
+            else f"{result.reason}; {reason_suffix}"
+            if result.reason
+            else reason_suffix
+        )
         reconciled.append(
             result.model_copy(
                 update={

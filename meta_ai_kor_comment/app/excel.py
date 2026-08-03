@@ -615,13 +615,20 @@ def _shared_string_package_updates(output_zip: ZipFile) -> dict[str, bytes]:
             },
         )
 
+    # Some strict OpenXML consumers reject namespace-prefixed package roots even
+    # though they are XML-equivalent. Serialize both package files with their
+    # conventional default namespaces for maximum Excel SDK interoperability.
+    ET.register_namespace("", package_rel_ns)
+    relationship_bytes = ET.tostring(
+        relationships, encoding="utf-8", xml_declaration=True
+    )
+    ET.register_namespace("", content_ns)
+    content_type_bytes = ET.tostring(
+        content_types, encoding="utf-8", xml_declaration=True
+    )
     return {
-        relationships_path: ET.tostring(
-            relationships, encoding="utf-8", xml_declaration=True
-        ),
-        content_types_path: ET.tostring(
-            content_types, encoding="utf-8", xml_declaration=True
-        ),
+        relationships_path: relationship_bytes,
+        content_types_path: content_type_bytes,
     }
 
 

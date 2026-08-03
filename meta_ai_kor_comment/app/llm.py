@@ -160,10 +160,6 @@ class LocalChatKoreanNamingModel:
                 await asyncio.sleep(min(2**attempt, 4))
         raise LLMResponseError(f"로컬 LLM 호출 실패: {last_error}") from last_error
 
-    async def aclose(self) -> None:
-        await self._client.aclose()
-
-
 def _source_payload(source: SourceColumn) -> dict[str, Any]:
     return source.model_dump(
         mode="json",
