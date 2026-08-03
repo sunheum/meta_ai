@@ -1,0 +1,11 @@
+.env
+.venv/
+.test-deps/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+outputs/
+results/*
+!results/.gitkeep
+quality/reviews/*/*/result.xlsx
+~$*.xlsx
