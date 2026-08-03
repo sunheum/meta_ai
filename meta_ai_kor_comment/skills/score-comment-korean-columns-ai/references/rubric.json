@@ -1,0 +1,24 @@
+{
+  "name": "AI 컬럼설명 기반 한글속성명 리뷰 루브릭",
+  "version": "1.0.0",
+  "rating_scale": {
+    "0": "검토 불가 또는 전면 실패",
+    "1": "대부분 잘못되어 재설계가 필요함",
+    "2": "중대한 오류가 반복됨",
+    "3": "기본 동작은 하지만 뚜렷한 개선이 필요함",
+    "4": "대체로 정확하며 국소 오류만 있음",
+    "5": "전수 근거에서 오류를 찾지 못함"
+  },
+  "dimensions": [
+    {"id": "source_output_integrity", "label": "원본·출력 구조 무결성", "weight": 10, "evidence": "행 수·순서·원본 12개 컬럼·필수 결과 컬럼의 전수 비교", "anchors": {"0": "원본과 결과를 연결할 수 없음", "3": "국소 누락이나 변조가 있음", "5": "전수 비교에서 누락·변조·순서 변경이 없음"}},
+    {"id": "character_format_policy", "label": "문자·형식 정책 준수", "weight": 15, "evidence": "ID 외 영문, 숫자 누락·추가, 공백·기호, 상태 필드 전수 검사", "anchors": {"0": "정책 위반이 광범위함", "3": "형식은 대체로 맞지만 반복 오류가 있음", "5": "전수 검사에서 정책 위반이 없음"}},
+    {"id": "description_semantic_fidelity", "label": "컬럼설명 의미 충실도", "weight": 25, "evidence": "원문 핵심 의미의 누락·추가·반전 여부", "anchors": {"0": "핵심 의미 반전이나 환각이 광범위함", "3": "중요한 누락·오역이 반복됨", "5": "의미 누락·추가·반전이 없음"}},
+    {"id": "context_ambiguity_resolution", "label": "문맥 선택·모호성 해소", "weight": 15, "evidence": "/ 대안, 영문 약어, 복수 설명을 테이블·컬럼 문맥에 맞게 선택했는지", "anchors": {"0": "문맥 없이 임의 선택함", "3": "대부분 맞지만 고위험 선택에 오류가 있음", "5": "모든 고위험 선택이 구체적 문맥 근거와 일치함"}},
+    {"id": "frequency_terminology_consistency", "label": "빈도 기반 용어 일관성", "weight": 15, "evidence": "동의어 그룹의 실제 빈도 우선 결정과 동률 문맥 판단", "anchors": {"0": "빈도 정책을 적용하지 않음", "3": "주요 그룹은 맞지만 불일치가 남음", "5": "모든 결정이 재계산한 빈도와 동률 정책에 일치함"}},
+    {"id": "korean_name_naturalness", "label": "한글속성명 자연스러움", "weight": 10, "evidence": "어순, 간결성, 표준 접미어와 읽기 자연스러움", "anchors": {"0": "속성명으로 사용할 수 없음", "3": "이해되지만 어색한 결합이 반복됨", "5": "자연스럽고 간결한 표준 속성명임"}},
+    {"id": "status_evidence_confidence", "label": "상태·근거·신뢰도 정합성", "weight": 10, "evidence": "실제 위험과 처리상태·근거·신뢰도·검토사유의 일치 및 추적성", "anchors": {"0": "위험과 상태가 무관하고 근거를 추적할 수 없음", "3": "대체로 맞지만 과신 또는 근거 누락이 있음", "5": "모든 상태와 수치가 실제 위험에 맞고 근거가 재현됨"}}
+  ],
+  "required_checks": ["row_preservation", "required_columns_complete", "character_policy_complete", "numeric_preservation_complete", "semantic_scope_complete", "terminology_frequency_verified", "evidence_traceable", "score_scope_complete"],
+  "pass": {"minimum_score": 92, "minimum_dimension_rating": 4.0, "maximum_critical_issues": 0, "maximum_deterministic_failures": 0},
+  "score_caps": {"when_critical_issue_exists": 69, "when_deterministic_failure_exists": 59, "when_required_check_fails": 59}
+}

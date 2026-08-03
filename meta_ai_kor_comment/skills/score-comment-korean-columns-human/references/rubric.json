@@ -1,0 +1,27 @@
+{
+  "name": "사람 컬럼설명 기반 한글속성명 리뷰 루브릭",
+  "version": "1.0.0",
+  "rating_scale": {
+    "1": "사용할 수 없음",
+    "2": "중대한 수정 필요",
+    "3": "의미는 전달되나 개선 필요",
+    "4": "대체로 적절함",
+    "5": "그대로 표준명으로 사용 가능"
+  },
+  "dimensions": [
+    {"id": "business_semantic_accuracy", "label": "업무 의미 정확성", "weight": 30, "anchors": {"1": "다른 업무 개념이거나 핵심 의미가 반대임", "3": "대략 맞지만 문맥상 중요한 차이가 불명확함", "5": "실제 컬럼의 업무 의미를 정확히 표현함"}},
+    {"id": "meaning_completeness", "label": "원문 의미 완전성", "weight": 20, "anchors": {"1": "핵심 의미나 숫자 범위가 빠짐", "3": "핵심은 있으나 수식어·범위 일부가 빠짐", "5": "모든 의미 단위를 과잉 없이 포함함"}},
+    {"id": "character_notation_policy", "label": "문자·표기 정책 준수", "weight": 10, "anchors": {"1": "ID 외 영문·기호 또는 숫자 오류가 있음", "3": "정책은 대체로 맞지만 표기 개선이 필요함", "5": "ID 외 영문과 기호가 없고 숫자가 정확함"}},
+    {"id": "context_ambiguity_safety", "label": "문맥 선택·오해 안전성", "weight": 15, "anchors": {"1": "선택이 틀려 다른 데이터로 오해함", "3": "문맥 없이는 여러 뜻으로 해석될 수 있음", "5": "문맥에 맞고 다른 의미로 오해할 가능성이 거의 없음"}},
+    {"id": "terminology_consistency", "label": "용어 일관성", "weight": 15, "anchors": {"1": "동일 의미에 임의의 다른 용어를 사용함", "3": "대부분 일관되나 동의어가 일부 흔들림", "5": "빈도 우선 표준어를 문맥에 맞게 일관 사용함"}},
+    {"id": "naturalness_conciseness", "label": "자연스러움·간결성", "weight": 10, "anchors": {"1": "속성명으로 사용하기 부자연스러움", "3": "이해되지만 어색하거나 불필요하게 김", "5": "공백 없는 속성명으로 자연스럽고 간결함"}}
+  ],
+  "sample": {
+    "minimum_size": 80,
+    "quota_order": ["low_risk_keep", "english_translation", "numeric_preservation", "slash_context", "terminology_frequency", "duplicate_context", "llm_rewrite", "review_needed"],
+    "quotas": {"low_risk_keep": 15, "english_translation": 15, "numeric_preservation": 10, "slash_context": 4, "terminology_frequency": 10, "duplicate_context": 10, "llm_rewrite": 10, "review_needed": 10},
+    "required_strata": ["low_risk_keep", "english_translation", "numeric_preservation", "slash_context", "terminology_frequency", "duplicate_context", "llm_rewrite", "review_needed"]
+  },
+  "pass": {"minimum_score": 88, "minimum_dimension_mean": 3.8, "maximum_critical_issues": 0, "maximum_major_error_rate": 0.02},
+  "score_caps": {"when_critical_issue_exists": 69, "when_major_error_rate_exceeded": 87, "when_sample_incomplete": 59}
+}

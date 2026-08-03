@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI 컬럼설명 리뷰"
+  short_description: "한글속성명 결과를 전수 검증하고 독립 채점합니다"
+  default_prompt: "Use $score-comment-korean-columns-ai to independently review and score this Korean attribute-name result."
