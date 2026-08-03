@@ -73,7 +73,7 @@ async def test_actual_low_confidence_row_is_reviewed_without_regressing_others()
         workbook = load_workbook(output, read_only=True, data_only=True)
         try:
             sheet = workbook["한글속성명_결과"]
-            assert sheet["M190"].value == "주한미군지위협정차량여부"
+            assert sheet["M190"].value == "주한미군지위협정적용차량여부"
         finally:
             workbook.close()
     finally:

@@ -57,8 +57,8 @@ ENGLISH_TRANSLATIONS: Mapping[str, str] = {
     "PREMIUM": "프리미엄",
     "RH": "리서스인자",
     "SMS": "문자메시지",
-    "SOFA": "주한미군지위협정",
-    "SP": "영업설계사",
+    "SOFA": "주한미군지위협정적용",
+    "SP": "설계사",
     "TMR": "텔레마케터",
     "TPMS": "타이어공기압감지장치",
 }
@@ -66,7 +66,7 @@ ENGLISH_TRANSLATIONS: Mapping[str, str] = {
 AMBIGUOUS_ENGLISH_REVIEW: Mapping[str, str] = {
     "RH": "인접 혈액형코드 문맥으로 리서스인자로 해석했으며 업무 용어 확인 필요",
     "SOFA": "자동차정보 문맥에서 주한미군지위협정 적용 차량으로 해석했으며 범위 확인 필요",
-    "SP": "인접 설계사타입 컬럼 문맥으로 영업설계사로 해석했으며 약어 사전 확인 필요",
+    "SP": "인접 설계사타입 컬럼 문맥으로 설계사로 해석했으며 약어 사전 확인 필요",
 }
 
 CONTEXT_CONFLICT_REVIEW: Mapping[str, str] = {

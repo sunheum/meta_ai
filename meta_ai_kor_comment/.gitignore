@@ -1,6 +1,8 @@
 .env
 .venv/
 .test-deps/
+.test-runtime-*/
+pytest-cache-files-*/
 __pycache__/
 .pytest_cache/
 *.py[cod]

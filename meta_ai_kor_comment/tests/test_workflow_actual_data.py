@@ -20,7 +20,7 @@ class UnavailableModel:
     """Exercise the production deterministic recovery path without test data."""
 
     async def generate(self, sources, risks=None):
-        return []
+        raise RuntimeError("실제 로컬 LLM 엔드포인트 연결 실패 모사")
 
     async def review(
         self,
@@ -105,9 +105,9 @@ async def test_actual_1195_row_workbook_end_to_end() -> None:
                 ("FY_YR", "FY년도"): "회계년도",
                 ("SMS_RCV_YN", "SMS수신여부"): "문자메시지수신여부",
                 ("RH_TYCD", "RH형태코드"): "리서스인자형태코드",
-                ("SOFA_CR_YN", "SOFA차량여부"): "주한미군지위협정차량여부",
+                ("SOFA_CR_YN", "SOFA차량여부"): "주한미군지위협정적용차량여부",
                 ("TMR_MNTH_CNV_HMS", "TMR월통화시간"): "텔레마케터월통화시간",
-                ("SP_YN", "SP여부"): "영업설계사여부",
+                ("SP_YN", "SP여부"): "설계사여부",
                 ("CHSNO_OR_TMPNO", "차대번호/임시번호"): "차대번호",
                 ("ACT_OR_ACTCT", "구좌/계좌수"): "계좌수",
                 ("APO_OR_STBDT", "위촉/개설일자"): "위촉일자",
