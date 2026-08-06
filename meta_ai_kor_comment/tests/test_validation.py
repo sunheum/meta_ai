@@ -200,3 +200,45 @@ def test_low_confidence_valid_result_is_review_required() -> None:
     result = _result(confidence=89)
 
     assert derive_processing_status(result, []) is ProcessingStatus.REVIEW_REQUIRED
+
+
+def test_unresolved_review_execution_failure_is_validation_failed() -> None:
+    result = _result(
+        confidence=85,
+        review_reasons=[
+            "로컬 LLM 리뷰 예상하지 못한 오류로 현재 검증 결과를 유지"
+        ],
+    )
+
+    assert derive_processing_status(result, []) is ProcessingStatus.VALIDATION_FAILED
+
+
+def test_review_policy_rejection_keeps_valid_result_review_required() -> None:
+    result = _result(
+        confidence=85,
+        review_reasons=[
+            "로컬 LLM 리뷰 정책 검증 거부로 현재 검증 결과를 유지"
+        ],
+    )
+
+    assert derive_processing_status(result, []) is ProcessingStatus.REVIEW_REQUIRED
+
+
+def test_generation_execution_fallback_is_review_required_when_valid() -> None:
+    result = _result(
+        confidence=85,
+        review_reasons=["로컬 LLM 생성 시간 초과로 결정적 복구 규칙을 사용"],
+    )
+
+    assert derive_processing_status(result, []) is ProcessingStatus.REVIEW_REQUIRED
+
+
+def test_generation_policy_rejection_keeps_valid_result_review_required() -> None:
+    result = _result(
+        confidence=85,
+        review_reasons=[
+            "로컬 LLM 생성 정책 검증 거부로 결정적 복구 규칙을 사용"
+        ],
+    )
+
+    assert derive_processing_status(result, []) is ProcessingStatus.REVIEW_REQUIRED

@@ -95,10 +95,12 @@ class LocalChatKoreanNamingModel:
                 for source in sources
             ]
         }
-        text = await self._invoke(GENERATION_SYSTEM_PROMPT, request)
-        results = _parse_generation_response(text, operation="생성")
-        _validate_expected_results(sources, results, operation="생성")
-        return results
+        return await self._invoke_results(
+            GENERATION_SYSTEM_PROMPT,
+            request,
+            sources,
+            operation="생성",
+        )
 
     async def review(
         self,
@@ -122,10 +124,48 @@ class LocalChatKoreanNamingModel:
                 for decision in (terminology_context or ())
             ],
         }
-        text = await self._invoke(REVIEW_SYSTEM_PROMPT, request)
-        results = _parse_generation_response(text, operation="리뷰")
-        _validate_expected_results(sources, results, operation="리뷰")
-        return results
+        return await self._invoke_results(
+            REVIEW_SYSTEM_PROMPT,
+            request,
+            sources,
+            operation="리뷰",
+        )
+
+    async def _invoke_results(
+        self,
+        system_prompt: str,
+        request: dict[str, Any],
+        sources: Sequence[SourceColumn],
+        *,
+        operation: str,
+    ) -> list[GenerationResult]:
+        """Retry transport, JSON, schema, and source-correspondence failures."""
+
+        last_error: Exception | None = None
+        for attempt in range(self._max_retries + 1):
+            try:
+                text = await self._invoke(system_prompt, request)
+                results = _parse_generation_response(text, operation=operation)
+                _validate_expected_results(sources, results, operation=operation)
+                return results
+            except httpx.HTTPStatusError as exc:
+                last_error = exc
+                if exc.response.status_code < 500 and exc.response.status_code != 429:
+                    break
+            except (
+                httpx.HTTPError,
+                LLMResponseError,
+                KeyError,
+                IndexError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                last_error = exc
+            if attempt < self._max_retries:
+                await asyncio.sleep(min(2**attempt, 4))
+        raise LLMResponseError(
+            f"로컬 LLM {operation} 호출 또는 구조화 응답 실패: {last_error}"
+        ) from last_error
 
     async def _invoke(self, system_prompt: str, request: dict[str, Any]) -> str:
         payload = {
@@ -146,23 +186,11 @@ class LocalChatKoreanNamingModel:
             "top_p": self._top_p,
             "max_tokens": self._max_tokens,
         }
-        last_error: Exception | None = None
-        for attempt in range(self._max_retries + 1):
-            try:
-                response = await self._client.post("chat/completions", json=payload)
-                response.raise_for_status()
-                body = response.json()
-                content = body["choices"][0]["message"]["content"]
-                return _content_to_text(content)
-            except httpx.HTTPStatusError as exc:
-                last_error = exc
-                if exc.response.status_code < 500 and exc.response.status_code != 429:
-                    break
-            except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
-                last_error = exc
-            if attempt < self._max_retries:
-                await asyncio.sleep(min(2**attempt, 4))
-        raise LLMResponseError(f"로컬 LLM 호출 실패: {last_error}") from last_error
+        response = await self._client.post("chat/completions", json=payload)
+        response.raise_for_status()
+        body = response.json()
+        content = body["choices"][0]["message"]["content"]
+        return _content_to_text(content)
 
 def _source_payload(source: SourceColumn) -> dict[str, Any]:
     return source.model_dump(

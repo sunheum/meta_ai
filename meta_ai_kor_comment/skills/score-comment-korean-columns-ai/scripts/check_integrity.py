@@ -29,6 +29,12 @@ RESULT_COLUMNS = (
 )
 VALID_STATUSES = {"자동확정", "검토필요", "검증실패"}
 VALID_METHODS = {"유지", "정규화", "재작성"}
+REQUIRED_TERMINOLOGY_GROUPS: dict[str, tuple[str, ...]] = {
+    "payment-action": ("납입", "납부"),
+    "used-car-rate": ("중고차요율", "중고차율"),
+    "vehicle-form": ("차량형태", "차형태"),
+    "special-contract-rate": ("특약율", "특약요율"),
+}
 
 
 def text(value: Any) -> str:
@@ -66,21 +72,53 @@ def issue(
 
 def check_terminology(
     decisions: list[dict[str, Any]],
+    original_by_source: dict[str, dict[str, Any]],
+    original_lookup: dict[str, str],
     result_by_source: dict[str, dict[str, Any]],
     result_lookup: dict[str, str],
 ) -> list[dict[str, Any]]:
     failures: list[dict[str, Any]] = []
+    decision_group_ids = {
+        text(decision.get("group_id"))
+        for decision in decisions
+        if text(decision.get("group_id"))
+    }
+    required_active_groups = {
+        group_id
+        for group_id, candidates in REQUIRED_TERMINOLOGY_GROUPS.items()
+        if sum(
+            _count_terminology_population(
+                original_by_source,
+                original_lookup,
+                candidates,
+            )[0].values()
+        )
+        > 0
+    }
+    missing_groups = sorted(required_active_groups.difference(decision_group_ids))
+    if missing_groups:
+        failures.append(
+            issue(
+                "terminology_frequency_verified",
+                "major",
+                "active required terminology groups are missing",
+                expected=sorted(required_active_groups),
+                actual=sorted(decision_group_ids),
+            )
+        )
     if not decisions:
-        return [
+        failures.append(
             issue(
                 "terminology_frequency_verified",
                 "major",
                 "terminology decision metadata is missing",
             )
-        ]
+        )
+        return failures
     for index, decision in enumerate(decisions, start=1):
         group_id = str(decision.get("group_id") or f"group-{index}")
         selected = text(decision.get("selected_term"))
+        candidates = decision.get("candidates")
         frequencies = decision.get("candidate_frequencies")
         affected = decision.get("affected_source_ids")
         tied = decision.get("tied") is True
@@ -93,11 +131,41 @@ def check_terminology(
                 )
             )
             continue
+        if (
+            not isinstance(candidates, list)
+            or not candidates
+            or any(not text(candidate) for candidate in candidates)
+            or len({text(candidate) for candidate in candidates}) != len(candidates)
+            or {text(candidate) for candidate in candidates} != set(frequencies)
+        ):
+            failures.append(
+                issue(
+                    "terminology_frequency_verified",
+                    "major",
+                    f"{group_id} candidates do not match the frequency table",
+                    expected=sorted(str(candidate) for candidate in frequencies),
+                    actual=candidates,
+                )
+            )
+            continue
+        required_candidates = REQUIRED_TERMINOLOGY_GROUPS.get(group_id)
+        if required_candidates and set(map(text, candidates)) != set(required_candidates):
+            failures.append(
+                issue(
+                    "terminology_frequency_verified",
+                    "major",
+                    f"{group_id} candidates differ from the required policy registry",
+                    expected=list(required_candidates),
+                    actual=candidates,
+                )
+            )
+            continue
         numeric_frequencies: dict[str, int] = {}
         try:
-            numeric_frequencies = {
-                str(candidate): int(count) for candidate, count in frequencies.items()
-            }
+            for candidate, count in frequencies.items():
+                if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                    raise ValueError
+                numeric_frequencies[str(candidate)] = count
         except (TypeError, ValueError):
             failures.append(
                 issue(
@@ -107,11 +175,39 @@ def check_terminology(
                 )
             )
             continue
-        maximum = max(numeric_frequencies.values())
+
+        computed_frequencies, computed_affected = _count_terminology_population(
+            original_by_source,
+            original_lookup,
+            tuple(text(candidate) for candidate in candidates),
+        )
+        if numeric_frequencies != computed_frequencies:
+            failures.append(
+                issue(
+                    "terminology_frequency_verified",
+                    "major",
+                    f"{group_id} frequency metadata differs from the source corpus",
+                    expected=computed_frequencies,
+                    actual=numeric_frequencies,
+                )
+            )
+
+        maximum = max(computed_frequencies.values())
         winners = {
-            candidate for candidate, count in numeric_frequencies.items() if count == maximum
+            candidate for candidate, count in computed_frequencies.items() if count == maximum
         }
-        if selected not in winners and not tied:
+        computed_tied = len(winners) > 1
+        if tied != computed_tied:
+            failures.append(
+                issue(
+                    "terminology_frequency_verified",
+                    "major",
+                    f"{group_id} tie metadata differs from the source corpus",
+                    expected=computed_tied,
+                    actual=tied,
+                )
+            )
+        if selected not in winners:
             failures.append(
                 issue(
                     "terminology_frequency_verified",
@@ -130,8 +226,18 @@ def check_terminology(
                 )
             )
             continue
-        for source_value in affected:
-            source_id = str(source_value)
+        affected_ids = [str(source_value) for source_value in affected]
+        if len(set(affected_ids)) != len(affected_ids) or set(affected_ids) != computed_affected:
+            failures.append(
+                issue(
+                    "terminology_frequency_verified",
+                    "major",
+                    f"{group_id} affected_source_ids differ from the source corpus",
+                    expected=sorted(computed_affected),
+                    actual=affected_ids,
+                )
+            )
+        for source_id in affected_ids:
             row = result_by_source.get(source_id)
             if row is None:
                 failures.append(
@@ -156,6 +262,36 @@ def check_terminology(
                     )
                 )
     return failures
+
+
+def _count_terminology_population(
+    original_by_source: dict[str, dict[str, Any]],
+    original_lookup: dict[str, str],
+    candidates: tuple[str, ...],
+) -> tuple[dict[str, int], set[str]]:
+    """Recalculate exact, longest-first synonym counts from source descriptions."""
+
+    ordered = tuple(sorted(candidates, key=lambda value: (-len(value), value)))
+    counts = {candidate: 0 for candidate in candidates}
+    affected: set[str] = set()
+    for source_id, row in original_by_source.items():
+        description = text(field(row, original_lookup, "column_description"))
+        index = 0
+        matched = False
+        while index < len(description):
+            candidate = next(
+                (item for item in ordered if description.startswith(item, index)),
+                None,
+            )
+            if candidate is None:
+                index += 1
+                continue
+            counts[candidate] += 1
+            matched = True
+            index += len(candidate)
+        if matched:
+            affected.add(source_id)
+    return counts, affected
 
 
 def run_checks(
@@ -216,6 +352,7 @@ def run_checks(
             )
         )
 
+    original_by_source: dict[str, dict[str, Any]] = {}
     result_by_source: dict[str, dict[str, Any]] = {}
     duplicate_names: dict[tuple[str, str], set[str]] = defaultdict(set)
     pair_count = min(len(original.rows), len(result.rows))
@@ -227,6 +364,7 @@ def run_checks(
         explicit_source_id = field(output, result_lookup, "source_id")
         if explicit_source_id:
             source_id = str(explicit_source_id)
+        original_by_source[source_id] = source
         result_by_source[source_id] = output
 
         for header in original.headers:
@@ -355,7 +493,13 @@ def run_checks(
             )
 
     failures["terminology_frequency_verified"].extend(
-        check_terminology(terminology, result_by_source, result_lookup)
+        check_terminology(
+            terminology,
+            original_by_source,
+            original_lookup,
+            result_by_source,
+            result_lookup,
+        )
     )
     check_names = (
         "row_preservation",

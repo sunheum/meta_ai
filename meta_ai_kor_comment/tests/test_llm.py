@@ -34,6 +34,16 @@ class FakeClient:
         return FakeResponse(self.payload)
 
 
+class SequentialFakeClient:
+    def __init__(self, payloads: list[dict]) -> None:
+        self.payloads = list(payloads)
+        self.requests = []
+
+    async def post(self, url, json):
+        self.requests.append({"url": url, "json": json})
+        return FakeResponse(self.payloads.pop(0))
+
+
 def test_local_client_bypasses_environment_proxy_by_default(monkeypatch) -> None:
     captured = {}
 
@@ -102,6 +112,55 @@ def test_generate_rejects_missing_source_id() -> None:
 
     with pytest.raises(LLMResponseError, match="누락 source_id"):
         asyncio.run(model.generate([source]))
+
+
+@pytest.mark.parametrize(
+    "invalid_payload",
+    [
+        {"results": [{"source_id": "row-10"}]},
+        {"results": []},
+    ],
+    ids=["schema-error", "missing-source"],
+)
+def test_generate_retries_invalid_structured_response(
+    invalid_payload: dict,
+    monkeypatch,
+) -> None:
+    source = SourceColumn(
+        source_id="row-10",
+        column_name="FY",
+        column_description="FY년도",
+    )
+    valid_payload = {
+        "results": [
+            {
+                "source_id": "row-10",
+                "original_description": "FY년도",
+                "korean_attribute_name": "회계년도",
+                "action": "rewrite",
+                "confidence": 94,
+                "reason": "FY를 회계로 한글화",
+                "semantic_units": ["회계", "년도"],
+                "added_concepts": [],
+                "removed_concepts": [],
+                "review_reasons": [],
+            }
+        ]
+    }
+    client = SequentialFakeClient([invalid_payload, valid_payload])
+    model = LocalChatKoreanNamingModel.__new__(LocalChatKoreanNamingModel)
+    _configure_model(model, client)
+    model._max_retries = 1
+
+    async def no_wait(_seconds):
+        return None
+
+    monkeypatch.setattr("app.llm.asyncio.sleep", no_wait)
+
+    results = asyncio.run(model.generate([source]))
+
+    assert results[0].korean_attribute_name == "회계년도"
+    assert len(client.requests) == 2
 
 
 def test_json_parser_removes_thinking_and_code_fence() -> None:

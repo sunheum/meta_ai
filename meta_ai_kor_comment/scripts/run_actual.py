@@ -100,21 +100,37 @@ def _llm_settings_metadata(settings: Settings) -> dict[str, object]:
     }
 
 
-async def _run(args: argparse.Namespace) -> int:
-    settings = Settings.from_env()
-    options = WorkflowOptions(
-        batch_size=args.batch_size or settings.default_batch_size,
-        max_concurrency=args.max_concurrency or settings.default_max_concurrency,
+def _workflow_options(
+    args: argparse.Namespace,
+    settings: Settings,
+) -> WorkflowOptions:
+    return WorkflowOptions(
+        batch_size=(
+            settings.default_batch_size
+            if args.batch_size is None
+            else args.batch_size
+        ),
+        max_concurrency=(
+            settings.default_max_concurrency
+            if args.max_concurrency is None
+            else args.max_concurrency
+        ),
         max_review_rounds=(
             settings.default_max_review_rounds
             if args.max_review_rounds is None
             else args.max_review_rounds
         ),
         auto_confirm_threshold=(
-            args.auto_confirm_threshold
-            or settings.default_auto_confirm_threshold
+            settings.default_auto_confirm_threshold
+            if args.auto_confirm_threshold is None
+            else args.auto_confirm_threshold
         ),
     )
+
+
+async def _run(args: argparse.Namespace) -> int:
+    settings = Settings.from_env()
+    options = _workflow_options(args, settings)
     input_path = args.input.resolve()
     output_path = args.output.resolve()
     model = (

@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "stage_id": "S7",
+  "candidate_id": "working-09080a7",
+  "execution_mode": "local-llm",
+  "command": "python -m scripts.smoke_llm",
+  "exit_code": 0,
+  "result": {
+    "source_id": "row-190",
+    "original_description": "SOFA차량여부",
+    "korean_attribute_name": "주한미군지위협정적용차량여부",
+    "action": "rewrite",
+    "confidence": 95,
+    "reason": "SOFA를 주한미군지위협정적용으로 한글화함",
+    "semantic_units": [
+      "주한미군지위협정적용",
+      "차량",
+      "여부"
+    ],
+    "added_concepts": [],
+    "removed_concepts": [],
+    "review_reasons": []
+  },
+  "issues": [],
+  "passed": true
+}

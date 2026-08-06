@@ -421,6 +421,8 @@ def derive_processing_status(
 ) -> ProcessingStatus:
     if any(issue.severity is IssueSeverity.ERROR for issue in issues):
         return ProcessingStatus.VALIDATION_FAILED
+    if any(_is_unresolved_review_execution_failure(reason) for reason in result.review_reasons):
+        return ProcessingStatus.VALIDATION_FAILED
     if (
         result.confidence < auto_confirm_threshold
         or result.review_reasons
@@ -430,6 +432,18 @@ def derive_processing_status(
     ):
         return ProcessingStatus.REVIEW_REQUIRED
     return ProcessingStatus.AUTO_CONFIRMED
+
+
+def _is_unresolved_review_execution_failure(reason: str) -> bool:
+    """Separate unavailable review execution from a safe policy rejection.
+
+    A rejected review candidate means the already-valid current result was
+    retained by a guardrail, so it remains a stakeholder review item. Transport,
+    response, or model execution failures leave the requested review incomplete
+    and therefore produce ``검증실패`` after the retry budget is exhausted.
+    """
+
+    return reason.startswith("로컬 LLM 리뷰 ") and "정책 검증 거부" not in reason
 
 
 def finalize_result(

@@ -1,0 +1,138 @@
+{
+  "stage_id": "S6",
+  "commit_sha": "precommit",
+  "reviewed_item_count": 921,
+  "expected_item_count": 921,
+  "deterministic_failure_count": 0,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "character_policy_complete": false,
+    "numeric_preservation_complete": true,
+    "semantic_scope_complete": true,
+    "terminology_frequency_verified": false,
+    "evidence_traceable": false,
+    "score_scope_complete": false
+  },
+  "dimensions": {
+    "source_output_integrity": {
+      "rating": 4,
+      "evidence": [
+        "S6/precommit의 deterministic-checks.json은 원본·결과 각 1,195행, 행 보존·필수 컬럼·중복 일관성 실패 0건을 기록한다.",
+        "review-population.jsonl은 921개 고유 조합이며 occurrence_count 합계가 1,195건이다.",
+        "result.xlsx와 원본 XLSX가 보존되지 않아 결정 검사 요약을 원시 산출물과 독립 재대조할 수는 없다."
+      ]
+    },
+    "character_format_policy": {
+      "rating": 4,
+      "evidence": [
+        "영문 포함 원문 30개 고유 조합·51개 발생과 숫자 위험군 44개·45개 발생을 전수 확인했으며 결과에 남은 영문은 정책상 허용되는 ID 3개뿐이고 숫자열 변경은 0건이다.",
+        "row-250은 보험기간 순번 문맥인데 제2보험기간적용보험료를 유지해 현행 제N→N회차 정책을 적용하지 않았다.",
+        "deterministic-checks.json의 문자·숫자 검사는 통과했지만 현행 회차 규칙은 수동 전수 검토에서 별도 위반으로 확인되었다."
+      ]
+    },
+    "description_semantic_fidelity": {
+      "rating": 4,
+      "evidence": [
+        "921개 고유 조합 전체에서 원문·속성명·컬럼명·테이블 문맥을 대조했다.",
+        "row-107은 RH의 업무 의미를 확정하지 않고 알에이치로 음차했고, row-190은 SOFA의 협정 적용 범위를 주한미군으로 축약해 의미 경계를 흐렸다.",
+        "그 밖의 유지 886개, 재작성 31개, 정규화 4개는 대체로 원문 핵심 의미를 보존했다."
+      ]
+    },
+    "context_ambiguity_resolution": {
+      "rating": 3.5,
+      "evidence": [
+        "차대번호/임시번호, 구좌/계좌수, 위촉/개설일자, 위촉/개설차월은 단일 대안을 선택하고 검토필요로 남겨 고위험 슬래시 처리가 적절했다.",
+        "반면 RH와 SP 약어, WKDY와 주일의 불일치는 충분한 문맥 근거 없이 자동확정 96~100으로 처리되었다.",
+        "result.xlsx와 run-metadata.json 부재로 실제 리뷰 과정과 후보 선택 이력을 추가 확인할 수 없다."
+      ]
+    },
+    "frequency_terminology_consistency": {
+      "rating": 3.5,
+      "evidence": [
+        "모집단에 기록된 납입 24 대 납부 3, 중고차요율 대 중고차율 1 대 1, 차량형태 대 차형태 1 대 1의 3개 그룹 결정은 재계산 결과와 일치한다.",
+        "초기 고위험 율/요율 그룹 중 특약율 2건 대 특약요율 1건이 용어 결정에서 누락되어 row-985의 연령특약요율이 최빈형 특약율과 불일치한다.",
+        "run-metadata.json이 없어 전체 용어 결정 집합과 실행 시 선택 이력을 독립 검증할 수 없다."
+      ]
+    },
+    "korean_name_naturalness": {
+      "rating": 4.5,
+      "evidence": [
+        "대부분의 결과는 공백·기호 없이 자연스러운 코드, 여부, 일자, 금액, 회차 접미어를 사용한다.",
+        "row-623의 한가족우대등급등급코드는 등급이 중복되어 부자연스럽고 row-107의 알에이치형태코드는 업무 의미를 전달하지 못하는 음차 표현이다."
+      ]
+    },
+    "status_evidence_confidence": {
+      "rating": 3,
+      "evidence": [
+        "변경 35개 고유 조합·37개 발생 모두 변환근거가 있고 검토필요 8개 모두 검토사유가 있다.",
+        "검토필요인 row-174, row-178, row-869, row-875의 신뢰도 100은 미확정 상태와 모순되며, row-178·row-869의 변환근거는 변경했음에도 원문 그대로 유지했다고 함께 적는다.",
+        "row-794, row-795, row-1146은 약어·문맥 불확실성이 남는데 자동확정 96~100이며, run-metadata.json 부재로 근거와 실행 이력을 끝까지 추적할 수 없다."
+      ]
+    }
+  },
+  "issues": [
+    {
+      "source_id": "row-107",
+      "severity": "major",
+      "description": "RH의 업무 의미를 해소하지 않고 음차한 알에이치형태코드를 자동확정했다.",
+      "evidence": "컬럼명 RH_TYCD와 설명 RH형태코드만으로 RH의 의미가 확정되지 않는데 결과는 알에이치형태코드, 자동확정, 신뢰도 96이며 근거도 단순 음차만 제시한다.",
+      "recommendation": "도메인 약어 사전이나 실제 값 문맥으로 RH를 해석하고, 확인 전에는 검토필요로 낮춘다."
+    },
+    {
+      "source_id": "row-190",
+      "severity": "major",
+      "description": "SOFA를 주한미군으로만 바꾸어 협정 적용이라는 업무 범위를 누락했다.",
+      "evidence": "SOFA차량여부를 주한미군차량여부로 자동확정 96 처리해 SOFA 적용 대상과 일반 주한미군 차량의 경계를 구분하지 못한다.",
+      "recommendation": "주한미군지위협정적용차량여부처럼 협정 적용 범위를 명시하고 약어 검증 전에는 검토필요로 둔다."
+    },
+    {
+      "source_ids": [
+        "row-838",
+        "row-984",
+        "row-985"
+      ],
+      "severity": "major",
+      "description": "특약율/특약요율 빈도 그룹이 용어 결정에서 누락되어 최빈 표현과 불일치가 남았다.",
+      "evidence": "유상운송특약율과 한정특약율 2건 대 연령특약요율 1건인데 row-985를 연령특약요율로 유지했고 terminology_decisions에는 이 그룹이 없다.",
+      "recommendation": "special-contract-rate 그룹을 추가해 최빈 표현인 특약율로 통일하고 영향 행과 빈도 근거를 기록한다."
+    },
+    {
+      "source_id": "row-250",
+      "severity": "minor",
+      "description": "보험기간 순번의 제2 표현을 명시적 회차 표기로 정규화하지 않았다.",
+      "evidence": "INS_CR_CVR.SCD_INS_TRM_APPRM은 제2보험기간적용보험료를 그대로 유지했지만 현행 정책은 승인된 보험기간 순번의 제N을 N회차로 쓴다.",
+      "recommendation": "2회차보험기간적용보험료로 정규화하고 숫자 2를 보존한다."
+    },
+    {
+      "source_id": "row-623",
+      "severity": "minor",
+      "description": "등급 단어가 중복된 부자연스러운 속성명을 그대로 유지했다.",
+      "evidence": "ONFML_PF_GRD_GRDCD의 결과가 한가족우대등급등급코드이며 자동확정 100이다.",
+      "recommendation": "한가족우대등급코드로 중복어를 제거하고 정규화 근거를 남긴다."
+    },
+    {
+      "source_ids": [
+        "row-174",
+        "row-178",
+        "row-869",
+        "row-875"
+      ],
+      "severity": "minor",
+      "description": "동의어 동률로 검토필요인 행을 신뢰도 100으로 표시해 상태와 수치가 모순된다.",
+      "evidence": "네 행 모두 context_resolver 동률 판단을 검토사유로 가지면서 신뢰도는 100이고, 변경된 row-178·row-869 근거에는 원문 유지와 용어 변경이 함께 적혀 있다.",
+      "recommendation": "신뢰도를 검토필요에 맞게 낮추고 변경 행의 근거에서 원문 유지 문구를 제거한다."
+    },
+    {
+      "source_ids": [
+        "row-794",
+        "row-795",
+        "row-1146"
+      ],
+      "severity": "minor",
+      "description": "컬럼 약어와 설명의 의미 불확실성을 자동확정 상태가 반영하지 못한다.",
+      "evidence": "WKDY와 주일의 의미 일치 여부 및 SP의 설계사 해석을 확인할 외부 근거가 없지만 각각 자동확정 100, 100, 96으로 처리되었다.",
+      "recommendation": "약어 사전이나 실제 값으로 확인하기 전에는 검토필요로 전환하고 구체적인 확인 사유를 기록한다."
+    }
+  ]
+}

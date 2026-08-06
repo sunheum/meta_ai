@@ -75,6 +75,17 @@ CONTEXT_CONFLICT_REVIEW: Mapping[str, str] = {
     "WKDY_FMLLV_T2S": "컬럼명 WKDY와 컬럼설명 '주일'의 의미 일치 여부 확인 필요",
 }
 
+# Business-approved ordinal surface forms. These are scoped by column instead
+# of applying a blanket ``제N -> N회차`` rewrite: legal articles, item numbers,
+# product classes, editions, and grades use ``제N`` with different meanings.
+ORDINAL_TERM_NORMALIZATIONS: Mapping[str, tuple[str, str, str]] = {
+    "SCD_INS_TRM_APPRM": (
+        "제2보험기간",
+        "2회차보험기간",
+        "보험기간 순번은 한 글자 접두어 '제' 대신 명시적인 '회차' 표준어를 사용",
+    ),
+}
+
 SLASH_SELECTIONS: Mapping[str, tuple[str, str, str]] = {
     "CHSNO_OR_TMPNO": (
         "차대번호",
@@ -205,6 +216,7 @@ class KoreanCommentWorkflow:
 
         review_rounds = 0
         review_failure_codes: dict[str, str] = {}
+        review_failure_history: list[tuple[int, str, str]] = []
         for review_round in range(1, options.max_review_rounds + 1):
             report = validate_results(
                 representatives,
@@ -231,25 +243,33 @@ class KoreanCommentWorkflow:
                 started,
                 {"review_round": review_round, "source_count": len(review_ids)},
             )
-            reviewed, review_failure_code = await self._review(
+            reviewed, round_failure_codes = await self._review(
                 representatives,
                 reconciled,
                 report.issues,
                 decisions,
                 review_ids,
                 review_round,
+                options,
             )
-            if reviewed is None:
-                failure_code = review_failure_code or "unexpected_error"
-                review_failure_codes.update(
-                    {source_id: failure_code for source_id in review_ids}
-                )
-                reconciled = _mark_review_failure(
-                    reconciled,
-                    review_ids,
+            successful_review_ids = review_ids.difference(round_failure_codes)
+            review_failure_history.extend(
+                (review_round, source_id, failure_code)
+                for source_id, failure_code in sorted(round_failure_codes.items())
+            )
+            for source_id in successful_review_ids:
+                review_failure_codes.pop(source_id, None)
+            review_failure_codes.update(round_failure_codes)
+            for failure_code in sorted(set(round_failure_codes.values())):
+                reviewed = _mark_review_failure(
+                    reviewed,
+                    {
+                        source_id
+                        for source_id, code in round_failure_codes.items()
+                        if code == failure_code
+                    },
                     failure_code,
                 )
-                break
             reconciled, decisions = self._reconcile(
                 representatives,
                 reviewed,
@@ -328,12 +348,13 @@ class KoreanCommentWorkflow:
             recovery_stats=_recovery_stats(
                 weights,
                 generation_fallback_codes,
+                review_failure_history,
                 review_failure_codes,
             ),
             recovery_events=_recovery_events(
                 aliases,
                 generation_fallback_codes,
-                review_failure_codes,
+                review_failure_history,
             ),
         )
 
@@ -509,27 +530,21 @@ class KoreanCommentWorkflow:
         terminology_decisions: Sequence[TerminologyDecision],
         review_ids: set[str],
         review_round: int,
-    ) -> tuple[list[GenerationResult] | None, str | None]:
+        options: WorkflowOptions,
+    ) -> tuple[list[GenerationResult], dict[str, str]]:
         source_by_id = {source.source_id: source for source in sources}
         current_by_id = {result.source_id: result for result in results}
         selected_sources = [
             source for source in sources if source.source_id in review_ids
-        ]
-        selected_results = [
-            current_by_id[source.source_id] for source in selected_sources
         ]
         selected_issues = [
             issue
             for issue in issues
             if review_ids.intersection(issue.source_ids)
         ]
-        selected_decisions = [
-            decision
-            for decision in terminology_decisions
-            if decision.source_id in review_ids
-        ]
-        for result in selected_results:
-            if result.confidence >= 90:
+        for source in selected_sources:
+            result = current_by_id[source.source_id]
+            if result.confidence >= options.auto_confirm_threshold:
                 continue
             selected_issues.append(
                 ValidationIssue(
@@ -538,35 +553,99 @@ class KoreanCommentWorkflow:
                     message="한글속성명 생성 신뢰도가 자동확정 임계값보다 낮습니다.",
                     suggested_action="컬럼·테이블 문맥으로 번역과 의미 보존을 재확인하세요.",
                     source_ids=[result.source_id],
-                    details={"confidence": result.confidence},
+                    details={
+                        "confidence": result.confidence,
+                        "auto_confirm_threshold": options.auto_confirm_threshold,
+                    },
                 )
             )
-        try:
-            reviewed = await self._model.review(
-                selected_sources,
-                selected_results,
-                selected_issues,
-                review_round,
-                terminology_context=selected_decisions,
-            )
-        except Exception as exc:
-            return None, _llm_failure_code(exc)
+
+        batches = list(_batched(selected_sources, options.batch_size))
+        semaphore = asyncio.Semaphore(options.max_concurrency)
+
+        async def review_batch(
+            batch: Sequence[SourceColumn],
+        ) -> tuple[set[str], list[GenerationResult], str | None]:
+            batch_ids = {source.source_id for source in batch}
+            batch_results = [current_by_id[source.source_id] for source in batch]
+            batch_issues = [
+                item.model_copy(
+                    update={
+                        "source_ids": [
+                            source_id
+                            for source_id in item.source_ids
+                            if source_id in batch_ids
+                        ]
+                    }
+                )
+                for item in selected_issues
+                if batch_ids.intersection(item.source_ids)
+            ]
+            batch_decisions = [
+                decision
+                for decision in terminology_decisions
+                if decision.source_id in batch_ids
+            ]
+            try:
+                async with semaphore:
+                    reviewed = await self._model.review(
+                        batch,
+                        batch_results,
+                        batch_issues,
+                        review_round,
+                        terminology_context=batch_decisions,
+                    )
+                actual_ids = [candidate.source_id for candidate in reviewed]
+                if len(actual_ids) != len(set(actual_ids)) or set(actual_ids) != batch_ids:
+                    raise LLMResponseError(
+                        "리뷰 응답 대응 오류: 배치 source_id가 누락·중복되거나 추가됨"
+                    )
+                return batch_ids, reviewed, None
+            except Exception as exc:
+                return batch_ids, [], _llm_failure_code(exc)
+
+        reviewed_batches = await asyncio.gather(
+            *(review_batch(batch) for batch in batches)
+        )
+        reviewed = [
+            candidate
+            for _, batch_results, failure_code in reviewed_batches
+            if failure_code is None
+            for candidate in batch_results
+        ]
+        failure_codes = {
+            source_id: failure_code
+            for batch_ids, _, failure_code in reviewed_batches
+            if failure_code is not None
+            for source_id in batch_ids
+        }
 
         accepted = dict(current_by_id)
         for candidate in reviewed:
             source = source_by_id.get(candidate.source_id)
             if source is None or candidate.source_id not in review_ids:
                 continue
+            current = current_by_id[candidate.source_id]
+            current = current.model_copy(
+                update={
+                    "review_reasons": _clear_review_execution_failure_reasons(
+                        current.review_reasons
+                    )
+                }
+            )
+            accepted[candidate.source_id] = current
             if candidate.original_description != source.column_description:
+                failure_codes[candidate.source_id] = "rejected_result"
                 continue
             if validate_result(source, candidate):
+                failure_codes[candidate.source_id] = "rejected_result"
                 continue
-            current = current_by_id[candidate.source_id]
             if (
                 not validate_result(source, current)
                 and candidate.korean_attribute_name
                 != current.korean_attribute_name
             ):
+                failure_codes[candidate.source_id] = "rejected_result"
                 continue
             review_reasons = _persistent_review_reasons(
                 current.review_reasons + candidate.review_reasons
@@ -584,7 +663,7 @@ class KoreanCommentWorkflow:
                     ),
                 }
             )
-        return [accepted[source.source_id] for source in sources], None
+        return [accepted[source.source_id] for source in sources], failure_codes
 
     @staticmethod
     async def _emit(
@@ -616,6 +695,17 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
     reasons: list[str] = []
     review_reasons: list[str] = []
     risk = classify_description(original, source_id=source.source_id)
+
+    ordinal_normalization = ORDINAL_TERM_NORMALIZATIONS.get(
+        source.column_name.upper()
+    )
+    if ordinal_normalization:
+        source_term, target_term, rationale = ordinal_normalization
+        if source_term in result:
+            result = result.replace(source_term, target_term, 1)
+            reasons.append(
+                f"서수 표현 '{source_term}'을 '{target_term}'으로 정규화: {rationale}"
+            )
 
     slash = SLASH_SELECTIONS.get(source.column_name.upper())
     if slash and "/" in result:
@@ -806,6 +896,12 @@ def _persistent_review_reasons(reasons: Sequence[str]) -> list[str]:
     )
 
 
+def _clear_review_execution_failure_reasons(reasons: Sequence[str]) -> list[str]:
+    """Drop obsolete review-call failures after a later response is received."""
+
+    return [reason for reason in reasons if not reason.startswith("로컬 LLM 리뷰 ")]
+
+
 def _mark_review_failure(
     results: Sequence[GenerationResult],
     review_ids: set[str],
@@ -868,51 +964,88 @@ def _failure_reason(code: str) -> str:
 def _recovery_stats(
     weights: Mapping[str, int],
     generation_codes: Mapping[str, str],
-    review_codes: Mapping[str, str],
+    review_history: Sequence[tuple[int, str, str]],
+    unresolved_review_codes: Mapping[str, str],
 ) -> dict[str, int]:
+    execution_failure_history = [
+        item for item in review_history if item[2] != "rejected_result"
+    ]
+    rejected_history = [
+        item for item in review_history if item[2] == "rejected_result"
+    ]
+    unresolved_execution_failures = {
+        source_id: code
+        for source_id, code in unresolved_review_codes.items()
+        if code != "rejected_result"
+    }
+    unresolved_rejections = {
+        source_id: code
+        for source_id, code in unresolved_review_codes.items()
+        if code == "rejected_result"
+    }
     stats = {
         "generation_fallback_count": sum(
             weights[source_id] for source_id in generation_codes
         ),
         "review_failure_count": sum(
-            weights[source_id] for source_id in review_codes
+            weights[source_id] for _, source_id, _ in execution_failure_history
         ),
+        "review_failure_source_count": sum(
+            weights[source_id]
+            for source_id in {item[1] for item in execution_failure_history}
+        ),
+        "review_unresolved_failure_count": sum(
+            weights[source_id] for source_id in unresolved_execution_failures
+        ),
+        "review_rejected_result_source_count": sum(
+            weights[source_id]
+            for source_id in {item[1] for item in rejected_history}
+        ),
+        "review_unresolved_rejected_result_count": sum(
+            weights[source_id] for source_id in unresolved_rejections
+        ),
+        "review_rejected_result_count": 0,
     }
-    for stage, codes in (
-        ("generation", generation_codes),
-        ("review", review_codes),
-    ):
-        for source_id, code in codes.items():
-            key = f"{stage}_{code}_count"
-            stats[key] = stats.get(key, 0) + weights[source_id]
+    for source_id, code in generation_codes.items():
+        key = f"generation_{code}_count"
+        stats[key] = stats.get(key, 0) + weights[source_id]
+    for _, source_id, code in review_history:
+        key = f"review_{code}_count"
+        stats[key] = stats.get(key, 0) + weights[source_id]
     return stats
 
 
 def _recovery_events(
     aliases: Mapping[str, Sequence[SourceColumn]],
     generation_codes: Mapping[str, str],
-    review_codes: Mapping[str, str],
+    review_history: Sequence[tuple[int, str, str]],
 ) -> list[dict[str, str]]:
-    events: list[dict[str, str]] = []
-    for stage, codes in (
-        ("generate", generation_codes),
-        ("review", review_codes),
-    ):
-        for representative_id, code in codes.items():
-            events.extend(
-                {
-                    "source_id": source.source_id,
-                    "stage": stage,
-                    "code": code,
-                }
-                for source in aliases[representative_id]
-            )
+    events: list[dict[str, str]] = [
+        {
+            "source_id": source.source_id,
+            "stage": "generate",
+            "code": code,
+        }
+        for representative_id, code in generation_codes.items()
+        for source in aliases[representative_id]
+    ]
+    events.extend(
+        {
+            "source_id": source.source_id,
+            "stage": "review",
+            "code": code,
+            "round": str(review_round),
+        }
+        for review_round, representative_id, code in review_history
+        for source in aliases[representative_id]
+    )
     stage_order = {"generate": 0, "review": 1}
     return sorted(
         events,
         key=lambda event: (
             int(event["source_id"].rsplit("-", 1)[-1]),
             stage_order[event["stage"]],
+            int(event.get("round", "0")),
             event["code"],
         ),
     )

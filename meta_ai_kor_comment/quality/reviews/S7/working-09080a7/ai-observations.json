@@ -1,0 +1,78 @@
+{
+  "stage_id": "S7",
+  "commit_sha": "working-09080a7",
+  "reviewed_item_count": 921,
+  "expected_item_count": 921,
+  "deterministic_failure_count": 0,
+  "required_checks": {
+    "row_preservation": true,
+    "required_columns_complete": true,
+    "character_policy_complete": true,
+    "numeric_preservation_complete": true,
+    "semantic_scope_complete": true,
+    "terminology_frequency_verified": true,
+    "evidence_traceable": true,
+    "score_scope_complete": true
+  },
+  "dimensions": {
+    "source_output_integrity": {
+      "rating": 5.0,
+      "evidence": [
+        "deterministic-checks.json에서 원본과 결과가 각각 1,195행이며 행 보존, 필수 컬럼, 중복 일관성 검사가 모두 실패 0건으로 통과했다.",
+        "result.xlsx의 한글속성명_결과 시트는 헤더 외 1,195행이고 검토필요 시트는 헤더 외 16행이다. 결과 파일의 SHA-256은 09080a705f1c785cb9f81d293844393e7de3af80509f352249b8ce2d620dcd50로 run-metadata.json의 output_sha256과 일치한다.",
+        "review-population.jsonl의 921개 고유 조합은 occurrence_count 합계 1,195건으로 결과 전체를 빠짐없이 대표한다."
+      ]
+    },
+    "character_format_policy": {
+      "rating": 5.0,
+      "evidence": [
+        "영문자를 포함한 원문 30개 고유 조합, 51개 발생을 전수 확인했다. 결과에 영문자가 남은 3개 조합은 입력사용자ID, 수정사용자ID, 사용자ID로 정책상 허용되는 ID 표기뿐이다.",
+        "숫자 보존 위험군 44개 고유 조합, 45개 발생의 숫자열을 전수 대조했고 누락·추가·변경은 0건이었다.",
+        "row-250의 제2보험기간적용보험료는 INS_CR_CVR.SCD_INS_TRM_APPRM의 보험기간 순번 문맥이므로 정책에 따라 2회차보험기간적용보험료로 올바르게 정규화되었다.",
+        "결정 검사에서도 문자 정책과 숫자 보존 검사가 각각 실패 0건으로 통과했다."
+      ]
+    },
+    "description_semantic_fidelity": {
+      "rating": 5.0,
+      "evidence": [
+        "921개 고유 (컬럼명, 컬럼설명) 조합 전체를 테이블명·컬럼명·데이터타입과 함께 검토했으며 핵심 의미의 누락, 추가, 반전 또는 오역을 찾지 못했다.",
+        "처리방식은 유지 883개, 재작성 31개, 정규화 7개이며, 변경된 38개 고유 조합 40개 발생 모두 원문 의미를 보존했다.",
+        "영문 약어를 번역한 FY→회계, SMS→문자메시지, DM→우편물, SOFA→주한미군지위협정적용차량, PREMIUM→프리미엄 등의 결과가 각 컬럼과 테이블 문맥에 부합했다."
+      ]
+    },
+    "context_ambiguity_resolution": {
+      "rating": 5.0,
+      "evidence": [
+        "슬래시 대안 위험군 4개와 검토필요 16개를 집중 재검토했다. row-169의 차대번호, row-332의 계좌수, row-591·row-592의 위촉일자·위촉차월 선택은 컬럼 약어와 인접 조직 문맥에 맞으며 불확실성은 검토필요로 보존되었다.",
+        "검토필요 16개는 미해결 정책 거부 이력 9개, 동의어 동률 문맥 판정 4개, WKDY와 주일의 의미 일치 확인 2개, SOFA 약어 해석 확인 1개로 모두 구체적인 검토사유가 있다.",
+        "row-190 SOFA차량여부는 주한미군지위협정적용차량여부로 해석되어 2회차 리뷰에서 정책 검증을 통과했으며, 약어 의미 확인 필요성 때문에 검토필요 상태는 적절히 유지되었다."
+      ]
+    },
+    "frequency_terminology_consistency": {
+      "rating": 5.0,
+      "evidence": [
+        "4개 동의어 그룹의 빈도를 모집단과 메타데이터에서 재검산했다. 납입 24 대 납부 3, 특약율 2 대 특약요율 1은 단독 최다 용어가 선택되었다.",
+        "중고차요율 대 중고차율 1 대 1과 차량형태 대 차형태 1 대 1의 동률은 context_resolver로 각각 중고차요율과 차량형태를 선택했으며 관련 4개 조합을 검토필요·신뢰도 89로 표시했다.",
+        "run-metadata.json의 용어 그룹 4개와 결정 34건이 review-population.jsonl의 terminology_decisions 및 최종 속성명에 일관되게 반영되었다."
+      ]
+    },
+    "korean_name_naturalness": {
+      "rating": 5.0,
+      "evidence": [
+        "921개 결과의 어순, 접미어, 약어 한글화와 결합 형태를 전수 검토했으며 데이터 속성명으로 부자연스럽거나 의미 해석을 방해하는 표현을 찾지 못했다.",
+        "구, 신규, 회계, 문자메시지, 우편물, 텔레마케터, 프리미엄 등 한글화 결과와 코드·여부·금액·일자·회차 등의 표준 접미어가 자연스럽게 결합되었다.",
+        "원문의 중복어를 정리한 row-623 한가족우대등급코드와 명시적 순번 표기로 바꾼 row-250 2회차보험기간적용보험료도 간결성과 의미 명료성을 높였다."
+      ]
+    },
+    "status_evidence_confidence": {
+      "rating": 5.0,
+      "evidence": [
+        "상태는 고유 조합 기준 자동확정 905개, 검토필요 16개이며 발생 기준 1,179개와 16개로 run-metadata.json 및 result.xlsx와 일치한다.",
+        "변경된 38개 고유 조합 모두 변환근거가 있고, 검토필요 16개 모두 검토사유가 있으며 신뢰도는 85 또는 89로 90 미만이다. 근거 누락, 검토사유 누락, 과신 상태는 0건이다.",
+        "실행 실패와 정책 거부를 분리해 확인했다. review_failure_count, review_failure_source_count, review_unresolved_failure_count는 모두 0인 반면 정책 검증 거부는 생성 7건, 리뷰 18회·10개 원천이며 미해결 원천 9개는 최종 검토사유에 모두 명시되었다.",
+        "row-190은 리뷰 1회차 정책 거부 후 2회차에 해소되어 미해결 9개에 포함되지 않고, run-metadata.json에는 이력 이벤트가 보존되어 추적성이 유지된다."
+      ]
+    }
+  },
+  "issues": []
+}

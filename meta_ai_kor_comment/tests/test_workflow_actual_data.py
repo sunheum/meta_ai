@@ -14,6 +14,7 @@ from app.workflow import (
     KoreanCommentWorkflow,
     _deduplicate_sources,
     _deterministic_candidate,
+    _recovery_events,
 )
 
 
@@ -60,6 +61,60 @@ def test_required_tpms_translation_and_unknown_token_evidence() -> None:
     assert unknown.action.value == "rewrite"
     assert unknown.confidence == 55
     assert "확정하지 못한 영문" in unknown.review_reasons[0]
+
+
+def test_business_approved_insurance_period_ordinal_is_normalized() -> None:
+    result = _deterministic_candidate(
+        SourceColumn(
+            source_id="row-250",
+            column_name="SCD_INS_TRM_APPRM",
+            column_description="제2보험기간적용보험료",
+        )
+    )
+
+    assert result.korean_attribute_name == "2회차보험기간적용보험료"
+    assert result.action.value == "normalize"
+    assert "'제2보험기간'을 '2회차보험기간'으로 정규화" in result.reason
+    assert re.findall(r"[0-9]+", result.korean_attribute_name) == ["2"]
+
+
+@pytest.mark.parametrize("description", ["제23조", "제1호", "제2종", "제3급", "제2판"])
+def test_ordinal_normalization_is_not_applied_outside_approved_context(
+    description: str,
+) -> None:
+    result = _deterministic_candidate(
+        SourceColumn(
+            source_id=f"negative-{description}",
+            column_name="UNRELATED_ORDINAL",
+            column_description=description,
+        )
+    )
+
+    assert result.korean_attribute_name == description
+    assert result.action.value == "keep"
+
+
+def test_review_recovery_events_are_sorted_by_round_before_code() -> None:
+    aliases = {
+        "representative": [
+            SourceColumn(
+                source_id="row-2",
+                column_name="COL",
+                column_description="테스트",
+            )
+        ]
+    }
+
+    events = _recovery_events(
+        aliases,
+        {},
+        [
+            (2, "representative", "timeout"),
+            (1, "representative", "unexpected_error"),
+        ],
+    )
+
+    assert [event["round"] for event in events] == ["1", "2"]
 
 
 def test_actual_risky_duplicate_is_partitioned_by_table_context() -> None:
@@ -159,6 +214,7 @@ async def test_actual_1195_row_workbook_end_to_end() -> None:
                 ("LMIT_TRT_RT", "한정특약율"): "한정특약율",
                 ("AGE_TRT_RT", "연령특약요율"): "연령특약율",
                 ("ONFML_PF_GRD_GRDCD", "한가족우대등급등급코드"): "한가족우대등급코드",
+                ("SCD_INS_TRM_APPRM", "제2보험기간적용보험료"): "2회차보험기간적용보험료",
             }
             for pair, target in expected.items():
                 assert by_pair[pair] == target

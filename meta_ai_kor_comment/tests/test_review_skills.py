@@ -191,8 +191,9 @@ class AiReviewSkillTests(unittest.TestCase):
         terminology = [
             {
                 "group_id": "customer",
+                "candidates": ["고객", "손님"],
                 "selected_term": "고객",
-                "candidate_frequencies": {"고객": 20, "손님": 1},
+                "candidate_frequencies": {"고객": 1, "손님": 0},
                 "tied": False,
                 "affected_source_ids": ["row-2"],
             }
@@ -213,6 +214,82 @@ class AiReviewSkillTests(unittest.TestCase):
         self.assertFalse(report["passed"])
         self.assertFalse(report["checks"]["character_policy_complete"]["passed"])
         self.assertFalse(report["checks"]["numeric_preservation_complete"]["passed"])
+
+        forged = [
+            {
+                **terminology[0],
+                "candidate_frequencies": {"고객": 999, "손님": 0},
+            }
+        ]
+        report = ai_integrity.run_checks(
+            ai_population.Table(original_headers, [source]),
+            ai_population.Table(result_headers, [output]),
+            forged,
+        )
+        self.assertFalse(report["passed"])
+        self.assertFalse(report["checks"]["terminology_frequency_verified"]["passed"])
+
+        forged_tie = [
+            {
+                **terminology[0],
+                "selected_term": "손님",
+                "tied": True,
+            }
+        ]
+        report = ai_integrity.run_checks(
+            ai_population.Table(original_headers, [source]),
+            ai_population.Table(result_headers, [output]),
+            forged_tie,
+        )
+        self.assertFalse(report["passed"])
+        self.assertFalse(report["checks"]["terminology_frequency_verified"]["passed"])
+
+    def test_integrity_rejects_a_whole_missing_active_terminology_group(self) -> None:
+        original_headers = ["컬럼명", "컬럼설명"]
+        sources = [
+            {"컬럼명": "PYM_CT", "컬럼설명": "납부횟수"},
+            {"컬럼명": "USDCR_RT", "컬럼설명": "중고차율"},
+        ]
+        result_headers = original_headers + list(ai_integrity.RESULT_COLUMNS)
+        outputs = [
+            {
+                **source,
+                "한글속성명": source["컬럼설명"],
+                "처리상태": "자동확정",
+                "신뢰도": 100,
+                "처리방식": "유지",
+                "변환근거": "",
+                "검토사유": "",
+            }
+            for source in sources
+        ]
+        payment_only = [
+            {
+                "group_id": "payment-action",
+                "candidates": ["납입", "납부"],
+                "selected_term": "납부",
+                "candidate_frequencies": {"납입": 0, "납부": 1},
+                "tied": False,
+                "affected_source_ids": ["row-2"],
+            }
+        ]
+
+        report = ai_integrity.run_checks(
+            ai_population.Table(original_headers, sources),
+            ai_population.Table(result_headers, outputs),
+            payment_only,
+        )
+
+        self.assertFalse(report["passed"])
+        issues = report["issues"]
+        self.assertTrue(
+            any(
+                issue["check"] == "terminology_frequency_verified"
+                and "active required terminology groups are missing" in issue["message"]
+                and "used-car-rate" in issue["expected"]
+                for issue in issues
+            )
+        )
 
     def test_population_is_unique_and_multi_stratified(self) -> None:
         original = ai_population.Table(

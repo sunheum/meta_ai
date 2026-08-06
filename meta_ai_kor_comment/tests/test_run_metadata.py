@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+from argparse import Namespace
+
 from app.config import Settings
 from scripts.run_actual import (
     _aggregate_terminology_decisions,
     _llm_settings_metadata,
+    _workflow_options,
 )
 from app.models import TerminologyDecision
 
@@ -66,3 +69,20 @@ def test_llm_metadata_records_reproducible_settings_without_secret() -> None:
         "max_retries": 3,
     }
     assert "api_key" not in metadata
+
+
+def test_cli_preserves_explicit_zero_auto_confirm_threshold() -> None:
+    settings = Settings(default_auto_confirm_threshold=90)
+    args = Namespace(
+        batch_size=None,
+        max_concurrency=None,
+        max_review_rounds=None,
+        auto_confirm_threshold=0,
+    )
+
+    options = _workflow_options(args, settings)
+
+    assert options.auto_confirm_threshold == 0
+    assert options.batch_size == settings.default_batch_size
+    assert options.max_concurrency == settings.default_max_concurrency
+    assert options.max_review_rounds == settings.default_max_review_rounds
