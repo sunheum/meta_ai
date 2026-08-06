@@ -1,0 +1,7 @@
+{"stage":"input","stage_percent":0,"overall_percent":0,"message":"입력 XLSX를 읽습니다.","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T09:45:58.541589Z"}
+{"stage":"segment","stage_percent":0,"overall_percent":15,"message":"사전 기반 약어 후보를 분해합니다.","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T09:45:58.574151Z"}
+{"stage":"generate","stage_percent":0,"overall_percent":30,"message":"LLM 검토 대상 632건을 처리합니다.","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T09:46:00.178969Z"}
+{"stage":"generate","stage_percent":2,"overall_percent":31,"message":"LLM 생성 10/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T09:57:27.410739Z"}
+{"stage":"generate","stage_percent":3,"overall_percent":31,"message":"LLM 생성 20/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T09:57:33.091583Z"}
+{"stage":"generate","stage_percent":5,"overall_percent":32,"message":"LLM 생성 30/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T09:57:33.358796Z"}
+{"stage":"generate","stage_percent":6,"overall_percent":33,"message":"LLM 생성 40/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T09:57:34.458772Z"}

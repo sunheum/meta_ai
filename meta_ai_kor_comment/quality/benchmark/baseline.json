@@ -1,0 +1,13 @@
+{
+  "source_count": 1195,
+  "unique_column_count": 918,
+  "unique_description_count": 921,
+  "unique_input_pair_count": 921,
+  "duplicate_input_count": 274,
+  "risk_counts": {
+    "english_translation_required": 28,
+    "numeric_sensitive": 45,
+    "slash_ambiguity": 4,
+    "special_symbol": 4
+  }
+}

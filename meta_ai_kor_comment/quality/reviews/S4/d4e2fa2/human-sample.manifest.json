@@ -1,0 +1,422 @@
+{
+  "schema_version": "1.0.0",
+  "stage_id": "S4",
+  "seed_sha256": "b1d3eb8f32936fa9cf89d2240bd10734270fd55ff4644ad254b3b237468bad88",
+  "population_size": 921,
+  "population_hash": "a3483a00cc2aaf1e46c7f312ef3177b25623528c86cdeaf0b9615f953c9c943e",
+  "minimum_size": 80,
+  "quotas": {
+    "low_risk_keep": 15,
+    "english_translation": 15,
+    "numeric_preservation": 10,
+    "slash_context": 4,
+    "terminology_frequency": 10,
+    "duplicate_context": 10,
+    "llm_rewrite": 10,
+    "review_needed": 10
+  },
+  "available_counts": {
+    "low_risk_keep": 700,
+    "english_translation": 27,
+    "llm_rewrite": 31,
+    "duplicate_context": 136,
+    "numeric_preservation": 44,
+    "review_needed": 8,
+    "slash_context": 4,
+    "terminology_frequency": 24
+  },
+  "required_counts": {
+    "low_risk_keep": 15,
+    "english_translation": 15,
+    "numeric_preservation": 10,
+    "slash_context": 4,
+    "terminology_frequency": 10,
+    "duplicate_context": 10,
+    "llm_rewrite": 10,
+    "review_needed": 8
+  },
+  "missing_population_strata": [],
+  "selected_counts": {
+    "low_risk_keep": 19,
+    "english_translation": 25,
+    "llm_rewrite": 29,
+    "numeric_preservation": 12,
+    "duplicate_context": 19,
+    "review_needed": 8,
+    "slash_context": 4,
+    "terminology_frequency": 12
+  },
+  "source_ids": [
+    "row-576",
+    "row-11",
+    "row-647",
+    "row-789",
+    "row-933",
+    "row-793",
+    "row-790",
+    "row-1089",
+    "row-848",
+    "row-798",
+    "row-53",
+    "row-100",
+    "row-208",
+    "row-856",
+    "row-92",
+    "row-150",
+    "row-29",
+    "row-1160",
+    "row-804",
+    "row-51",
+    "row-190",
+    "row-1157",
+    "row-28",
+    "row-107",
+    "row-697",
+    "row-1161",
+    "row-624",
+    "row-151",
+    "row-31",
+    "row-1146",
+    "row-752",
+    "row-389",
+    "row-1182",
+    "row-680",
+    "row-681",
+    "row-68",
+    "row-679",
+    "row-682",
+    "row-1192",
+    "row-386",
+    "row-591",
+    "row-592",
+    "row-332",
+    "row-169",
+    "row-875",
+    "row-284",
+    "row-1005",
+    "row-174",
+    "row-979",
+    "row-574",
+    "row-267",
+    "row-276",
+    "row-283",
+    "row-744",
+    "row-185",
+    "row-617",
+    "row-157",
+    "row-713",
+    "row-162",
+    "row-609",
+    "row-368",
+    "row-173",
+    "row-619",
+    "row-633",
+    "row-1159",
+    "row-1156",
+    "row-32",
+    "row-33",
+    "row-30",
+    "row-1158",
+    "row-142",
+    "row-803",
+    "row-1058",
+    "row-865",
+    "row-178",
+    "row-869",
+    "row-951",
+    "row-201",
+    "row-311",
+    "row-207"
+  ],
+  "source_strata": {
+    "row-576": [
+      "low_risk_keep"
+    ],
+    "row-11": [
+      "low_risk_keep"
+    ],
+    "row-647": [
+      "low_risk_keep"
+    ],
+    "row-789": [
+      "low_risk_keep"
+    ],
+    "row-933": [
+      "low_risk_keep"
+    ],
+    "row-793": [
+      "low_risk_keep"
+    ],
+    "row-790": [
+      "low_risk_keep"
+    ],
+    "row-1089": [
+      "low_risk_keep"
+    ],
+    "row-848": [
+      "low_risk_keep"
+    ],
+    "row-798": [
+      "low_risk_keep"
+    ],
+    "row-53": [
+      "low_risk_keep"
+    ],
+    "row-100": [
+      "low_risk_keep"
+    ],
+    "row-208": [
+      "low_risk_keep"
+    ],
+    "row-856": [
+      "low_risk_keep"
+    ],
+    "row-92": [
+      "low_risk_keep"
+    ],
+    "row-150": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-29": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1160": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-804": [
+      "english_translation",
+      "llm_rewrite",
+      "numeric_preservation"
+    ],
+    "row-51": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-190": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1157": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-28": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-107": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-697": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1161": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-624": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-151": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-31": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1146": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-752": [
+      "numeric_preservation"
+    ],
+    "row-389": [
+      "numeric_preservation"
+    ],
+    "row-1182": [
+      "numeric_preservation"
+    ],
+    "row-680": [
+      "numeric_preservation"
+    ],
+    "row-681": [
+      "numeric_preservation"
+    ],
+    "row-68": [
+      "duplicate_context",
+      "numeric_preservation"
+    ],
+    "row-679": [
+      "numeric_preservation"
+    ],
+    "row-682": [
+      "numeric_preservation"
+    ],
+    "row-1192": [
+      "numeric_preservation"
+    ],
+    "row-386": [
+      "numeric_preservation"
+    ],
+    "row-591": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-592": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-332": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-169": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-875": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-284": [
+      "terminology_frequency"
+    ],
+    "row-1005": [
+      "terminology_frequency"
+    ],
+    "row-174": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-979": [
+      "duplicate_context",
+      "terminology_frequency"
+    ],
+    "row-574": [
+      "terminology_frequency"
+    ],
+    "row-267": [
+      "duplicate_context",
+      "terminology_frequency"
+    ],
+    "row-276": [
+      "terminology_frequency"
+    ],
+    "row-283": [
+      "terminology_frequency"
+    ],
+    "row-744": [
+      "duplicate_context",
+      "terminology_frequency"
+    ],
+    "row-185": [
+      "duplicate_context"
+    ],
+    "row-617": [
+      "duplicate_context"
+    ],
+    "row-157": [
+      "duplicate_context"
+    ],
+    "row-713": [
+      "duplicate_context"
+    ],
+    "row-162": [
+      "duplicate_context"
+    ],
+    "row-609": [
+      "duplicate_context"
+    ],
+    "row-368": [
+      "duplicate_context"
+    ],
+    "row-173": [
+      "duplicate_context"
+    ],
+    "row-619": [
+      "duplicate_context"
+    ],
+    "row-633": [
+      "duplicate_context"
+    ],
+    "row-1159": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1156": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-32": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-33": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-30": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1158": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-142": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-803": [
+      "english_translation",
+      "llm_rewrite",
+      "numeric_preservation"
+    ],
+    "row-1058": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-865": [
+      "duplicate_context",
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-178": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-869": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-951": [
+      "low_risk_keep"
+    ],
+    "row-201": [
+      "low_risk_keep"
+    ],
+    "row-311": [
+      "low_risk_keep"
+    ],
+    "row-207": [
+      "low_risk_keep"
+    ]
+  },
+  "selection_hash": "88e8616158b48d4ff7d4013caf87b90e8c7ea698c1d72ba9eeb9bab9ab0a8a8f"
+}

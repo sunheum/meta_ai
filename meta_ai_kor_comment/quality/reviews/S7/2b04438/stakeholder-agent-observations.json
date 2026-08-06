@@ -1,0 +1,96 @@
+{
+  "provenance": {
+    "reviewer_type": "stakeholder_agent",
+    "ai_generated": true,
+    "commit_sha": "2b04438",
+    "stage_id": "S7",
+    "human_attestation": false,
+    "formal_human_gate_eligible": false,
+    "reviewed_input": "human-sample.csv",
+    "sample_selection": "S7 고정 manifest를 재사용한 블라인드 80행 표본",
+    "scope_note": "새 후보의 사람용 CSV에 표시된 source_id, 테이블·컬럼 문맥, 컬럼설명, 생성 한글속성명만 stakeholder 관점에서 검토함. 10ea37c의 human-sample.csv는 읽거나 복사하지 않음."
+  },
+  "formal_human_review": {
+    "ratings": null,
+    "score": null,
+    "gate_status": "not_evaluated",
+    "reason": "AI stakeholder 관찰은 실제 사람 평점이나 공식 품질 게이트를 대체하지 않음",
+    "human_sample_rating_fields_untouched": true
+  },
+  "policy_interpretation": {
+    "slash_alternative_rule": "슬래시나 '또는'을 남기지 않고 문맥상 하나를 선택하면 정책 준수로 봄",
+    "residual_risk_rule": "선택하지 않은 대안을 누락으로 채점하지 않으며 제공 문맥만으로 선택 근거가 불충분할 때 문맥 위험으로만 기록함"
+  },
+  "review_coverage": {
+    "sample_size": 80,
+    "all_rows_reviewed": true,
+    "missing_source_ids": [],
+    "duplicate_source_ids": [],
+    "source_ids": [
+      "row-709", "row-857", "row-1136", "row-782", "row-1164", "row-437", "row-1166", "row-357",
+      "row-88", "row-79", "row-177", "row-320", "row-81", "row-824", "row-757", "row-804",
+      "row-865", "row-1161", "row-150", "row-33", "row-28", "row-154", "row-29", "row-190",
+      "row-1146", "row-624", "row-151", "row-697", "row-107", "row-142", "row-250", "row-751",
+      "row-679", "row-678", "row-794", "row-1185", "row-1184", "row-1192", "row-1191", "row-788",
+      "row-591", "row-332", "row-169", "row-592", "row-174", "row-568", "row-743", "row-875",
+      "row-276", "row-566", "row-574", "row-414", "row-267", "row-284", "row-259", "row-96",
+      "row-55", "row-242", "row-101", "row-825", "row-603", "row-240", "row-690", "row-835",
+      "row-1160", "row-32", "row-51", "row-31", "row-1058", "row-803", "row-1157", "row-1156",
+      "row-30", "row-797", "row-178", "row-869", "row-868", "row-198", "row-34", "row-1127"
+    ]
+  },
+  "stakeholder_summary": {
+    "outlook": "acceptable_with_minor_followups",
+    "formal_gate_conclusion": "actual_human_review_required",
+    "critical_count": 0,
+    "major_count": 0,
+    "minor_count": 11,
+    "unflagged_count": 69,
+    "dimension_outlook": {
+      "business_semantic_accuracy": "strong",
+      "meaning_completeness": "strong",
+      "character_notation_policy": "strong",
+      "context_ambiguity_safety": "good_with_minor_residual_risk",
+      "terminology_consistency": "good_with_minor_standardization_needed",
+      "naturalness_conciseness": "good_with_minor_wording_issues"
+    },
+    "positive_findings": [
+      "SOFA는 주한미군지위협정 적용 차량으로 표현되어 협정 적용 범위를 정확하게 보존함",
+      "SP는 보험 CRM 조직 문맥에서 자연스러운 설계사로 표현됨",
+      "영문 약어는 한글 업무 용어로 전환됐고 숫자 1·2 및 20·25·30년 범위가 정확히 보존됨",
+      "슬래시 대안 4건은 모두 기호나 '또는' 없이 단일 속성명으로 정리됨",
+      "표본에서 데이터 의미가 반대이거나 다른 개념으로 단정되는 major·critical 문제는 발견되지 않음"
+    ],
+    "recommendations": [
+      "계좌수와 차대번호 선택은 원천 코드 정의 또는 값 도메인으로 확인해 잔여 문맥 위험을 해소함",
+      "WKDY와 주일의 대응이 상품 고유명인지 승인 용어사전에서 확인함",
+      "적용율과 회계년도 계열은 적용률과 회계연도로 표준 표기를 통일함",
+      "TMR과 리서스인자 형태 용어는 사내 보험·고객 표준어와 대조함",
+      "발송지회차와 일자상세정보는 값 단위가 드러나도록 정의 또는 속성명을 보강함"
+    ]
+  },
+  "issue_observations": [
+    {"source_id":"row-857","severity":"minor","dimensions":["terminology_consistency","naturalness_conciseness"],"observation":"'적용율'은 의미는 정확하지만 표준 표기인 '적용률'로 정리하는 것이 자연스러움."},
+    {"source_id":"row-824","severity":"minor","dimensions":["context_ambiguity_safety","naturalness_conciseness"],"observation":"'피보험자발송지회차'는 발송지 순번인지 발송 회차인지 복합어만으로 구별하기 어려움."},
+    {"source_id":"row-150","severity":"minor","dimensions":["meaning_completeness","context_ambiguity_safety"],"observation":"DM을 '우편물'로 넓혀 직접우편·홍보물이라는 채널 뉘앙스가 약해질 수 있음."},
+    {"source_id":"row-28","severity":"minor","dimensions":["terminology_consistency","naturalness_conciseness"],"observation":"기간 단위 표준어는 '회계연도'이므로 '회계년도' 표기를 통일할 필요가 있음."},
+    {"source_id":"row-29","severity":"minor","dimensions":["terminology_consistency","naturalness_conciseness"],"observation":"'회계년도명'은 표준 표기 '회계연도명'으로 정리하는 것이 적절함."},
+    {"source_id":"row-624","severity":"minor","dimensions":["context_ambiguity_safety","terminology_consistency"],"observation":"직원 성과 문맥상 텔레마케터가 유력하지만 TMR의 승인 확장어는 사내 용어사전으로 확인하는 편이 안전함."},
+    {"source_id":"row-107","severity":"minor","dimensions":["terminology_consistency","naturalness_conciseness"],"observation":"RH를 리서스 인자로 풀어 의미는 명확하나 '형태'보다 '유형' 또는 '혈액형'이 표준인지 확인이 필요함."},
+    {"source_id":"row-794","severity":"minor","dimensions":["context_ambiguity_safety","naturalness_conciseness"],"observation":"원문은 보존했으나 WKDY와 '주일'의 대응이 상품 고유명인지 일반 평일 의미인지 문맥만으로 확정하기 어려움."},
+    {"source_id":"row-332","severity":"minor","dimensions":["context_ambiguity_safety","terminology_consistency"],"observation":"계좌수 선택은 슬래시 제거 정책을 준수하지만 계약담보 문맥만으로 구좌수와 계좌수 중 어느 쪽인지 확정하기에는 근거가 제한적임."},
+    {"source_id":"row-169","severity":"minor","dimensions":["context_ambiguity_safety"],"observation":"차량정보 문맥에서 차대번호 선택은 합리적이지만 임시번호 대안을 배제할 값 도메인 근거는 제공되지 않음."},
+    {"source_id":"row-34","severity":"minor","dimensions":["context_ambiguity_safety","naturalness_conciseness"],"observation":"'일자상세정보'는 상세정보의 구성과 값 단위를 드러내지 않아 속성명만으로 의미를 파악하기 어려움."}
+  ],
+  "unflagged_source_ids": [
+    "row-709", "row-1136", "row-782", "row-1164", "row-437", "row-1166", "row-357", "row-88",
+    "row-79", "row-177", "row-320", "row-81", "row-757", "row-804", "row-865", "row-1161",
+    "row-33", "row-154", "row-190", "row-1146", "row-151", "row-697", "row-142", "row-250",
+    "row-751", "row-679", "row-678", "row-1185", "row-1184", "row-1192", "row-1191", "row-788",
+    "row-591", "row-592", "row-174", "row-568", "row-743", "row-875", "row-276", "row-566",
+    "row-574", "row-414", "row-267", "row-284", "row-259", "row-96", "row-55", "row-242",
+    "row-101", "row-825", "row-603", "row-240", "row-690", "row-835", "row-1160", "row-32",
+    "row-51", "row-31", "row-1058", "row-803", "row-1157", "row-1156", "row-30", "row-797",
+    "row-178", "row-869", "row-868", "row-198", "row-1127"
+  ]
+}

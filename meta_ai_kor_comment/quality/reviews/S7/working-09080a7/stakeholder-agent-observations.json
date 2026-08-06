@@ -1,0 +1,250 @@
+{
+  "schema_version": "2.0",
+  "review_type": "independent_stakeholder_agent_review_with_handoff_policy",
+  "candidate_id": "working-09080a7",
+  "reviewer_type": "stakeholder_agent",
+  "ai_generated": true,
+  "human_attestation": false,
+  "formal_human_gate_eligible": false,
+  "formal_human_ratings": null,
+  "formal_human_score": null,
+  "supersedes_prior_stakeholder_observation": true,
+  "review_scope": {
+    "included_files": [
+      {
+        "name": "result.xlsx",
+        "sha256": "09080A705F1C785CB9F81D293844393E7DE3AF80509F352249B8CE2D620DCD50"
+      },
+      {
+        "name": "review-population.jsonl",
+        "sha256": "B6152A24A818A43B4FEF7FDB0D1745EA872EBD156A3658C2B2B32D1C200CAAFD"
+      },
+      {
+        "name": "human-sample.csv",
+        "sha256": "0903A7616B440572115CA1C961CC5BC80C7F971492068FE907E94E1E0E380284"
+      }
+    ],
+    "policy_context": "이번 task의 HANDOFF 확정 요구사항과 tamiblue 사용자 피드백",
+    "excluded_inputs": "기존 stakeholder 산출물은 열람·재사용하지 않고 완전 대체함",
+    "workbook_inspection": {
+      "status": "metadata_only_runtime_unavailable",
+      "file_size_bytes": 122009,
+      "limitation": "요구된 @oai/artifact-tool 런타임을 불러올 수 없어 result.xlsx 셀을 직접 검사하지 못했다. 행 단위 평가는 같은 후보의 review-population.jsonl 및 human-sample.csv 현재값으로 수행했다."
+    }
+  },
+  "handoff_policy_applied": {
+    "slash_or_rule": "특수기호를 제거한 뒤 복합 표현을 만들지 않고 업무 문맥상 하나의 의미만 선택한다.",
+    "row_250_rule": "tamiblue가 현재값 '2회차보험기간적용보험료'를 명시 승인했고, 수정 전 '제2보험기간적용보험료'를 major로 판정했다.",
+    "informal_pass_rule": "tamiblue의 나머지 표본 pass 의견은 정성 참고자료로만 사용하며 공식 수치 평정으로 변환하지 않는다.",
+    "human_sample_rule": "같은 S7에서 최초 고정한 80개 source ID를 유지하며 검토필요 16건 전수 포함은 요건이 아니다.",
+    "english_exception_rule": "ID만 영문 표기의 유일한 허용 예외다.",
+    "fiscal_year_rule": "FY년도와 FY년도명의 확정 변환 예시는 각각 회계년도와 회계년도명이다."
+  },
+  "human_feedback_reference": {
+    "reviewer_label": "tamiblue",
+    "row_250_current_value_approved": true,
+    "row_250_prechange_value_assessment": "major",
+    "remaining_sample_feedback": "pass",
+    "six_dimension_numeric_ratings_provided": false,
+    "treatment": "informal_reference_only",
+    "converted_to_formal_score": false,
+    "converted_to_human_attestation": false
+  },
+  "executive_assessment": {
+    "stakeholder_recommendation": "accept_current_candidate_for_formal_human_rating_step",
+    "stakeholder_quality_blockers": [],
+    "formal_human_gate_status": "not_eligible_until_numeric_ratings_and_attestation_are_provided",
+    "population_records": 921,
+    "status_counts": {
+      "자동확정": 905,
+      "검토필요": 16
+    },
+    "review_needed_assessed": 16,
+    "review_needed_current_value_accept_count": 16,
+    "review_needed_revision_count": 0,
+    "row_250_current_value_accepted": true
+  },
+  "review_needed_observations": [
+    {
+      "source_id": "row-107",
+      "column_name": "RH_TYCD",
+      "source_description": "RH형태코드",
+      "current_value": "리서스인자형태코드",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "고객 문맥과 검토사유에 기록된 인접 혈액형 코드 근거를 함께 보면 RH를 리서스인자로 풀어 쓴 현재값은 정책에 부합한다. tamiblue의 표본 pass 의견도 정성 참고로 일치한다."
+    },
+    {
+      "source_id": "row-169",
+      "column_name": "CHSNO_OR_TMPNO",
+      "source_description": "차대번호/임시번호",
+      "current_value": "차대번호",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "slash/OR 정책은 복합명을 금지하고 문맥상 한 의미를 선택하도록 한다. 계약자동차정보 문맥과 주된 CHSNO 토큰을 기준으로 차대번호를 선택한 현재값이 적절하다."
+    },
+    {
+      "source_id": "row-174",
+      "column_name": "USDCR_RT",
+      "source_description": "중고차요율",
+      "current_value": "중고차요율",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "원 설명을 그대로 보존하고 같은 컬럼명의 row-869와도 용어가 일치한다."
+    },
+    {
+      "source_id": "row-178",
+      "column_name": "CR_TYCD",
+      "source_description": "차형태코드",
+      "current_value": "차량형태코드",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "자동차정보 문맥에서 차량형태로 정규화한 표현이 자연스럽고 row-875와 일관된다."
+    },
+    {
+      "source_id": "row-190",
+      "column_name": "SOFA_CR_YN",
+      "source_description": "SOFA차량여부",
+      "current_value": "주한미군지위협정적용차량여부",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "SOFA를 자동차 문맥에 맞는 주한미군지위협정으로 풀고 적용 차량 여부를 명확하게 표현했다."
+    },
+    {
+      "source_id": "row-332",
+      "column_name": "ACT_OR_ACTCT",
+      "source_description": "구좌/계좌수",
+      "current_value": "계좌수",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "slash/OR 단일 선택 정책에 따라 복합명을 만들지 않은 결과다. 현대적이고 자연스러운 계좌수를 선택해 수량 의미를 보존한다."
+    },
+    {
+      "source_id": "row-591",
+      "column_name": "APO_OR_STBDT",
+      "source_description": "위촉/개설일자",
+      "current_value": "위촉일자",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "slash/OR 단일 선택 정책과 직원 실적 테이블 문맥을 적용하면 직원에게 직접 대응하는 위촉일자 선택이 타당하다. 복합명은 만들지 않는다."
+    },
+    {
+      "source_id": "row-592",
+      "column_name": "APO_OR_STB_MMTHR",
+      "source_description": "위촉/개설차월",
+      "current_value": "위촉차월",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "row-591과 동일한 직원 문맥 및 단일 선택 정책에 따라 위촉차월이 일관된 결과다."
+    },
+    {
+      "source_id": "row-624",
+      "column_name": "TMR_MNTH_CNV_HMS",
+      "source_description": "TMR월통화시간",
+      "current_value": "텔레마케터월통화시간",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "직원 실적 및 월 통화시간 문맥에서 TMR을 텔레마케터로 한글화한 현재값은 업무 의미가 자연스럽다."
+    },
+    {
+      "source_id": "row-697",
+      "column_name": "OLD_IKDCD",
+      "source_description": "OLD보종코드",
+      "current_value": "구보종코드",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "OLD를 구로 한글화하면서 보종코드 의미를 간결하게 유지한다."
+    },
+    {
+      "source_id": "row-794",
+      "column_name": "WKDY_FMLLV_T1S",
+      "source_description": "주일가족사랑1회차",
+      "current_value": "주일가족사랑1회차",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "상품명으로 보이는 원 설명과 숫자 1을 그대로 유지했고 쌍을 이루는 row-795와도 일관된다."
+    },
+    {
+      "source_id": "row-795",
+      "column_name": "WKDY_FMLLV_T2S",
+      "source_description": "주일가족사랑2회차",
+      "current_value": "주일가족사랑2회차",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "원 설명과 숫자 2를 보존하고 row-794의 1회차 명칭과 일관된다. 고정 80표본 정책에서는 이 행의 표본 미포함이 결함이 아니다."
+    },
+    {
+      "source_id": "row-797",
+      "column_name": "PREM_TRF_INJR_SEQ",
+      "source_description": "PREMIUM교통상해회차",
+      "current_value": "프리미엄교통상해회차",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "PREMIUM을 자연스럽게 한글화하면서 교통상해회차 의미를 보존한다."
+    },
+    {
+      "source_id": "row-869",
+      "column_name": "USDCR_RT",
+      "source_description": "중고차율",
+      "current_value": "중고차요율",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "동일 컬럼명인 row-174의 중고차요율과 통일한 정규화가 적절하다."
+    },
+    {
+      "source_id": "row-875",
+      "column_name": "CR_TYCD",
+      "source_description": "차량형태코드",
+      "current_value": "차량형태코드",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "원 설명을 보존하며 row-178의 정규화 결과와 일치한다."
+    },
+    {
+      "source_id": "row-1146",
+      "column_name": "SP_YN",
+      "source_description": "SP여부",
+      "current_value": "설계사여부",
+      "recommended_disposition": "accept_current_value",
+      "stakeholder_observation": "조직 월 정보와 검토사유에 기록된 인접 설계사타입 문맥이 SP를 설계사로 해석한 현재값을 지지한다."
+    }
+  ],
+  "row_250_observation": {
+    "source_id": "row-250",
+    "column_name": "SCD_INS_TRM_APPRM",
+    "source_description": "제2보험기간적용보험료",
+    "current_value": "2회차보험기간적용보험료",
+    "processing_method": "정규화",
+    "processing_status": "자동확정",
+    "recommended_disposition": "accept_current_value",
+    "stakeholder_observation": "현재값은 HANDOFF에 포함된 tamiblue의 명시 승인과 일치한다. 수정 전 '제2보험기간적용보험료'가 major였다는 피드백을 반영해 현재 2회차 표현을 유지한다.",
+    "formal_score_effect": null
+  },
+  "human_sample_readiness": {
+    "status": "ready_for_formal_human_rating_entry",
+    "fixed_source_id_policy": "same_S7_initial_fixed_80",
+    "row_count": 80,
+    "unique_source_ids": 80,
+    "invalid_source_ids": 0,
+    "sampled_review_needed_count": 15,
+    "review_needed_full_coverage_required": false,
+    "row_795_absence_is_blocker": false,
+    "row_250_present": true,
+    "rating_fields_filled_rows": 0,
+    "severity_field_filled_rows": 0,
+    "comment_field_filled_rows": 0,
+    "assessment": "고정 80 source ID가 중복 없이 준비되어 있고 사람 입력 칸은 비어 있다. AI가 평정·severity·comment를 대신 입력하지 않았다. 현재 표본은 사람 수치 평정 입력을 시작할 수 있지만, 그 평정과 attestation이 실제 제출되기 전에는 formal human gate 증거로 사용할 수 없다."
+  },
+  "mechanical_population_scan": {
+    "scope_records": 921,
+    "blank_output_count": 0,
+    "special_symbol_output_count": 0,
+    "digit_sequence_mismatch_count": 0,
+    "english_character_output_count": 3,
+    "allowed_ID_exception_source_ids": [
+      "row-131",
+      "row-133",
+      "row-737"
+    ],
+    "non_ID_english_output_count": 0,
+    "fiscal_year_confirmed_examples": [
+      {
+        "source_id": "row-28",
+        "source_description": "FY년도",
+        "current_value": "회계년도",
+        "status": "compliant"
+      },
+      {
+        "source_id": "row-29",
+        "source_description": "FY년도명",
+        "current_value": "회계년도명",
+        "status": "compliant"
+      }
+    ]
+  }
+}

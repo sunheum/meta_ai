@@ -1,0 +1,37 @@
+[
+  {
+    "source_id": "row-smoke",
+    "components": [
+      {
+        "source_fragment": "TLM",
+        "full_name": "TELEGRAM MESSAGE",
+        "korean_word": "전문",
+        "origin": "mapping",
+        "start": 0,
+        "end": 0,
+        "occurrence_count": 0
+      },
+      {
+        "source_fragment": "OPN",
+        "full_name": "OPEN",
+        "korean_word": "개시",
+        "origin": "mapping",
+        "start": 0,
+        "end": 0,
+        "occurrence_count": 0
+      },
+      {
+        "source_fragment": "DT",
+        "full_name": "DATE",
+        "korean_word": "일자",
+        "origin": "mapping",
+        "start": 0,
+        "end": 0,
+        "occurrence_count": 0
+      }
+    ],
+    "full_name": "TELEGRAM MESSAGE OPEN DATE",
+    "korean_attribute_name": "전문개시일자",
+    "reason": "테이블 명칭에 '전문'이 포함되어 있어 TLM을 전문으로, OPN을 개시로 해석하고, DT는 날짜를 의미하는 DATE로 문맥에 맞게 선택함"
+  }
+]

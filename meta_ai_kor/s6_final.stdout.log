@@ -1,0 +1,13 @@
+{"stage":"input","stage_percent":0,"overall_percent":0,"message":"입력 XLSX를 읽습니다.","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:02:38.844991Z"}
+{"stage":"segment","stage_percent":0,"overall_percent":15,"message":"사전 기반 약어 후보를 분해합니다.","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:02:38.887020Z"}
+{"stage":"generate","stage_percent":0,"overall_percent":30,"message":"LLM 검토 대상 632건을 처리합니다.","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:02:40.647387Z"}
+{"stage":"generate","stage_percent":4,"overall_percent":32,"message":"LLM 생성 25/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.362606Z"}
+{"stage":"generate","stage_percent":8,"overall_percent":34,"message":"LLM 생성 50/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.609551Z"}
+{"stage":"generate","stage_percent":12,"overall_percent":35,"message":"LLM 생성 75/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.619780Z"}
+{"stage":"generate","stage_percent":16,"overall_percent":37,"message":"LLM 생성 100/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.620199Z"}
+{"stage":"generate","stage_percent":20,"overall_percent":39,"message":"LLM 생성 125/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.620490Z"}
+{"stage":"generate","stage_percent":24,"overall_percent":41,"message":"LLM 생성 150/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.620869Z"}
+{"stage":"generate","stage_percent":28,"overall_percent":43,"message":"LLM 생성 175/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.621367Z"}
+{"stage":"generate","stage_percent":32,"overall_percent":44,"message":"LLM 생성 200/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.621709Z"}
+{"stage":"generate","stage_percent":36,"overall_percent":46,"message":"LLM 생성 225/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.622031Z"}
+{"stage":"generate","stage_percent":40,"overall_percent":48,"message":"LLM 생성 250/632건","details":{},"stage_elapsed_seconds":0.0,"total_elapsed_seconds":0.0,"created_at":"2026-07-31T10:12:46.622279Z"}

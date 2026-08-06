@@ -1,0 +1,4 @@
+interface:
+  display_name: "사람 컬럼설명 리뷰"
+  short_description: "블라인드 사람 리뷰 표본을 준비하고 공식 채점합니다"
+  default_prompt: "Use $score-comment-korean-columns-human to prepare and score a blinded stakeholder review."

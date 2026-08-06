@@ -1,0 +1,420 @@
+{
+  "schema_version": "1.0.0",
+  "stage_id": "S7",
+  "seed_sha256": "d53d113e9c01f4388af35632813ddb85902066795ecabba59ed24f483ad3db26",
+  "population_size": 921,
+  "population_hash": "a3483a00cc2aaf1e46c7f312ef3177b25623528c86cdeaf0b9615f953c9c943e",
+  "minimum_size": 80,
+  "quotas": {
+    "low_risk_keep": 15,
+    "english_translation": 15,
+    "numeric_preservation": 10,
+    "slash_context": 4,
+    "terminology_frequency": 10,
+    "duplicate_context": 10,
+    "llm_rewrite": 10,
+    "review_needed": 10
+  },
+  "available_counts": {
+    "low_risk_keep": 700,
+    "english_translation": 27,
+    "llm_rewrite": 31,
+    "duplicate_context": 136,
+    "numeric_preservation": 44,
+    "review_needed": 8,
+    "slash_context": 4,
+    "terminology_frequency": 24
+  },
+  "required_counts": {
+    "low_risk_keep": 15,
+    "english_translation": 15,
+    "numeric_preservation": 10,
+    "slash_context": 4,
+    "terminology_frequency": 10,
+    "duplicate_context": 10,
+    "llm_rewrite": 10,
+    "review_needed": 8
+  },
+  "missing_population_strata": [],
+  "selected_counts": {
+    "low_risk_keep": 19,
+    "english_translation": 25,
+    "llm_rewrite": 29,
+    "numeric_preservation": 12,
+    "duplicate_context": 17,
+    "review_needed": 8,
+    "slash_context": 4,
+    "terminology_frequency": 12
+  },
+  "source_ids": [
+    "row-709",
+    "row-857",
+    "row-1136",
+    "row-782",
+    "row-1164",
+    "row-437",
+    "row-1166",
+    "row-357",
+    "row-88",
+    "row-79",
+    "row-177",
+    "row-320",
+    "row-81",
+    "row-824",
+    "row-757",
+    "row-804",
+    "row-865",
+    "row-1161",
+    "row-150",
+    "row-33",
+    "row-28",
+    "row-154",
+    "row-29",
+    "row-190",
+    "row-1146",
+    "row-624",
+    "row-151",
+    "row-697",
+    "row-107",
+    "row-142",
+    "row-250",
+    "row-751",
+    "row-679",
+    "row-678",
+    "row-794",
+    "row-1185",
+    "row-1184",
+    "row-1192",
+    "row-1191",
+    "row-788",
+    "row-591",
+    "row-332",
+    "row-169",
+    "row-592",
+    "row-174",
+    "row-568",
+    "row-743",
+    "row-875",
+    "row-276",
+    "row-566",
+    "row-574",
+    "row-414",
+    "row-267",
+    "row-284",
+    "row-259",
+    "row-96",
+    "row-55",
+    "row-242",
+    "row-101",
+    "row-825",
+    "row-603",
+    "row-240",
+    "row-690",
+    "row-835",
+    "row-1160",
+    "row-32",
+    "row-51",
+    "row-31",
+    "row-1058",
+    "row-803",
+    "row-1157",
+    "row-1156",
+    "row-30",
+    "row-797",
+    "row-178",
+    "row-869",
+    "row-868",
+    "row-198",
+    "row-34",
+    "row-1127"
+  ],
+  "source_strata": {
+    "row-709": [
+      "low_risk_keep"
+    ],
+    "row-857": [
+      "low_risk_keep"
+    ],
+    "row-1136": [
+      "low_risk_keep"
+    ],
+    "row-782": [
+      "low_risk_keep"
+    ],
+    "row-1164": [
+      "low_risk_keep"
+    ],
+    "row-437": [
+      "low_risk_keep"
+    ],
+    "row-1166": [
+      "low_risk_keep"
+    ],
+    "row-357": [
+      "low_risk_keep"
+    ],
+    "row-88": [
+      "low_risk_keep"
+    ],
+    "row-79": [
+      "low_risk_keep"
+    ],
+    "row-177": [
+      "low_risk_keep"
+    ],
+    "row-320": [
+      "low_risk_keep"
+    ],
+    "row-81": [
+      "low_risk_keep"
+    ],
+    "row-824": [
+      "low_risk_keep"
+    ],
+    "row-757": [
+      "low_risk_keep"
+    ],
+    "row-804": [
+      "english_translation",
+      "llm_rewrite",
+      "numeric_preservation"
+    ],
+    "row-865": [
+      "duplicate_context",
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1161": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-150": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-33": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-28": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-154": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-29": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-190": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1146": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-624": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-151": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-697": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-107": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-142": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-250": [
+      "numeric_preservation"
+    ],
+    "row-751": [
+      "numeric_preservation"
+    ],
+    "row-679": [
+      "numeric_preservation"
+    ],
+    "row-678": [
+      "numeric_preservation"
+    ],
+    "row-794": [
+      "numeric_preservation"
+    ],
+    "row-1185": [
+      "numeric_preservation"
+    ],
+    "row-1184": [
+      "numeric_preservation"
+    ],
+    "row-1192": [
+      "numeric_preservation"
+    ],
+    "row-1191": [
+      "numeric_preservation"
+    ],
+    "row-788": [
+      "numeric_preservation"
+    ],
+    "row-591": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-332": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-169": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-592": [
+      "llm_rewrite",
+      "review_needed",
+      "slash_context"
+    ],
+    "row-174": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-568": [
+      "terminology_frequency"
+    ],
+    "row-743": [
+      "duplicate_context",
+      "terminology_frequency"
+    ],
+    "row-875": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-276": [
+      "terminology_frequency"
+    ],
+    "row-566": [
+      "terminology_frequency"
+    ],
+    "row-574": [
+      "terminology_frequency"
+    ],
+    "row-414": [
+      "terminology_frequency"
+    ],
+    "row-267": [
+      "duplicate_context",
+      "terminology_frequency"
+    ],
+    "row-284": [
+      "terminology_frequency"
+    ],
+    "row-259": [
+      "duplicate_context"
+    ],
+    "row-96": [
+      "duplicate_context"
+    ],
+    "row-55": [
+      "duplicate_context"
+    ],
+    "row-242": [
+      "duplicate_context"
+    ],
+    "row-101": [
+      "duplicate_context"
+    ],
+    "row-825": [
+      "duplicate_context"
+    ],
+    "row-603": [
+      "duplicate_context"
+    ],
+    "row-240": [
+      "duplicate_context"
+    ],
+    "row-690": [
+      "duplicate_context"
+    ],
+    "row-835": [
+      "duplicate_context"
+    ],
+    "row-1160": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-32": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-51": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-31": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1058": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-803": [
+      "english_translation",
+      "llm_rewrite",
+      "numeric_preservation"
+    ],
+    "row-1157": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-1156": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-30": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-797": [
+      "english_translation",
+      "llm_rewrite"
+    ],
+    "row-178": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-869": [
+      "duplicate_context",
+      "review_needed",
+      "terminology_frequency"
+    ],
+    "row-868": [
+      "low_risk_keep"
+    ],
+    "row-198": [
+      "low_risk_keep"
+    ],
+    "row-34": [
+      "low_risk_keep"
+    ],
+    "row-1127": [
+      "low_risk_keep"
+    ]
+  },
+  "selection_hash": "2548865b1bc681f1453e6202cddb98fe603a28bd19ea60596f3ad487e06b29a3"
+}

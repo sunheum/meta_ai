@@ -1,0 +1,7 @@
+{
+  "tests/test_api.py::test_health_and_sync_xlsx_response": true,
+  "tests/test_api.py::test_rejects_non_xlsx_upload": true,
+  "tests/test_api.py::test_async_job_completes_and_downloads": true,
+  "tests/test_excel.py::test_write_result_preserves_original_values": true,
+  "tests/test_performance.py::test_full_workbook_output_validation_is_linear": true
+}

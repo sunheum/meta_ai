@@ -1,0 +1,222 @@
+{
+  "provenance": {
+    "reviewer_type": "stakeholder_agent",
+    "ai_generated": true,
+    "candidate_id": "working-0308138",
+    "human_attestation": false,
+    "formal_human_gate_eligible": false,
+    "formal_human_ratings": null,
+    "formal_human_score": null,
+    "reviewed_sources": [
+      "result.xlsx",
+      "review-population.jsonl"
+    ],
+    "excluded_sources": [
+      "이전 사람 CSV",
+      "이전 AI 점수",
+      "이전 stakeholder 관찰",
+      "이전 human ratings/score"
+    ],
+    "reviewed_population_fields": [
+      "source_id",
+      "테이블명",
+      "테이블설명",
+      "컬럼명",
+      "컬럼설명",
+      "한글속성명",
+      "처리상태",
+      "처리방식",
+      "현재 검토사유"
+    ],
+    "workbook_inspection": {
+      "status": "metadata_only_runtime_unavailable",
+      "file_size_bytes": 121929,
+      "limitation": "지정 스프레드시트 런타임이 제공되지 않아 result.xlsx 내부 셀은 직접 열지 못했으며, 행 단위 판단은 같은 후보의 review-population.jsonl 표시 필드에 근거함"
+    }
+  },
+  "summary": {
+    "population_records": 921,
+    "review_needed_records": 15,
+    "review_needed_disposition": {
+      "approve_current": 6,
+      "business_confirmation_required": 9
+    },
+    "additional_auto_confirmed_concerns": 7,
+    "decision_support_outlook": "conditional_approval_after_business_confirmation",
+    "formal_gate_conclusion": "not_evaluated_actual_human_review_required",
+    "definite_critical_issues": 0,
+    "policy_scan": {
+      "non_id_english_names": 0,
+      "slash_remaining_names": 0,
+      "whitespace_remaining_names": 0,
+      "digit_sequence_mismatches": 0
+    },
+    "key_findings": [
+      "row-250의 2회차보험기간적용보험료는 확정된 업무 표준을 반영하고 숫자 2와 수식 대상을 정확히 보존함",
+      "DM 2건은 자동확정이지만 Direct Mail과 Direct Message 중 어느 의미인지 표시 문맥만으로 확정할 수 없음",
+      "RH는 리서스 인자 해석이 타당하나 코드값이 양성·음성인지 혈액형 유형인지에 따라 자연스러운 표준명이 달라짐",
+      "15개 검토필요 중 차대번호, 계좌수, WKDY 두 건은 잘못 확정할 경우 실제 데이터 의미를 다르게 이해할 위험이 큼",
+      "영문·슬래시·공백·숫자 보존 정책은 전체 921건에서 위반을 찾지 못함",
+      "적용율, 회계년도 계열과 일부 모호한 복합어는 업무 의미와 별개로 자연스러움 개선이 필요함"
+    ]
+  },
+  "focus_observations": [
+    {
+      "source_id": "row-250",
+      "current_name": "2회차보험기간적용보험료",
+      "risk_level": "low",
+      "recommended_disposition": "approve_current",
+      "dimensions": ["meaning_completeness", "character_notation_policy", "naturalness_conciseness"],
+      "observation": "제2를 2회차로 표준화하면서 숫자 2, 보험기간, 적용보험료의 결합 관계를 보존함. 같은 의미가 승인되지 않은 다른 제+숫자 표현으로 확대 적용하면 안 됨."
+    },
+    {
+      "source_ids": ["row-150", "row-154"],
+      "current_names": ["우편물수신여부", "마케팅우편물수신여부"],
+      "risk_level": "high",
+      "recommended_disposition": "business_confirmation_required",
+      "dimensions": ["business_semantic_accuracy", "context_ambiguity_safety"],
+      "observation": "보험 CRM에서 DM은 직접우편으로 쓰이는 경우가 많지만 개인메시지 의미도 가능함. 두 행은 동일 채널 정의로 함께 확정해야 하며, 물리 우편이면 현재 이름이 대체로 적절하고 개인메시지이면 현재 이름이 다른 채널을 뜻하게 됨.",
+      "minimum_question": "CUS_CTM의 DM 채널은 물리적 직접우편, 디지털 개인메시지, 또는 양쪽 중 무엇인가?"
+    },
+    {
+      "source_id": "row-107",
+      "current_name": "리서스인자형태코드",
+      "risk_level": "medium",
+      "recommended_disposition": "business_confirmation_required",
+      "dimensions": ["business_semantic_accuracy", "terminology_consistency", "naturalness_conciseness"],
+      "observation": "리서스 인자 해석은 인접 고객·혈액형 문맥과 부합함. 다만 '형태'는 코드값을 설명하기에 모호하여 값이 양성·음성이면 리서스인자구분코드, 혈액형 유형이면 리서스혈액형코드가 더 자연스러울 수 있음.",
+      "minimum_question": "RH_TYCD의 실제 코드값과 승인된 한글 표준어는 무엇인가?"
+    }
+  ],
+  "review_needed_observations": [
+    {
+      "source_id": "row-107",
+      "current_name": "리서스인자형태코드",
+      "risk_level": "medium",
+      "recommended_disposition": "business_confirmation_required",
+      "reason": "코드값에 따라 형태·유형·구분·혈액형 중 표준 용어가 달라짐"
+    },
+    {
+      "source_id": "row-169",
+      "current_name": "차대번호",
+      "risk_level": "high",
+      "recommended_disposition": "business_confirmation_required",
+      "reason": "컬럼명과 설명 모두 임시번호 대안을 포함함. 실제 값에 임시번호가 존재하면 차대번호로 오해함",
+      "minimum_question": "이 컬럼에 임시번호 값이 저장되는가, 아니면 현재 업무에서는 항상 차대번호인가?"
+    },
+    {
+      "source_id": "row-174",
+      "current_name": "중고차요율",
+      "risk_level": "low",
+      "recommended_disposition": "approve_current",
+      "reason": "자동차 보험 문맥에서 요율이 적절하며 row-869와도 일관됨"
+    },
+    {
+      "source_id": "row-178",
+      "current_name": "차량형태코드",
+      "risk_level": "low",
+      "recommended_disposition": "approve_current",
+      "reason": "차형태를 차량형태로 명확히 한 자연스러운 표준화이며 row-875와 일관됨"
+    },
+    {
+      "source_id": "row-190",
+      "current_name": "주한미군지위협정적용차량여부",
+      "risk_level": "low",
+      "recommended_disposition": "approve_current",
+      "reason": "SOFA 적용 범위를 단순 주한미군 소유 차량으로 축소하지 않고 협정 적용 여부로 정확히 표현함"
+    },
+    {
+      "source_id": "row-332",
+      "current_name": "계좌수",
+      "risk_level": "high",
+      "recommended_disposition": "business_confirmation_required",
+      "reason": "계약담보 문맥에서는 가입 단위를 뜻하는 구좌수일 수 있어 금융 계좌수로 오해할 가능성이 있음",
+      "minimum_question": "ACT_OR_ACTCT의 값은 금융 계좌 개수인가, 담보 가입 구좌 수인가?"
+    },
+    {
+      "source_ids": ["row-591", "row-592"],
+      "current_names": ["위촉일자", "위촉차월"],
+      "risk_level": "medium",
+      "recommended_disposition": "business_confirmation_required",
+      "reason": "직원 실적 문맥과 APO 약어는 위촉을 지지하지만 테이블 설명이 없고 STB는 개설 의미를 남김",
+      "minimum_question": "SAM_AW_CC_ACHV_STF가 개인 설계사만 담는가, 개설 조직도 함께 담는가?"
+    },
+    {
+      "source_id": "row-624",
+      "current_name": "텔레마케터월통화시간",
+      "risk_level": "medium",
+      "recommended_disposition": "business_confirmation_required",
+      "reason": "직원 성과 문맥에서 타당하지만 TMR의 사내 승인 확장어가 확인되지 않음",
+      "minimum_question": "TMR의 승인 용어는 텔레마케터인가?"
+    },
+    {
+      "source_id": "row-697",
+      "current_name": "구보종코드",
+      "risk_level": "low",
+      "recommended_disposition": "approve_current",
+      "reason": "OLD를 구로 바꾼 표현은 다른 OLD 계열과 일관되며 업무상 이해 가능함"
+    },
+    {
+      "source_ids": ["row-794", "row-795"],
+      "current_names": ["주일가족사랑1회차", "주일가족사랑2회차"],
+      "risk_level": "high",
+      "recommended_disposition": "business_confirmation_required",
+      "reason": "WKDY는 평일을 뜻할 가능성이 높고 주일은 일요일 또는 고유 상품명으로 읽힐 수 있어 반대 의미로 오해할 위험이 있음",
+      "minimum_question": "주일가족사랑은 승인된 담보·상품 고유명인가, 아니면 WKDY의 일반 의미인 평일을 뜻하는가?"
+    },
+    {
+      "source_id": "row-869",
+      "current_name": "중고차요율",
+      "risk_level": "low",
+      "recommended_disposition": "approve_current",
+      "reason": "중고차율을 보험 문맥의 요율로 구체화했고 row-174와 일관됨"
+    },
+    {
+      "source_id": "row-875",
+      "current_name": "차량형태코드",
+      "risk_level": "low",
+      "recommended_disposition": "approve_current",
+      "reason": "원문과 일치하고 row-178의 표준화 결과와 일관됨"
+    },
+    {
+      "source_id": "row-1146",
+      "current_name": "설계사여부",
+      "risk_level": "medium",
+      "recommended_disposition": "business_confirmation_required",
+      "reason": "CRM 조직과 인접 설계사타입 문맥이 선택을 지지하지만 SP의 사내 약어 정의 확인이 필요함",
+      "minimum_question": "SP의 승인 용어가 설계사인가?"
+    }
+  ],
+  "additional_naturalness_observations": [
+    {
+      "source_ids": ["row-28", "row-29"],
+      "current_names": ["회계년도", "회계년도명"],
+      "risk_level": "low",
+      "recommendation": "회계연도, 회계연도명으로 표준 표기 통일"
+    },
+    {
+      "source_id": "row-857",
+      "current_name": "단체적용율대상여부",
+      "risk_level": "low",
+      "recommendation": "단체적용률대상여부로 표준 표기 수정"
+    },
+    {
+      "source_id": "row-824",
+      "current_name": "피보험자발송지회차",
+      "risk_level": "medium",
+      "recommendation": "발송지 순번인지 발송 회차인지 값 정의를 확인해 수식 관계를 명확히 함"
+    },
+    {
+      "source_id": "row-34",
+      "current_name": "일자상세정보",
+      "risk_level": "low",
+      "recommendation": "상세정보의 값 단위나 내용을 설명하는 용어로 보강"
+    },
+    {
+      "source_id": "row-1058",
+      "current_name": "잠김방지제동장치장착특별요율여부",
+      "risk_level": "low",
+      "recommendation": "길지만 의미가 정확하므로 약어 재도입 없이 현재 이름 유지 가능"
+    }
+  ]
+}
