@@ -9,12 +9,20 @@ from openpyxl import load_workbook
 
 from app.config import Settings
 from app.main import XLSX_MEDIA_TYPE, create_app
+from app.rules import load_rules
 from app.workflow import KoreanCommentWorkflow
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ACTUAL_INPUT = REPO_ROOT / "data" / "table_column_template_컬럼코멘트Y.xlsx"
 RESULTS_DIR = Path(__file__).resolve().parents[1] / "results"
+INSURANCE_RULES_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "config"
+    / "rules"
+    / "examples"
+    / "insurance.yaml"
+)
 
 
 class DeterministicModel:
@@ -41,7 +49,10 @@ def _client() -> TestClient:
     return TestClient(
         create_app(
             settings=settings,
-            workflow=KoreanCommentWorkflow(DeterministicModel()),
+            workflow=KoreanCommentWorkflow(
+                DeterministicModel(),
+                rules=load_rules(INSURANCE_RULES_PATH),
+            ),
         )
     )
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import asyncio
+from collections.abc import Mapping
 from typing import Any, Protocol, Sequence
 
 import httpx
@@ -18,7 +19,11 @@ from app.models import (
     TerminologyDecision,
     ValidationIssue,
 )
-from app.prompts import GENERATION_SYSTEM_PROMPT, REVIEW_SYSTEM_PROMPT
+from app.prompts import (
+    GENERATION_SYSTEM_PROMPT,
+    REVIEW_SYSTEM_PROMPT,
+    render_system_prompt,
+)
 
 
 class KoreanNamingModel(Protocol):
@@ -43,7 +48,12 @@ class KoreanNamingModel(Protocol):
 class LocalChatKoreanNamingModel:
     """OpenAI-compatible local chat adapter with strict response validation."""
 
-    def __init__(self, settings: Settings) -> None:
+    def __init__(
+        self,
+        settings: Settings,
+        *,
+        glossary: Mapping[str, str] | None = None,
+    ) -> None:
         timeout = httpx.Timeout(
             timeout=settings.llm_read_timeout_seconds,
             connect=settings.llm_connect_timeout_seconds,
@@ -68,6 +78,13 @@ class LocalChatKoreanNamingModel:
         self._top_p = settings.llm_top_p
         self._max_tokens = settings.llm_max_tokens
         self._max_retries = settings.llm_max_retries
+        self._glossary = dict(glossary or {})
+        self._generation_prompt = render_system_prompt(
+            GENERATION_SYSTEM_PROMPT, self._glossary
+        )
+        self._review_prompt = render_system_prompt(
+            REVIEW_SYSTEM_PROMPT, self._glossary
+        )
 
     async def aclose(self) -> None:
         await self._client.aclose()
@@ -96,7 +113,7 @@ class LocalChatKoreanNamingModel:
             ]
         }
         return await self._invoke_results(
-            GENERATION_SYSTEM_PROMPT,
+            self._generation_prompt,
             request,
             sources,
             operation="생성",
@@ -125,7 +142,7 @@ class LocalChatKoreanNamingModel:
             ],
         }
         return await self._invoke_results(
-            REVIEW_SYSTEM_PROMPT,
+            self._review_prompt,
             request,
             sources,
             operation="리뷰",

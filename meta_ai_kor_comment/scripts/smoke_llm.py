@@ -7,6 +7,7 @@ from app.config import Settings
 from app.llm import LocalChatKoreanNamingModel
 from app.models import SourceColumn
 from app.normalization import classify_description
+from app.rules import load_rules_optional
 from app.validation import validate_result
 
 
@@ -20,7 +21,9 @@ async def main() -> int:
         column_description="SOFA차량여부",
         data_type="VARCHAR",
     )
-    model = LocalChatKoreanNamingModel(Settings.from_env())
+    settings = Settings.from_env()
+    rules = load_rules_optional(settings.rules_path)
+    model = LocalChatKoreanNamingModel(settings, glossary=rules.glossary_lookup())
     try:
         risk = classify_description(
             source.column_description,

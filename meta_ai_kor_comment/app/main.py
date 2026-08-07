@@ -25,6 +25,7 @@ from app.jobs import (
 )
 from app.llm import LocalChatKoreanNamingModel
 from app.models import ProgressEvent, WorkflowOptions
+from app.rules import DomainRules, load_rules, load_rules_optional
 
 logger = logging.getLogger(__name__)
 XLSX_MEDIA_TYPE = (
@@ -37,7 +38,10 @@ def create_app(
     workflow: Any | None = None,
 ) -> FastAPI:
     resolved_settings = settings or Settings.from_env()
-    resolved_workflow = workflow or _create_default_workflow(resolved_settings)
+    default_rules = load_rules_optional(resolved_settings.rules_path)
+    resolved_workflow = workflow or _create_default_workflow(
+        resolved_settings, default_rules
+    )
     job_store = JobStore()
 
     @asynccontextmanager
@@ -251,10 +255,13 @@ def create_app(
     return app
 
 
-def _create_default_workflow(settings: Settings):
+def _create_default_workflow(settings: Settings, rules: DomainRules):
     from app.workflow import KoreanCommentWorkflow
 
-    return KoreanCommentWorkflow(LocalChatKoreanNamingModel(settings))
+    return KoreanCommentWorkflow(
+        LocalChatKoreanNamingModel(settings, glossary=rules.glossary_lookup()),
+        rules=rules,
+    )
 
 
 async def _read_upload(file: UploadFile, max_upload_mb: int) -> bytes:

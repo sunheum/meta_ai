@@ -8,8 +8,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from app.config import Settings
+from app.excel import read_source_columns
 from app.llm import LocalChatKoreanNamingModel
 from app.models import ProgressEvent, WorkflowOptions
+from app.rules import (
+    DomainRules,
+    build_rules_template,
+    load_rules,
+    load_rules_optional,
+)
 from app.workflow import KoreanCommentWorkflow
 
 
@@ -133,12 +140,29 @@ async def _run(args: argparse.Namespace) -> int:
     options = _workflow_options(args, settings)
     input_path = args.input.resolve()
     output_path = args.output.resolve()
+    rules = (
+        load_rules(args.rules)
+        if args.rules is not None
+        else load_rules_optional(settings.rules_path)
+    )
+    if args.emit_rules_template is not None:
+        template_path = args.emit_rules_template.resolve()
+        template = build_rules_template(
+            read_source_columns(input_path),
+            existing_rules=rules,
+            input_label=input_path.name,
+        )
+        template_path.parent.mkdir(parents=True, exist_ok=True)
+        template_path.write_text(template, encoding="utf-8")
+        print(f"규칙 템플릿을 생성했습니다: {template_path}")
     model = (
         DeterministicOnlyModel()
         if args.offline
-        else LocalChatKoreanNamingModel(settings)
+        else LocalChatKoreanNamingModel(
+            settings, glossary=rules.glossary_lookup()
+        )
     )
-    workflow = KoreanCommentWorkflow(model)
+    workflow = KoreanCommentWorkflow(model, rules=rules)
     try:
         result = await workflow.run(
             input_path,
@@ -189,6 +213,24 @@ def _parser() -> argparse.ArgumentParser:
         "--offline",
         action="store_true",
         help="로컬 모델 호출 없이 결정적 복구 규칙만 실행합니다.",
+    )
+    parser.add_argument(
+        "--rules",
+        type=Path,
+        default=None,
+        help=(
+            "도메인 규칙 YAML 경로. 지정하지 않으면 Settings.rules_path"
+            "(RULES_PATH env)의 파일을 로드하며, 없으면 빈 규칙셋으로 동작합니다."
+        ),
+    )
+    parser.add_argument(
+        "--emit-rules-template",
+        type=Path,
+        default=None,
+        help=(
+            "입력 XLSX의 미확정 영문 토큰으로 채운 규칙 YAML 템플릿을 이 경로에 씁니다. "
+            "target은 비어 있으니 사용자가 채운 뒤 다음 실행에 --rules로 지정하세요."
+        ),
     )
     return parser
 

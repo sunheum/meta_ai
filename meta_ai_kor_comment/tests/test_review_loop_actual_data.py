@@ -7,12 +7,24 @@ import pytest
 from openpyxl import load_workbook
 
 from app.models import GenerationResult, ProcessingAction, SourceColumn, WorkflowOptions
+from app.rules import load_rules
 from app.validation import derive_processing_status
 from app.workflow import KoreanCommentWorkflow, _mark_review_failure, _recovery_stats
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ACTUAL_INPUT = REPO_ROOT / "data" / "table_column_template_컬럼코멘트Y.xlsx"
+INSURANCE_RULES_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "config"
+    / "rules"
+    / "examples"
+    / "insurance.yaml"
+)
+
+
+def _insurance_rules():
+    return load_rules(INSURANCE_RULES_PATH)
 
 
 class LowConfidenceThenReviewedModel:
@@ -67,7 +79,7 @@ async def test_actual_low_confidence_row_is_reviewed_without_regressing_others()
     output = output_dir / f"test-review-{uuid4().hex}.xlsx"
     model = LowConfidenceThenReviewedModel()
     try:
-        result = await KoreanCommentWorkflow(model).run(
+        result = await KoreanCommentWorkflow(model, rules=_insurance_rules()).run(
             ACTUAL_INPUT,
             output,
             WorkflowOptions(max_review_rounds=2),
@@ -92,7 +104,11 @@ async def test_actual_low_confidence_row_is_reviewed_without_regressing_others()
             sheet = workbook["한글속성명_결과"]
             assert sheet["M190"].value == "주한미군지위협정적용차량여부"
             assert sheet["N28"].value == "자동확정"
-            assert sheet["N190"].value == "검토필요"
+            # Ambiguous-token review flags are no longer hardcoded — after the
+            # reviewer raises confidence to 99 the row auto-confirms, and any
+            # remaining scope-check concern is expected to come from the LLM's
+            # own review_reasons rather than a per-token deny list.
+            assert sheet["N190"].value == "자동확정"
         finally:
             workbook.close()
     finally:
@@ -279,7 +295,7 @@ async def test_transient_review_failure_remains_in_recovery_history() -> None:
     output = output_dir / f"test-review-history-{uuid4().hex}.xlsx"
     try:
         result = await KoreanCommentWorkflow(
-            TransientFirstReviewBatchFailureModel()
+            TransientFirstReviewBatchFailureModel(), rules=_insurance_rules()
         ).run(
             ACTUAL_INPUT,
             output,
@@ -311,7 +327,9 @@ async def test_actual_review_failure_is_traced_without_losing_output() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     output = output_dir / f"test-review-failure-{uuid4().hex}.xlsx"
     try:
-        result = await KoreanCommentWorkflow(FailingReviewModel()).run(
+        result = await KoreanCommentWorkflow(
+            FailingReviewModel(), rules=_insurance_rules()
+        ).run(
             ACTUAL_INPUT,
             output,
             WorkflowOptions(max_review_rounds=2),
@@ -465,7 +483,7 @@ async def test_all_policy_rejections_use_remaining_review_round() -> None:
     output = output_dir / f"test-review-retry-{uuid4().hex}.xlsx"
     model = RejectedFirstRoundThenAcceptedModel()
     try:
-        result = await KoreanCommentWorkflow(model).run(
+        result = await KoreanCommentWorkflow(model, rules=_insurance_rules()).run(
             ACTUAL_INPUT,
             output,
             WorkflowOptions(max_review_rounds=2),

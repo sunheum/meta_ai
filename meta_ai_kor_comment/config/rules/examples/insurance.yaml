@@ -1,0 +1,47 @@
+# 보험/자동차 도메인 규칙 예시.
+#
+# 이 파일은 파이프라인의 도메인 무관 default 동작에 대한 오버라이드다.
+# 원본 컬럼설명이 아래 영문 약어를 포함하면, 로컬 LLM이 미응답이거나
+# 응답이 정책을 위반할 때 결정적 복구 경로가 이 사전에 맞게 한글로 치환한다.
+# 동의어 그룹은 전체 코퍼스의 빈도 기반 용어 통일에 사용된다.
+#
+# 사용법:
+#   CLI:  python scripts/run_actual.py <입력> <출력> --rules config/rules/examples/insurance.yaml
+#   API:  POST 폼 필드 rules_path=config/rules/examples/insurance.yaml
+#   환경변수: RULES_PATH=config/rules/examples/insurance.yaml
+
+glossary:
+  - source: ABS
+    target: 잠김방지제동장치
+  - source: DM
+    target: 우편물
+  - source: FY
+    target: 회계
+  - source: NEW
+    target: 신규
+  - source: OLD
+    target: 구
+  - source: PREMIUM
+    target: 프리미엄
+  - source: RH
+    target: 리서스인자
+  - source: SMS
+    target: 문자메시지
+  - source: SOFA
+    target: 주한미군지위협정적용
+  - source: SP
+    target: 설계사
+  - source: TMR
+    target: 텔레마케터
+  - source: TPMS
+    target: 타이어공기압감지장치
+
+synonym_groups:
+  - id: payment-action
+    candidates: [납입, 납부]
+  - id: used-car-rate
+    candidates: [중고차요율, 중고차율]
+  - id: vehicle-form
+    candidates: [차량형태, 차형태]
+  - id: special-contract-rate
+    candidates: [특약율, 특약요율]

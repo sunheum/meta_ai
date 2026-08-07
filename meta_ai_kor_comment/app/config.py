@@ -50,6 +50,7 @@ class Settings:
     input_sheet_name: str = "테이블_컬럼_정보"
     result_sheet_name: str = "한글속성명_결과"
     review_sheet_name: str = "검토필요"
+    rules_path: str = "config/rules.yaml"
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -115,4 +116,5 @@ class Settings:
             review_sheet_name=os.getenv(
                 "REVIEW_SHEET_NAME", defaults.review_sheet_name
             ),
+            rules_path=os.getenv("RULES_PATH", defaults.rules_path),
         )

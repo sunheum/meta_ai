@@ -1,3 +1,8 @@
+from __future__ import annotations
+
+from collections.abc import Mapping
+
+
 GENERATION_SYSTEM_PROMPT = """
 당신은 기업 데이터 사전의 한글 속성명을 정제하는 전문가다.
 입력 JSON의 각 컬럼설명을 주 근거로 공백 없는 한글속성명을 결정하라.
@@ -8,17 +13,13 @@ GENERATION_SYSTEM_PROMPT = """
 2. 이미 깨끗하고 문맥에 맞는 컬럼설명은 action=keep으로 그대로 유지한다.
 3. 최종 한글속성명에 허용되는 ASCII 영문은 정확히 연속된 두 글자 `ID`뿐이다.
    `ID 허용`을 다른 영문 약어도 허용된다는 뜻으로 확대 해석하지 않는다.
-   FY, SMS, SOFA 같은 시스템·표준·업무 약어도 예외 없이 한글로 치환한다.
-   실제 말뭉치의 확정 치환은 다음과 같다: FY→회계, SMS→문자메시지,
-   SOFA→주한미군지위협정적용, ABS→잠김방지제동장치,
-   TPMS→타이어공기압감지장치, DM→우편물, NEW→신규, OLD→구,
-   PREMIUM→프리미엄, RH→리서스인자, SP→설계사,
-   TMR→텔레마케터. 결과에 이 영문 토큰 자체를 남기면 안 된다.
+   업무·시스템·표준 약어는 예외 없이 컬럼설명과 문맥에 맞는 한글로 치환한다.
+   결과에 원본 영문 토큰 자체를 남기면 안 된다. 확신이 부족하면 가장 보수적인
+   한글 표현을 선택하고 review_reasons에 미확정 근거를 기록한다.
 4. 원본 설명의 모든 숫자 시퀀스를 같은 순서로 보존한다. 숫자를 새로 만들거나
-   한글 수사로 바꾸거나 삭제하지 않는다.
-   보험기간 순번처럼 회차를 뜻하는 `제N`은 승인된 문맥에서 `N회차`로 명확히
-   표현한다. 다만 `제23조`, `제1호`, `제2종`, `제3급`, `제2판`처럼 회차가
-   아닌 서수까지 기계적으로 바꾸지 않는다.
+   한글 수사로 바꾸거나 삭제하지 않는다. `제N`처럼 서수·회차·조·호·종·급·판
+   등을 가리키는 접두어는 원문의 업무 의미를 유지한 채 적절한 한글 표현으로
+   옮기며, 임의로 다른 서수 형태로 바꾸지 않는다.
 5. 공백, 밑줄, 슬래시, 하이픈, 괄호, 마침표, 쉼표 등 기호를 남기지 않는다.
 6. 슬래시로 나뉜 대안은 컬럼명과 테이블 문맥으로 실제 의미 하나만 선택한다.
    두 대안을 붙이거나 '또는'을 임의로 넣지 않는다. 버린 대안과 선택 근거를
@@ -40,11 +41,11 @@ GENERATION_SYSTEM_PROMPT = """
     {
       "source_id": "입력의 source_id",
       "original_description": "입력의 column_description",
-      "korean_attribute_name": "회계년도",
+      "korean_attribute_name": "예: 고객번호",
       "action": "rewrite",
-      "confidence": 94,
-      "reason": "FY를 회계로 한글화함",
-      "semantic_units": ["회계", "년도"],
+      "confidence": 90,
+      "reason": "영문 약어를 문맥에 맞게 한글화",
+      "semantic_units": ["고객", "번호"],
       "added_concepts": [],
       "removed_concepts": [],
       "review_reasons": []
@@ -63,10 +64,10 @@ REVIEW_SYSTEM_PROMPT = """
 1. 요청된 모든 source_id마다 정확히 한 결과를 반환한다.
 2. 결정적 검증 이슈의 code, 실제값, 기대조건, suggested_action을 각각 해결한다.
 3. 최종 이름에는 정확히 연속된 두 글자 `ID` 외 ASCII 영문, 공백 또는 기호가
-   없어야 한다. SOFA·FY·SMS 등 표준 약어도 예외가 아니며 반드시 한글화한다.
-4. 원문 숫자 시퀀스와 순서는 정확히 보존한다. 보험기간 순번처럼 회차를 뜻하는
-   `제N`은 승인된 문맥에서 `N회차`로 표현하되, 조·호·종·급·판의 서수에는
-   이 규칙을 확대 적용하지 않는다.
+   없어야 한다. 업무·시스템·표준 약어도 예외 없이 문맥에 맞는 한글로 치환한다.
+4. 원문 숫자 시퀀스와 순서는 정확히 보존한다. `제N`처럼 서수·회차·조·호·종·급
+   ·판 등을 가리키는 접두어는 원문의 업무 의미를 유지하도록 자연스러운 한글로
+   표현하며, 임의로 다른 서수 형태로 바꾸지 않는다.
 5. 원문에 없는 업무 개념을 추가하지 않고 핵심 의미를 삭제하지 않는다.
 6. 슬래시 대안은 컬럼명과 테이블 문맥으로 하나만 선택하고 버린 대안을 기록한다.
 7. 제공된 실제 빈도 결정이 있으면 임의로 뒤집지 않는다. 동률인 경우에만 문맥상
@@ -79,3 +80,29 @@ REVIEW_SYSTEM_PROMPT = """
 GENERATION_SYSTEM_PROMPT와 동일한 {"results": [...]} JSON 스키마만 출력한다.
 마크다운 코드블록이나 설명은 금지한다.
 """.strip()
+
+
+_GLOSSARY_HEADER = (
+    "추가 도메인 규칙 · 영문 약어 → 한글 표준어 사전 "
+    "(다른 영문 토큰은 여전히 규칙 3에 따라 문맥에 맞게 한글화한다):"
+)
+
+
+def render_system_prompt(
+    base_prompt: str,
+    glossary: Mapping[str, str] | None = None,
+) -> str:
+    """Append a glossary section to a base system prompt.
+
+    The base prompt already forbids ASCII output except ``ID`` and requires
+    all abbreviations to be translated. This helper simply adds a per-project
+    lookup table (loaded from a rules YAML) so the model treats known
+    abbreviations consistently. When the glossary is empty the base prompt is
+    returned unchanged, keeping the pipeline fully domain-neutral by default.
+    """
+
+    if not glossary:
+        return base_prompt
+
+    lines = [f"- {source} → {target}" for source, target in sorted(glossary.items())]
+    return f"{base_prompt}\n\n{_GLOSSARY_HEADER}\n" + "\n".join(lines)

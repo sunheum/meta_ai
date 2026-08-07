@@ -28,6 +28,7 @@ from app.normalization import (
     invalid_english_tokens,
     source_processing_key,
 )
+from app.rules import DomainRules
 from app.terminology import (
     SynonymGroup,
     TerminologyContext,
@@ -39,88 +40,43 @@ from app.validation import finalize_result, validate_result, validate_results
 ProgressCallback = Callable[[ProgressEvent], Awaitable[None]]
 
 
-DEFAULT_SYNONYM_GROUPS: tuple[SynonymGroup, ...] = (
-    SynonymGroup("payment-action", ("납입", "납부")),
-    SynonymGroup("used-car-rate", ("중고차요율", "중고차율")),
-    SynonymGroup("vehicle-form", ("차량형태", "차형태")),
-    SynonymGroup("special-contract-rate", ("특약율", "특약요율")),
-)
-
-# These are deterministic translations for the tokens that occur in the real
-# corpus. The LLM is still invoked for risky rows; this table is the auditable
-# recovery path when the local endpoint times out or returns malformed JSON.
-ENGLISH_TRANSLATIONS: Mapping[str, str] = {
-    "ABS": "잠김방지제동장치",
-    "DM": "우편물",
-    "FY": "회계",
-    "NEW": "신규",
-    "OLD": "구",
-    "PREMIUM": "프리미엄",
-    "RH": "리서스인자",
-    "SMS": "문자메시지",
-    "SOFA": "주한미군지위협정적용",
-    "SP": "설계사",
-    "TMR": "텔레마케터",
-    "TPMS": "타이어공기압감지장치",
-}
-
-AMBIGUOUS_ENGLISH_REVIEW: Mapping[str, str] = {
-    "RH": "인접 혈액형코드 문맥으로 리서스인자로 해석했으며 업무 용어 확인 필요",
-    "SOFA": "자동차정보 문맥에서 주한미군지위협정 적용 차량으로 해석했으며 범위 확인 필요",
-    "SP": "인접 설계사타입 컬럼 문맥으로 설계사로 해석했으며 약어 사전 확인 필요",
-}
-
-CONTEXT_CONFLICT_REVIEW: Mapping[str, str] = {
-    "WKDY_FMLLV_T1S": "컬럼명 WKDY와 컬럼설명 '주일'의 의미 일치 여부 확인 필요",
-    "WKDY_FMLLV_T2S": "컬럼명 WKDY와 컬럼설명 '주일'의 의미 일치 여부 확인 필요",
-}
-
-# Business-approved ordinal surface forms. These are scoped by column instead
-# of applying a blanket ``제N -> N회차`` rewrite: legal articles, item numbers,
-# product classes, editions, and grades use ``제N`` with different meanings.
-ORDINAL_TERM_NORMALIZATIONS: Mapping[str, tuple[str, str, str]] = {
-    "SCD_INS_TRM_APPRM": (
-        "제2보험기간",
-        "2회차보험기간",
-        "보험기간 순번은 한 글자 접두어 '제' 대신 명시적인 '회차' 표준어를 사용",
-    ),
-}
-
-SLASH_SELECTIONS: Mapping[str, tuple[str, str, str]] = {
-    "CHSNO_OR_TMPNO": (
-        "차대번호",
-        "임시번호",
-        "자동차정보의 차대 식별값을 대표 의미로 선택",
-    ),
-    "ACT_OR_ACTCT": (
-        "계좌수",
-        "구좌",
-        "숫자형 계좌 건수 컬럼의 ACTCT 문맥을 선택",
-    ),
-    "APO_OR_STBDT": (
-        "위촉일자",
-        "개설일자",
-        "직원 실적 문맥에서 위촉일자를 선택",
-    ),
-    "APO_OR_STB_MMTHR": (
-        "위촉차월",
-        "개설차월",
-        "직원 실적 문맥에서 위촉 기준 차월을 선택",
-    ),
-}
-
 _ENGLISH_TOKEN_RE = re.compile(r"[A-Za-z]+")
 _PUNCTUATION_RE = re.compile(r"[^가-힣ㄱ-ㅎㅏ-ㅣA-Za-z0-9]")
-_SEMANTIC_TERMS = tuple(
-    sorted(
-        {
-            candidate
-            for group in DEFAULT_SYNONYM_GROUPS
-            for candidate in group.candidates
-        },
-        key=lambda value: (-len(value), value),
+
+
+def _semantic_terms(rules: DomainRules) -> tuple[str, ...]:
+    return tuple(
+        sorted(
+            {
+                candidate
+                for group in rules.synonym_groups
+                for candidate in group.candidates
+            },
+            key=lambda value: (-len(value), value),
+        )
     )
-)
+
+
+def _rules_to_synonym_groups(
+    rules: DomainRules,
+) -> tuple[SynonymGroup, ...]:
+    return tuple(
+        SynonymGroup(group.id, tuple(group.candidates))
+        for group in rules.synonym_groups
+    )
+
+
+def _preferred_first_tie_resolver(
+    candidates: tuple[str, ...], context: TerminologyContext | None
+) -> str | None:
+    """When frequencies tie, prefer the surface listed first in the YAML group.
+
+    ``select_preferred_term`` filters winners in ``SynonymGroup.candidates``
+    order, so returning the first winner honors the author's stated
+    preference without any hardcoded domain vocabulary.
+    """
+
+    return candidates[0] if candidates else None
 
 
 class KoreanCommentWorkflow:
@@ -135,10 +91,13 @@ class KoreanCommentWorkflow:
         self,
         model: KoreanNamingModel,
         *,
-        synonym_groups: Sequence[SynonymGroup] = DEFAULT_SYNONYM_GROUPS,
+        rules: DomainRules | None = None,
     ) -> None:
         self._model = model
-        self._synonym_groups = tuple(synonym_groups)
+        self._rules = rules if rules is not None else DomainRules()
+        self._synonym_groups = _rules_to_synonym_groups(self._rules)
+        self._semantic_terms = _semantic_terms(self._rules)
+        self._glossary = self._rules.glossary_lookup()
 
     async def aclose(self) -> None:
         close = getattr(self._model, "aclose", None)
@@ -366,7 +325,11 @@ class KoreanCommentWorkflow:
         started: float,
     ) -> tuple[list[GenerationResult], dict[str, str]]:
         base = {
-            source.source_id: _deterministic_candidate(source)
+            source.source_id: _deterministic_candidate(
+                source,
+                glossary=self._glossary,
+                semantic_terms=self._semantic_terms,
+            )
             for source in representatives
         }
         risks = {
@@ -434,7 +397,8 @@ class KoreanCommentWorkflow:
                 base[candidate.source_id] = candidate.model_copy(
                     update={
                         "semantic_units": _semantic_units(
-                            candidate.korean_attribute_name
+                            candidate.korean_attribute_name,
+                            self._semantic_terms,
                         ),
                         "review_reasons": merged_review_reasons,
                         "confidence": (
@@ -515,11 +479,16 @@ class KoreanCommentWorkflow:
             results,
             self._synonym_groups,
             frequency_results=[
-                _deterministic_candidate(source) for source in sources
+                _deterministic_candidate(
+                    source,
+                    glossary=self._glossary,
+                    semantic_terms=self._semantic_terms,
+                )
+                for source in sources
             ],
             contexts=context_by_id,
             occurrence_weights=occurrence_weights,
-            tie_resolver=_terminology_tie_resolver,
+            tie_resolver=_preferred_first_tie_resolver,
         )
 
     async def _review(
@@ -653,7 +622,8 @@ class KoreanCommentWorkflow:
             accepted[candidate.source_id] = candidate.model_copy(
                 update={
                     "semantic_units": _semantic_units(
-                        candidate.korean_attribute_name
+                        candidate.korean_attribute_name,
+                        self._semantic_terms,
                     ),
                     "review_reasons": review_reasons,
                     "confidence": (
@@ -689,35 +659,29 @@ class KoreanCommentWorkflow:
         )
 
 
-def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
+def _deterministic_candidate(
+    source: SourceColumn,
+    *,
+    glossary: Mapping[str, str] | None = None,
+    semantic_terms: Sequence[str] = (),
+) -> GenerationResult:
+    """Produce a deterministic Korean-attribute-name candidate.
+
+    Domain-specific rewrites (ordinal normalization, slash arbitration,
+    ambiguous-token review) are deliberately not applied here — the LLM handles
+    those from ``column_description``. Only reproducible policies remain:
+    optional glossary substitution, whitespace/symbol cleanup, and the
+    duplicate-suffix ``등급등급→등급`` simplification.
+    """
+
+    lookup = dict(glossary or {})
     original = source.column_description
     result = original
     reasons: list[str] = []
     review_reasons: list[str] = []
     risk = classify_description(original, source_id=source.source_id)
 
-    ordinal_normalization = ORDINAL_TERM_NORMALIZATIONS.get(
-        source.column_name.upper()
-    )
-    if ordinal_normalization:
-        source_term, target_term, rationale = ordinal_normalization
-        if source_term in result:
-            result = result.replace(source_term, target_term, 1)
-            reasons.append(
-                f"서수 표현 '{source_term}'을 '{target_term}'으로 정규화: {rationale}"
-            )
-
-    slash = SLASH_SELECTIONS.get(source.column_name.upper())
-    if slash and "/" in result:
-        selected, discarded, rationale = slash
-        result = selected
-        reasons.append(
-            f"슬래시 대안 중 '{selected}' 선택, '{discarded}' 제외: {rationale}"
-        )
-        review_reasons.append(
-            f"슬래시 대안 '{discarded}' 제외 결정의 업무 문맥 확인 필요"
-        )
-    elif "/" in result:
+    if "/" in result:
         alternatives = [part for part in result.split("/") if part]
         result = alternatives[0] if alternatives else result.replace("/", "")
         discarded = alternatives[1:] or ["확인 불가"]
@@ -732,14 +696,11 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
         token = match.group(0)
         if token == "ID":
             return token
-        translated = ENGLISH_TRANSLATIONS.get(token.upper())
+        translated = lookup.get(token.upper())
         if translated is None:
             unknown_tokens.append(token)
             return token
         reasons.append(f"영문 {token}을 '{translated}'로 한글화")
-        ambiguity = AMBIGUOUS_ENGLISH_REVIEW.get(token.upper())
-        if ambiguity and ambiguity not in review_reasons:
-            review_reasons.append(ambiguity)
         return translated
 
     result = _ENGLISH_TOKEN_RE.sub(replace_english, result)
@@ -747,10 +708,6 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
         review_reasons.append(
             "한글 의미를 확정하지 못한 영문: " + ", ".join(unknown_tokens)
         )
-
-    conflict = CONTEXT_CONFLICT_REVIEW.get(source.column_name.upper())
-    if conflict and conflict not in review_reasons:
-        review_reasons.append(conflict)
 
     if "등급등급" in result:
         result = result.replace("등급등급", "등급")
@@ -795,22 +752,27 @@ def _deterministic_candidate(source: SourceColumn) -> GenerationResult:
         action=action,
         confidence=confidence,
         reason=reason,
-        semantic_units=_semantic_units(result),
+        semantic_units=_semantic_units(result, semantic_terms),
         added_concepts=[],
         removed_concepts=[],
         review_reasons=review_reasons,
     )
 
 
-def _semantic_units(value: str) -> list[str]:
+def _semantic_units(
+    value: str, semantic_terms: Sequence[str] = ()
+) -> list[str]:
     """Split only known synonym surfaces; retain every other substring."""
+
+    if not semantic_terms:
+        return [value]
 
     units: list[str] = []
     plain: list[str] = []
     index = 0
     while index < len(value):
         match = next(
-            (term for term in _SEMANTIC_TERMS if value.startswith(term, index)),
+            (term for term in semantic_terms if value.startswith(term, index)),
             None,
         )
         if match is None:
@@ -825,22 +787,6 @@ def _semantic_units(value: str) -> list[str]:
     if plain:
         units.append("".join(plain))
     return units or [value]
-
-
-def _terminology_tie_resolver(
-    candidates: tuple[str, ...], context: TerminologyContext | None
-) -> str | None:
-    """Resolve known equal-frequency business variants by naturalness.
-
-    The resolver receives only candidates that share the maximum frequency.
-    The choices below are explicit Korean attribute-name forms, not hidden
-    count overrides, and are therefore reproducible and reviewable.
-    """
-
-    for preferred in ("납입", "중고차요율", "차량형태", "특약요율"):
-        if preferred in candidates:
-            return preferred
-    return None
 
 
 def _deduplicate_sources(

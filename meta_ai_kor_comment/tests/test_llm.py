@@ -170,9 +170,18 @@ def test_json_parser_removes_thinking_and_code_fence() -> None:
 
 
 def _configure_model(model, client: FakeClient) -> None:
+    from app.prompts import (
+        GENERATION_SYSTEM_PROMPT,
+        REVIEW_SYSTEM_PROMPT,
+        render_system_prompt,
+    )
+
     model._client = client
     model._model = "test-model"
     model._temperature = 0
     model._top_p = 1
     model._max_tokens = 1000
     model._max_retries = 0
+    model._glossary = {}
+    model._generation_prompt = render_system_prompt(GENERATION_SYSTEM_PROMPT, {})
+    model._review_prompt = render_system_prompt(REVIEW_SYSTEM_PROMPT, {})
